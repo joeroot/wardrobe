@@ -6,7 +6,7 @@ The project as a whole has three core elements to it:
 
 1. **Syntax and semantics** which are discussed within [this](http://github.com/joeroot/wardrobe-report) report.
 
-2. **A JavaScript interpreter** whose source code can be found [here](http://github.com/joeroot/wardrobe).
+2. **A JavaScript interpreter** whose source code can be found in [this](http://github.com/joeroot/wardrobe) repositry.
 
 3. **A web-based environment** whose source code can be found [here](http://github.com/joeroot/wardrobe-frontend)
 
