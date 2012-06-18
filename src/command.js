@@ -1,18 +1,17 @@
 var path = require('path');
 var fs = require('fs');
-var wardrobe = require('./wardrobe')
 
 function parseArguments(argv) {
-  var arguments = {};
+  var parsed = {};
 
   if (argv.length >= 2) {
-    arguments.source = fs.readFileSync(argv[2], 'utf8')
+    parsed.source = fs.readFileSync(argv[2], 'utf8');
   } 
 
-  return arguments
+  return parsed;
 }
 
-exports.run = function() {
-  arguments = parseArguments(process.argv)
-  wardrobe.run(arguments.source)
+exports.command = function() {
+  parsed = parseArguments(process.argv);
+  run(parsed.source);
 };

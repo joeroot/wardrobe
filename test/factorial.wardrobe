@@ -1,4 +1,0 @@
-# Factorial for wardrobe
-function factorial(Integer: i) begin
-  return i * factorial(i - 1)
-end
