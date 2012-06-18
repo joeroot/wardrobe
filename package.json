@@ -1,0 +1,14 @@
+{
+  "name": "Wardrobe",
+  "description": "A language for learning to program.",
+  "version": "0.0.1",
+  "author": "Joe Root (http://joeroot.com/)",
+  "homepage": "http://github.com/joeroot/wardrobe",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/joeroot/wardrobe.git"
+  },
+  "bugs": {
+    "url" : "http://github.com/joeroot/wardrobe/issues"
+  }
+}

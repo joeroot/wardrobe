@@ -1,0 +1,18 @@
+Integer i = 10
+Boolean b = true
+String s  = "foo"
+
+if b do
+  print s  
+end
+
+b = false
+
+if b do
+  print s
+end
+
+while (i < 10) do
+  i = i + 1
+  print i
+end

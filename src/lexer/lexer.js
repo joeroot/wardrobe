@@ -1,5 +1,3 @@
-console.log('Succesfully required lexer');
-
 function parse(source) {
   lines = source.split("\n");
   for (i = 0; i < lines.length; i++) {
@@ -11,6 +9,6 @@ function parse(source) {
   return [];
 }
 
-exports.lexer = function(source) {
+function lexer(source) {
   console.log(parse(source));
 }
