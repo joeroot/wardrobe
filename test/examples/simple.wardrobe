@@ -1,4 +1,4 @@
-Integer i = 10
+Number n = 10.2
 Boolean b = true
 String s  = "foo"
 
@@ -11,6 +11,8 @@ b = false
 if b do
   print s
 end
+
+Number i = 1
 
 while (i < 10) do
   i = i + 1
