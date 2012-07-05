@@ -1,0 +1,17 @@
+y = 0
+
+if (10 > 5) then
+  print("true")
+  y = 10
+else
+  print("false")
+  y = 5
+end
+
+x = 1
+
+while (x < 10) do
+  x = x + 1
+end
+
+return x
