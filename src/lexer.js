@@ -66,6 +66,7 @@ function scan(source) {
       i = i + value.length;
     }
     else {
+      console.error("Unmatched: " + escape(value[0]));
       i = i + 1;
     }
   }

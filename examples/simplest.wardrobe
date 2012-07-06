@@ -8,10 +8,12 @@ else
   y = 5
 end
 
-x = 1
+x = 0
 
-while (x < 10) do
+while (x < y) do
   x = x + 1
 end
+
+x = x + 1
 
 return x

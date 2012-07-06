@@ -1,0 +1,142 @@
+function run(ast) {
+  var context = {
+    'local': {},
+    'global': {},
+    'value': null
+  }
+
+  for (i = 0; i < ast.length; i++) {
+    var node = ast[i];
+    context = eval(node, context);
+  }
+
+  return context;
+}
+
+function eval(node, context) {
+  
+  switch(node[0]) {
+  
+    case 'Block': 
+      var lines = node[1];
+      
+      for (l = 0; l < lines.length; l++) {
+        var line = lines[l];
+        context = eval(line, context);
+      }
+
+      break;
+
+    case 'Return': 
+      var expression = node[1];
+      context = eval(expression, context);
+
+      break;
+
+    case 'Assign':
+      var identifier = node[1][1];
+      var expression = node[2];
+      context = eval(expression, context);
+      context.local[identifier] = context.value;
+      break;
+
+    case 'If':
+      var conditional = node[1];
+      context = eval(conditional, context);
+      var bool = context.value;
+ 
+      if (bool != null && bool != false) {
+        var branch = node[2];
+        context = eval(branch, context); 
+      } else if (node.length == 4) {
+        var branch = node[3];
+        context = eval(branch, context);  
+      }
+      
+      break;
+
+    case 'While':
+      var conditional = node[1];
+      var block = node[2];
+      context = eval(conditional, context);
+      
+      while (context.value != null && context.value != false) {
+        context = eval(block, context);
+        context = eval(conditional, context);
+      }
+      
+      break;
+
+    case 'Call':
+      var name = node[1];
+      var params = node[2];
+      context = eval(params, context);
+      console.log("Calling [" + name + "] with params [" + params + "]");
+      break;
+
+    case 'Comp':
+      var comparator = node[1];
+      var left = node[2];
+      var right = node[3];
+
+      context = eval(left, context);
+      left = context.value;
+      context = eval(right, context);
+      right = context.value;
+
+      switch(comparator) {
+        case '<': context.value = (left < right); break;
+        case '>': context.value = (left > right); break;
+        case '<=': context.value = (left <= right); break;
+        case '>=': context.value = (left >= right); break;
+        case '==': context.value = (left == right); break;
+      }
+
+      break;
+
+    case 'Math':
+      var operator = node[1];
+      var left = node[2];
+      var right = node[3];
+
+      context = eval(left, context);
+      left = context.value;
+      context = eval(right, context);
+      right = context.value;
+
+      switch(operator) {
+        case '+': context.value = (left + right); break;
+        case '-': context.value = (left - right); break;
+        case '/': context.value = (left / right); break;
+        case '*': context.value = (left * right); break;
+      }
+
+      break;
+
+    case 'Identifier':
+      var identifier = node[1];
+      context.value = context.local[identifier];
+      break;
+
+    case 'Number':
+      context.value = node[1];
+      break;
+    
+    case 'String':
+      context.value = node[1];
+      break;
+
+  }
+ 
+  var log = {
+    'node': node,
+    'context': context
+  }
+
+  console.log(log);
+
+  return context;
+}
+
+
+module.exports.run = run;

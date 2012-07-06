@@ -3,6 +3,7 @@ var fs = require('fs');
 
 var lexer = require('./lexer');
 var parser = require('./parser').parser;
+var interpreter = require('./interpreter');
 
 function parseArguments(argv) {
   var parsed = {};
@@ -16,7 +17,9 @@ function parseArguments(argv) {
 
 function run(source) {
   var tokens = lexer.lex(source);
+  console.log('\n');
   console.log(tokens);
+  
   parser.lexer =  {
     "lex": function() {
       var token = this.tokens[this.pos] ? this.tokens[this.pos++] : ['EOF'];
@@ -32,7 +35,14 @@ function run(source) {
       return "";
     }
   };
-  console.log(parser.parse(tokens));
+
+  var ast = parser.parse(tokens);
+  console.log('\n');
+  console.log(ast);
+
+  context = interpreter.run(ast);
+  console.log('\n');
+  console.log(context);
 }
 
 commands = parseArguments(process.argv);

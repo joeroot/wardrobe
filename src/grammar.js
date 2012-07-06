@@ -66,7 +66,8 @@ var grammar = {
 
     "operation": [
       ["primary COMP primary", "$$ = ['Comp', $2, $1, $3]"],
-      ["primary MATH primary", "$$ = ['Math', $2, $1, $3]"]
+      ["primary MATH primary", "$$ = ['Math', $2, $1, $3]"],
+      ["primary LOGIC primary", "$$ = ['Logic', $2, $1, $3]"] 
     ],
 
     "call": [
