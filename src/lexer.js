@@ -78,4 +78,4 @@ function lex(source) {
   return scan(source);
 }
 
-module.exports.lex = lex;
+exports.lex = lex;

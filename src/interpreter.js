@@ -177,4 +177,4 @@ function eval(node, context) {
 }
 
 
-module.exports.run = run;
+exports.run = run;
