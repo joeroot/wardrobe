@@ -43,6 +43,7 @@ var grammar = {
       ["assign", "$$ = $1"],
       ["operation", "$$ = $1"],
       ["call", "$$ = $1"],
+      ["function", "$$ = $1"],
       ["primary", "$$ = $1"],
       ["LPAREN expression RPAREN", "$$ = $2"]
     ],
@@ -71,8 +72,18 @@ var grammar = {
     ],
 
     "call": [
-      ["identifier LPAREN primary RPAREN", "$$ = ['Call', $1, $3]"] 
-    ], 
+      ["identifier LPAREN arguments RPAREN", "$$ = ['Call', $1, $3]"] 
+    ],
+
+    "function": [
+      ["DEF identifier LPAREN arguments RPAREN block END", "$$ = ['Function', $2, $4, $6]"]
+    ],
+
+    "arguments": [
+      ["", "$$ = ['Arguments', []]"],
+      ["primary", "$$ = ['Arguments', [$1]]"],
+      ["arguments COMMA primary", "$$ = $1; $1[1].push($3);"]
+    ],
 
     "primary": [
       ["identifier", "$$ = $1"],

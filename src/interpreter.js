@@ -38,13 +38,14 @@ function eval(node, context) {
       var expression = node[2];
       context = eval(expression, context);
       context.local[identifier] = context.value;
+    
       break;
 
     case 'If':
       var conditional = node[1];
       context = eval(conditional, context);
       var bool = context.value;
- 
+      
       if (bool != null && bool != false) {
         var branch = node[2];
         context = eval(branch, context); 
@@ -67,11 +68,46 @@ function eval(node, context) {
       
       break;
 
+    case 'Function':
+      var name = node[1][1];
+      var args = node[2];
+      var block = node[3];
+      
+      context.local[name] = [args, block];
+
+      break;
+
     case 'Call':
       var name = node[1];
-      var params = node[2];
-      context = eval(params, context);
-      console.log("Calling [" + name + "] with params [" + params + "]");
+      var args = node[2][1];
+      var func = context.local[name[1]];
+
+      for (var a = 0; a < args.length; a++) {
+        var arg = args[a];
+        context = eval(arg, context);
+        args[a] = context.value;
+      }
+
+      if (name[1] == "print") { 
+        console.log(args[0]); 
+      } else if (func != null){
+        var params = func[0][1];
+        var block = func[1];
+        
+        context.global = context.local;
+        context.local = {};
+
+        for (p = 0; p < params.length; p++) {
+          params[p] = params[p][1];
+          context.local[params[p]] = args[p];
+        }
+
+        context = eval(block, context);
+        
+        context.local = context.global;
+        context.global = {};
+      }
+      
       break;
 
     case 'Comp':
@@ -83,7 +119,6 @@ function eval(node, context) {
       left = context.value;
       context = eval(right, context);
       right = context.value;
-
       switch(comparator) {
         case '<': context.value = (left < right); break;
         case '>': context.value = (left > right); break;
@@ -116,14 +151,17 @@ function eval(node, context) {
     case 'Identifier':
       var identifier = node[1];
       context.value = context.local[identifier];
+      
       break;
 
     case 'Number':
       context.value = node[1];
+      
       break;
     
     case 'String':
-      context.value = node[1];
+      context.value = node[1].slice(1, node[1].length - 1);
+      
       break;
 
   }
@@ -131,9 +169,9 @@ function eval(node, context) {
   var log = {
     'node': node,
     'context': context
-  }
+  };
 
-  console.log(log);
+  //console.log(log);
 
   return context;
 }

@@ -1,6 +1,11 @@
-y = 0
+def multiply(input, multiplier)
+  value = input * multiplier
+  return value
+end
 
-if (10 > 5) then
+y = 7
+
+z = if (y > 5) then
   print("true")
   y = 10
 else
@@ -8,6 +13,7 @@ else
   y = 5
 end
 
+y = multiply(y,2)
 x = 0
 
 while (x < y) do

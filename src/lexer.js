@@ -1,4 +1,4 @@
-var keywords = ['if', 'then', 'else', 'while', 'do', 'end', 'return', 'true', 'false'];
+var keywords = ['def', 'if', 'then', 'else', 'while', 'do', 'end', 'return', 'true', 'false'];
 var assign = ['='];
 var comparators = ['==', '>', '<', '>=', '<='];
 var logic = ['&&', 'and', '||', 'or'];
@@ -30,11 +30,12 @@ function scan(source) {
       tokens.push(["CONST", value, line]);
       i = i + value.length;
     }
-    // Parentheses
-    else if ((value = chunk.match(/\(|\)/)) && value.index == 0) {
+    // Grammatical symbols
+    else if ((value = chunk.match(/\(|\)|\,/)) && value.index == 0) {
       value = value[0];
       if (value == '(') {tokens.push(['LPAREN', value, line])}
       else if (value == ')') {tokens.push(['RPAREN', value, line])}
+      else if (value == ',') {tokens.push(['COMMA', value, line])}
       i = i + value.length;
     }
     // Operators
@@ -66,7 +67,7 @@ function scan(source) {
       i = i + value.length;
     }
     else {
-      console.error("Unmatched: " + escape(value[0]));
+      //console.error("Unmatched: " + escape(value[0]));
       i = i + 1;
     }
   }

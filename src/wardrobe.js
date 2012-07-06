@@ -17,7 +17,7 @@ function parseArguments(argv) {
 
 function run(source) {
   var tokens = lexer.lex(source);
-  console.log('\n');
+  console.log('Lexer finished, tokens: \n');
   console.log(tokens);
   
   parser.lexer =  {
@@ -37,11 +37,12 @@ function run(source) {
   };
 
   var ast = parser.parse(tokens);
-  console.log('\n');
+  console.log('\nParser finished, abstract syntax tree: \n');
   console.log(ast);
 
+  console.log("\nIntepreting code, output: \n");
   context = interpreter.run(ast);
-  console.log('\n');
+  console.log('\nIntepreter finished, final context:\n');
   console.log(context);
 }
 
