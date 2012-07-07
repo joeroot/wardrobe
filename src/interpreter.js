@@ -3,17 +3,17 @@ function run(ast) {
     'local': {},
     'global': {},
     'value': null
-  }
+  };
 
   for (i = 0; i < ast.length; i++) {
     var node = ast[i];
-    context = eval(node, context);
+    context = evaluate(node, context);
   }
 
   return context;
 }
 
-function eval(node, context) {
+function evaluate(node, context) {
   
   switch(node[0]) {
   
@@ -22,36 +22,36 @@ function eval(node, context) {
       
       for (l = 0; l < lines.length; l++) {
         var line = lines[l];
-        context = eval(line, context);
+        context = evaluate(line, context);
       }
 
       break;
 
     case 'Return': 
       var expression = node[1];
-      context = eval(expression, context);
+      context = evaluate(expression, context);
 
       break;
 
     case 'Assign':
       var identifier = node[1][1];
       var expression = node[2];
-      context = eval(expression, context);
+      context = evaluate(expression, context);
       context.local[identifier] = context.value;
     
       break;
 
     case 'If':
       var conditional = node[1];
-      context = eval(conditional, context);
+      context = evaluate(conditional, context);
       var bool = context.value;
       
-      if (bool != null && bool != false) {
+      if (bool !== null && bool !== false) {
         var branch = node[2];
-        context = eval(branch, context); 
+        context = evaluate(branch, context); 
       } else if (node.length == 4) {
         var branch = node[3];
-        context = eval(branch, context);  
+        context = evaluate(branch, context);  
       }
       
       break;
@@ -59,11 +59,11 @@ function eval(node, context) {
     case 'While':
       var conditional = node[1];
       var block = node[2];
-      context = eval(conditional, context);
+      context = evaluate(conditional, context);
       
-      while (context.value != null && context.value != false) {
-        context = eval(block, context);
-        context = eval(conditional, context);
+      while (context.value !== null && context.value !== false) {
+        context = evaluate(block, context);
+        context = evaluate(conditional, context);
       }
       
       break;
@@ -84,13 +84,13 @@ function eval(node, context) {
 
       for (var a = 0; a < args.length; a++) {
         var arg = args[a];
-        context = eval(arg, context);
+        context = evaluate(arg, context);
         args[a] = context.value;
       }
 
       if (name[1] == "print") { 
         console.log(args[0]); 
-      } else if (func != null){
+      } else if (func !== null){
         var params = func[0][1];
         var block = func[1];
         
@@ -102,7 +102,7 @@ function eval(node, context) {
           context.local[params[p]] = args[p];
         }
 
-        context = eval(block, context);
+        context = evaluate(block, context);
         
         context.local = context.global;
         context.global = {};
@@ -115,9 +115,9 @@ function eval(node, context) {
       var left = node[2];
       var right = node[3];
 
-      context = eval(left, context);
+      context = evaluate(left, context);
       left = context.value;
-      context = eval(right, context);
+      context = evaluate(right, context);
       right = context.value;
       switch(comparator) {
         case '<': context.value = (left < right); break;
@@ -134,9 +134,9 @@ function eval(node, context) {
       var left = node[2];
       var right = node[3];
 
-      context = eval(left, context);
+      context = evaluate(left, context);
       left = context.value;
-      context = eval(right, context);
+      context = evaluate(right, context);
       right = context.value;
 
       switch(operator) {

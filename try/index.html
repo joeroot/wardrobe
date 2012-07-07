@@ -9,9 +9,8 @@
     <link rel="stylesheet" type="text/css" href="/docs/css/reset.css">
     <link rel="stylesheet" type="text/css" href="/docs/css/ingrid.css">
     <link rel="stylesheet" type="text/css" href="/docs/css/blueprint.css">
-    <link rel="stylesheet" type="text/css" href="/docs/css/typography.css">
     <link rel="stylesheet" type="text/css" href="/docs/css/pastie.css">
-    <link rel="stylesheet" type="text/css" href="/docs/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/docs/css/editor.css">
 
     <script type="text/javascript" src="/lib/wardrobe.js"></script>
     
@@ -20,15 +19,17 @@
   </head>
 
   <body>
-    <div class="page">
-      <div class="ingrid in-sixths">
-        <header class="field-unit"> 
-          <h1>Wardrobe</h1>
-          <img src="docs/images/wardrobe-baynes.jpg" />
-          <h3>Wardrobe is a simple object-oriented language that can be run within the browser. Primarily aimed at teaching children and teenagers to program, the language has been built with simplicity in mind. If you're interested why not <a href="/try">give it a try</a> or <a href="/docs">check out the docs</a>.</h3>
-        </header>
-      </div>
-    </div>
+    <!--<header> 
+      <h3>Wardrobe <small>a language for leatning</small></h3>
+      </header>-->
+
+    <div id="editor">some text</div>
+    <script src="/docs/scripts/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/docs/scripts/theme-github.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/github");
+    </script>
   </body>
 
 </html>

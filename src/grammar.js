@@ -1,4 +1,4 @@
-var Parser = require('jison').Parser
+var Parser = require('jison').Parser;
 
 var grammar = {
   "startSymbol": "root",
@@ -100,7 +100,7 @@ var grammar = {
     ]
   }
 
-}
+};
 
 var parser = new Parser(grammar, {debug: true});
 
