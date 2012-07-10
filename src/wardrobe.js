@@ -31,6 +31,8 @@ function run(source) {
   context = interpreter.run(ast);
   console.log('\nIntepreter finished, final context:\n');
   console.log(context);
+  
+  return context;
 }
 
 exports.run = run;
