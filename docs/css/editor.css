@@ -1,6 +1,30 @@
+* {
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+body {
+  color:#333;
+  background:#FFF;
+  font-size:16px;
+}
+
+header {
+  padding:10px;
+  border-bottom:1px solid #DDD;
+  text-align:center;
+}
+
+header h3 {
+  margin:0px;
+  text-transform:uppercase;
+}
+
 #editor {
   position: absolute;
   width: 50%;
   height: 100%;
+  padding:2px;
   border-right:1px solid #DDD;
 }

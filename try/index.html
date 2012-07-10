@@ -6,30 +6,99 @@
     <meta name="author" content="Joe Root" />
     <title>Wardrobe</title>
 
-    <link rel="stylesheet" type="text/css" href="../docs/css/reset.css">
-    <link rel="stylesheet" type="text/css" href="../docs/css/ingrid.css">
-    <link rel="stylesheet" type="text/css" href="../docs/css/blueprint.css">
-    <link rel="stylesheet" type="text/css" href="../docs/css/pastie.css">
-    <link rel="stylesheet" type="text/css" href="../docs/css/editor.css">
+    <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <link rel="stylesheet" type="text/css" href="css/ingrid.css">
+    <link rel="stylesheet" type="text/css" href="css/blueprint.css">
+    <link rel="stylesheet" type="text/css" href="css/typography.css">
+    <link rel="stylesheet" type="text/css" href="css/layout.css">
+    <link rel="stylesheet" type="text/css" href="css/editor.css">
 
     <script type="text/javascript" src="/lib/wardrobe.js"></script>
+    <script type="text/javascript" src="scripts/jquery-1.7.2.min.js"></script>
     
     <script type="text/javascript" src="http://use.typekit.com/htb2rpi.js"></script>
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
   </head>
 
   <body>
-    <!--<header> 
-      <h3>Wardrobe <small>a language for leatning</small></h3>
-      </header>-->
+    <header>
+      <div class="ingrid in-thirds">
+        <div class="unit">
+          <a href="#" id="run">Run</a>
+        </div>
+        <div class="unit title">
+          <h3>Wardrobe</h3>
+        </div>
+        <div class="unit">
 
-    <div id="editor">some text</div>
-    <script src="../docs/scripts/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script src="../docs/scripts/theme-github.js" type="text/javascript" charset="utf-8"></script>
-    <script>
-        var editor = ace.edit("editor");
-        editor.setTheme("ace/theme/github");
-    </script>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <div id="editor">def multiply(input, multiplier)
+  value = input * multiplier
+  return value
+end
+
+y = 7
+
+z = if (y > 5) then
+  print("true")
+  y = 10
+else
+  print("false")
+  y = 5
+end
+
+y = multiply(y,2)
+x = 0
+
+while (x < y) do
+  x = x + 1
+end
+
+x = x + 1
+
+return x 
+      </div>
+      <script src="scripts/ace.js" type="text/javascript" charset="utf-8"></script>
+      <script src="scripts/theme-github.js" type="text/javascript" charset="utf-8"></script>
+      <script src="scripts/mode-ruby.js" type="text/javascript" charset="utf-8"></script>
+      <script>
+       var editor = ace.edit("editor");
+       editor.setTheme("ace/theme/tomorrow");
+       var RubyMode = require("ace/mode/ruby").Mode;
+       editor.getSession().setMode(new RubyMode());
+       editor.setShowPrintMargin(false);
+
+       (function($) {
+         $.fn.blinky = function() {
+           var that = this;
+           function go() {
+             $(that).toggle();
+             setTimeout(go, 800); 
+           };
+           go();
+         };
+       })(jQuery);
+    
+       $(document).ready(function(){
+         $('.flash').blinky();
+         $('#run').click(function(){
+           var context = Wardrobe.run(editor.getValue());
+           $('#console pre emph.flash').before('<emph class="result">=> ' + context.value + '</emph>\n');
+           return false;       
+         });
+       });
+ 
+     </script>
+
+    <div id="console">
+      <pre>Welcome to Wadrobe (alpha)!
+<emph class="flash">▌</emph></pre>
+    </div>
+
   </body>
 
 </html>

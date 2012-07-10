@@ -1,0 +1,36 @@
+#editor {
+  font:14px "inconsolata";
+  line-height:18px;
+  width: 50%;
+  height: 95%;
+  border-right:1px solid #DDD;
+}
+
+#console {
+  margin-left:50%;
+  height: 95%;
+  padding:0px 0px;
+}
+
+.ace_gutter {
+  background:#FAFAFA;
+  color:#888;
+}
+
+#console emph.flash {
+  font-weight:normal;
+  text-decoration:blink;
+  color:#555;
+}
+
+#console emph.result {
+  color:#388853;
+}
+
+#console pre {
+  font:14px "inconsolata";
+  line-height:18px;
+  margin:0px;
+  padding:0px 5px;
+  margin-bottom:2px;
+}

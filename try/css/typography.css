@@ -1,0 +1,23 @@
+body {
+  font-family: "minion-pro";
+  font-size:16px;
+}
+
+header h1 {
+  text-transform:uppercase;
+}
+
+header h3 {
+  line-height:1.5em;
+}
+  
+pre,code,tt {
+  font-family:'inconsolata';
+}
+
+code {
+  border-radius:2px;
+  background:#F5F5FF;
+  color:#000;
+  border:1px solid #BBC8D1;
+}
