@@ -52,4 +52,5 @@ header a#run:hover {
   position:relative;
   top:4px;
   box-shadow:none;
+  box-shadow: 0 -1px 0 #2182AA;
 }

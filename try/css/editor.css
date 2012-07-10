@@ -10,6 +10,7 @@
   margin-left:50%;
   height: 95%;
   padding:0px 0px;
+  overflow:scroll;
 }
 
 .ace_gutter {
