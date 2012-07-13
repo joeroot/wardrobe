@@ -1,0 +1,36 @@
+class Person
+  def init(name, age)
+    self.n = name
+    self.a = age
+  end
+
+  def set_name(name)
+    self.n = name
+  end
+end
+
+def multiply(input, multiplier)
+  value = input * multiplier
+  return value
+end
+
+y = 7
+
+z = if (y > 5) then
+  print("true")
+  y = 10
+else
+  print("false")
+  y = 5
+end
+
+y = multiply(y,2)
+x = 0
+
+while (x < y) do
+  x = x + 1
+end
+
+x = x + 1
+
+return x

@@ -1,4 +1,4 @@
-var keywords = ['def', 'if', 'then', 'else', 'while', 'do', 'end', 'return', 'true', 'false'];
+var keywords = ['class', 'def', 'if', 'then', 'else', 'while', 'do', 'end', 'return', 'true', 'false'];
 var assign = ['='];
 var comparators = ['==', '>', '<', '>=', '<='];
 var logic = ['&&', 'and', '||', 'or'];
@@ -16,8 +16,13 @@ function scan(source) {
     var chunk = source.slice(i, source.length);
     var value = null;
     
+    if (chunk[0] == '.') {
+      value = chunk[0];
+      tokens.push(['DOT', value, line]);
+      i = i + 1;
+    }
     // Keywords and identifiers
-    if ((value = chunk.match(/[a-z]\w*/)) && value.index === 0) {
+    else if ((value = chunk.match(/[a-z]\w*/)) && value.index === 0) {
       value = value[0];
       if (logic.indexOf(value) >= 0) {tokens.push(['LOGIC', value, line]);}
       else if (keywords.indexOf(value) >= 0) {tokens.push([value.toUpperCase(), value, line]);}

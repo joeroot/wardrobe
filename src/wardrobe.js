@@ -1,4 +1,5 @@
 var lexer = require('./lexer');
+var nodes = require('./nodes').nodes;
 var parser = require('./parser').parser;
 var interpreter = require('./interpreter');
 
@@ -6,7 +7,8 @@ function run(source) {
   var tokens = lexer.lex(source);
   console.log('Lexer finished, tokens: \n');
   console.log(tokens);
-  
+
+  parser.yy = nodes; 
   parser.lexer =  {
     "lex": function() {
       var token = this.tokens[this.pos] ? this.tokens[this.pos++] : ['EOF'];
