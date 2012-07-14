@@ -1,8 +1,9 @@
-var keywords = ['class', 'def', 'if', 'then', 'else', 'while', 'do', 'end', 'return', 'true', 'false'];
+var keywords = ['this', 'class', 'def', 'if', 'then', 'else', 'while', 'do', 'end', 'return', 'true', 'false'];
 var assign = ['='];
+var operator = ['+', '-'];
 var comparators = ['==', '>', '<', '>=', '<='];
 var logic = ['&&', 'and', '||', 'or'];
-var math = ['+', '-', '/', '*'];
+var math = ['/', '*'];
 
 
 function scan(source) {
@@ -47,6 +48,7 @@ function scan(source) {
     else if ((value = chunk.match(/\=|>\=|<\=|>|<|\=\=|&&|\|\||\+|\-|\/|\*/)) && value.index === 0) {
       value = value[0];
       if (assign.indexOf(value) >= 0) {tokens.push(['ASSIGN', value, line]);}
+      if (operator.indexOf(value) >= 0) {tokens.push([value, value, line]);}
       else if (logic.indexOf(value) >= 0) {tokens.push(['LOGIC', value, line]);}
       else if (math.indexOf(value) >= 0) {tokens.push(['MATH', value, line]);}
       else if (comparators.indexOf(value) >= 0) {tokens.push(['COMP', value, line]);}

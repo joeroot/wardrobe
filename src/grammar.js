@@ -4,7 +4,13 @@ var grammar = {
   "startSymbol": "root",
   
   "operators": [
-
+    ["left", "DOT"],
+    ["right", "ASSIGN"],
+    ["left", "MATH"],
+    ["left", "+", "-"],
+    ["left", "COMP"],
+    ["left", "LOGIC"],
+    ["right", "FOR", "WHILE"]
   ],
 
   "bnf": {
@@ -67,13 +73,15 @@ var grammar = {
     ],
 
     "operation": [
-      ["primary COMP primary", "$$ = new yy.Operator($2, $1, $3);"],
-      ["primary MATH primary", "$$ = new yy.Operator($2, $1, $3);"],
-      ["primary LOGIC primary", "$$ = new yy.Operator($2, $1, $3);"] 
+      ["expression + expression", "$$ = new yy.Operator($2, $1, $3);"],
+      ["expression - expression", "$$ = new yy.Operator($2, $1, $3);"],
+      ["expression COMP expression", "$$ = new yy.Operator($2, $1, $3);"],
+      ["expression MATH expression", "$$ = new yy.Operator($2, $1, $3);"],
+      ["expression LOGIC expression", "$$ = new yy.Operator($2, $1, $3);"] 
     ],
 
     "call": [
-      //["expression DOT identifier LPAREN arguments RPAREN", "$$ = new yy.Call($3, $1, $5);"],
+      ["expression DOT identifier LPAREN arguments RPAREN", "$$ = new yy.Call($3, $1, $5);"],
       ["identifier LPAREN arguments RPAREN", "$$ = new yy.Call($1, null, $3);"] 
     ],
 
@@ -96,8 +104,9 @@ var grammar = {
       ["literal", "$$ = $1;"]
     ],
 
-    "identifier": [
-      ["IDENT", "$$ = new yy.Identifier($1);"]
+   "identifier": [
+      ["IDENT", "$$ = new yy.Identifier($1, 'local');"],
+      ["THIS DOT IDENT", "$$ = new yy.Identifier($3, 'this');"]
     ],
 
     "literal": [

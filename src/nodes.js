@@ -27,7 +27,14 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       context = this.expression.evaluate(context);
-      context.locals[this.identifier.name] = context.value;
+      switch (this.identifier.scope) {
+        case 'local': 
+          context.locals[this.identifier.name] = context.value;
+          break;
+        case 'this':
+          context.classes[context.current_class].locals[this.identifier.name] = context.value;
+          break;
+      }
       return context;
     }
   },
@@ -141,11 +148,19 @@ exports.nodes = {
     };
   },
 
-  Identifier: function(name) {
+  Identifier: function(name, scope) {
     this.name = name;
+    this.scope = scope;
 
     this.evaluate = function(context) {
-      context.value = context.locals[this.name];
+      switch (this.scope) {
+        case 'local':
+          context.value = context.locals[this.name];
+          break;
+        case 'this':
+          context.value = context.classes[context.current_class].locals[this.name];
+          break;
+      };
       return context;
     };
   },

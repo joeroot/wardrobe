@@ -1,11 +1,11 @@
 class Person
   def init(name, age)
-    self.n = name
-    self.a = age
+    this.n = name
+    this.a = age
   end
 
   def set_name(name)
-    self.n = name
+    this.n = name
   end
 end
 
