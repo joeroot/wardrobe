@@ -1,8 +1,8 @@
 exports.nodes = {
-  
+
   Block: function(lines) {
     this.lines = lines;
-    
+
     this.evaluate = function(context) {
       for (var l = 0; l < lines.length; l++) {
         var line = this.lines[l];
@@ -12,9 +12,17 @@ exports.nodes = {
     };
   },
 
+  Comment: function(comment) {
+    this.comment = comment;
+
+    this.evaluate = function(context) {
+      return context;
+    };
+  },
+
   Return: function(expression) {
     this.expression = expression;
-    
+
     this.evaluate = function(context) {
       context = this.expression.evaluate(context);
       return context;
@@ -28,22 +36,22 @@ exports.nodes = {
     this.evaluate = function(context) {
       context = this.expression.evaluate(context);
       switch (this.identifier.scope) {
-        case 'local': 
-          context.locals[this.identifier.name] = context.value;
-          break;
         case 'this':
           context.classes[context.current_class].locals[this.identifier.name] = context.value;
-          break;
+        break;
+        default: 
+          context.locals[this.identifier.name] = context.value;
+        break;
       }
       return context;
-    }
+    };
   },
 
   If: function(conditional, true_branch, false_branch) {
     this.conditional = conditional;
     this.true_branch = true_branch;
     this.false_branch = false_branch;
-  
+
     this.evaluate = function(context) {
       context = this.conditional.evaluate(context);
       if (context.value !== null && context.value !== false) {
@@ -52,7 +60,7 @@ exports.nodes = {
         context = this.false_branch.evaluate(context);
       }
       return context;
-    }
+    };
   },
 
   While: function(conditional, block) {
@@ -66,10 +74,11 @@ exports.nodes = {
         context = this.conditional.evaluate(context);
       }
       return context;
-    }
+    };
   },
 
   Function: function(identifier, params, block) {
+    this.type = 'Function';
     this.identifier = identifier;
     this.params = params;
     this.block = block;
@@ -80,15 +89,15 @@ exports.nodes = {
       func.type = 'WardrobeFunction';
       func.params = this.params;
       func.block = this.block;
-      
+
       if (context.current_class !== null) {
         context.classes[context.current_class].locals[func.name] = func;
       } else {
         context.locals[func.name] = func;
       }
-      
+
       return context; 
-    }
+    };
   },
 
   // TODO: Call: decide how to handle local/global variables
@@ -107,17 +116,21 @@ exports.nodes = {
         context = arg.evaluate(context);
         args[a] = context.value;
       }
-      
+
       if (this.identifier.name == "print" && this.target === null) {
-        console.log(args);
+        if (typeof(wardrobe_in_browser) !== 'undefined') {
+          logToConsole(args);
+        } else {
+          console.log(args);
+        }
       } else if (func !== null) {
         for (var p = 0; p < func.params.length; p++) {
           context.locals[func.params[p].name] = args[p]; 
         }
         context = func.block.evaluate(context);
       }
-    
-      return context
+
+      return context;
     };
   },
 
@@ -142,6 +155,7 @@ exports.nodes = {
         case '-': context.value = (left - right); break;
         case '/': context.value = (left / right); break;
         case '*': context.value = (left * right); break;
+        default: break;
       }
 
       return context;
@@ -154,13 +168,13 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       switch (this.scope) {
-        case 'local':
-          context.value = context.locals[this.name];
-          break;
         case 'this':
           context.value = context.classes[context.current_class].locals[this.name];
-          break;
-      };
+        break;
+        default:
+          context.value = context.locals[this.name];
+        break;
+      }
       return context;
     };
   },
@@ -188,33 +202,34 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       return context;
-    }
+    };
   },
-  
+
   Class: function(constant, block) {
+    this.type = 'Class';
     this.name = constant.name;
     this.block = block;
 
     this.evaluate = function(context) {
       var cls = {};
       cls.name = this.name;
-      cls.type = 'WardrobeFunction';
+      cls.type = 'WardrobeClass';
       cls.block = this.block;
       cls.locals = {};
 
       var prior_class = context.current_class;
       context.classes[cls.name] = cls;
-      
+
       context.current_class = cls.name;
       context = block.evaluate(context);
       context.current_class = prior_class;
 
 
       return context;
-    }
+    };
   }
 
-}
+};
 
 
 //function evaluateClass(node, context) {

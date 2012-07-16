@@ -2,7 +2,7 @@ var Parser = require('jison').Parser;
 
 var grammar = {
   "startSymbol": "root",
-  
+
   "operators": [
     ["left", "DOT"],
     ["right", "ASSIGN"],
@@ -33,8 +33,9 @@ var grammar = {
       ["statement", "$$ = $1;"],
       ["expression", "$$ = $1;"]
     ],
-    
+
     "statement": [
+      ["COMMENT", "$$ = new yy.Comment($1);"],
       ["RETURN primary", "$$ = new yy.Return($2);"]
     ],
 
@@ -80,17 +81,19 @@ var grammar = {
       ["expression LOGIC expression", "$$ = new yy.Operator($2, $1, $3);"] 
     ],
 
+    "function": [
+      ["DEF identifier LPAREN params RPAREN block END", "$$ = new yy.Function($2, $4, $6);"]
+    ],
+
+    "params": [
+      ["", "$$ = [];"],
+      ["identifier", "$$ = [$1];"],
+      ["params COMMA identifier", "$$ = $1; $1.push($3);"]
+    ],
+
     "call": [
       ["expression DOT identifier LPAREN arguments RPAREN", "$$ = new yy.Call($3, $1, $5);"],
       ["identifier LPAREN arguments RPAREN", "$$ = new yy.Call($1, null, $3);"] 
-    ],
-
-    "function": [
-      ["DEF identifier LPAREN arguments RPAREN block END", "$$ = new yy.Function($2, $4, $6);"]
-    ],
-
-    "class": [
-      ["CLASS constant block END", "$$ = new yy.Class($2, $3);"]
     ],
 
     "arguments": [
@@ -104,7 +107,7 @@ var grammar = {
       ["literal", "$$ = $1;"]
     ],
 
-   "identifier": [
+    "identifier": [
       ["IDENT", "$$ = new yy.Identifier($1, 'local');"],
       ["THIS DOT IDENT", "$$ = new yy.Identifier($3, 'this');"]
     ],
@@ -115,8 +118,13 @@ var grammar = {
     ],
 
     "constant": [
-      ["CONST", "$$ = new yy.Const($1)"]
+      ["CONST", "$$ = new yy.Const($1);"]
+    ],
+
+    "class": [
+      ["CLASS constant block END", "$$ = new yy.Class($2, $3);"]
     ]
+
   }
 
 };

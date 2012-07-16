@@ -27,7 +27,7 @@ function run(source) {
 
   var ast = parser.parse(tokens);
   console.log('\nParser finished, abstract syntax tree: \n');
-  console.log(JSON.stringify(ast,null,2));
+  console.log(ast);
 
   console.log("\nIntepreting code, output: \n");
   context = interpreter.run(ast);

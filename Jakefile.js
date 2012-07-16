@@ -2,9 +2,9 @@ var fs = require('fs');
 
 desc('Builds Wardrobe for the browser.');
 task('browser', function (params) {
-  var files = ['lexer', 'parser', 'interpreter', 'wardrobe'];
-  var src = '';
- 
+  var files = ['lexer', 'nodes', 'parser', 'interpreter', 'wardrobe'];
+  var src = fs.readFileSync("src/browser.js");
+  
   src = src + "(function(root) {\n"
   src = src + "  var Wardrobe = function() {\n"
   src = src + "    function require(path){ return require[path]; }"

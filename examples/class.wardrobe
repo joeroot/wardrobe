@@ -1,21 +1,8 @@
-class Person
-  def init(name, age)
-    this.n = name
-    this.a = age
-  end
-
-  def set_name(name)
-    this.n = name
-  end
-end
-
-def multiply(input, multiplier)
-  value = input * multiplier
-  return value
-end
-
 y = 7
 
+# When evaluating a statement, the last value evaluated is returned
+# In this case 'y = 10' or 'y = 5' will be the last value, thus z
+# becomes one of those two values.
 z = if (y > 5) then
   print("true")
   y = 10
@@ -27,10 +14,26 @@ end
 y = multiply(y,2)
 x = 0
 
+# Functions and classes can be defined anywhere in the program
+def multiply(input, multiplier)
+  value = input * multiplier
+  return value
+end
+
 while (x < y) do
   x = x + 1
 end
 
 x = x + 1
 
-return x
+class Person
+  def init(name, age)
+    this.n = name
+    this.a = age
+  end
+
+  def set_name(name)
+    this.n = name
+  end
+end
+

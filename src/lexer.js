@@ -22,6 +22,12 @@ function scan(source) {
       tokens.push(['DOT', value, line]);
       i = i + 1;
     }
+    // Comments
+    else if ((value = chunk.match(/#[^(\n|\r)]*/)) && value.index=== 0) {
+      value = value[0]; 
+      tokens.push(["COMMENT", value, line]);
+      i = i + value.length;
+    }
     // Keywords and identifiers
     else if ((value = chunk.match(/[a-z]\w*/)) && value.index === 0) {
       value = value[0];

@@ -1,0 +1,42 @@
+<!DOCTYPE html>  <html> <head>   <title>wardrobe.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="cli.html">                 cli.js               </a>                                           <a class="source" href="grammar.html">                 grammar.js               </a>                                           <a class="source" href="interpreter.html">                 interpreter.js               </a>                                           <a class="source" href="lexer.html">                 lexer.js               </a>                                           <a class="source" href="nodes.html">                 nodes.js               </a>                                           <a class="source" href="parser.html">                 parser.js               </a>                                           <a class="source" href="wardrobe.html">                 wardrobe.js               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               wardrobe.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">lexer</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./lexer&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">nodes</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./nodes&#39;</span><span class="p">).</span><span class="nx">nodes</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">parser</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./parser&#39;</span><span class="p">).</span><span class="nx">parser</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">interpreter</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./interpreter&#39;</span><span class="p">);</span>
+
+<span class="kd">function</span> <span class="nx">run</span><span class="p">(</span><span class="nx">source</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">tokens</span> <span class="o">=</span> <span class="nx">lexer</span><span class="p">.</span><span class="nx">lex</span><span class="p">(</span><span class="nx">source</span><span class="p">);</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Lexer finished, tokens: \n&#39;</span><span class="p">);</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">tokens</span><span class="p">);</span>
+
+  <span class="nx">parser</span><span class="p">.</span><span class="nx">yy</span> <span class="o">=</span> <span class="nx">nodes</span><span class="p">;</span> 
+  <span class="nx">parser</span><span class="p">.</span><span class="nx">lexer</span> <span class="o">=</span>  <span class="p">{</span>
+    <span class="s2">&quot;lex&quot;</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">token</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">tokens</span><span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">pos</span><span class="p">]</span> <span class="o">?</span> <span class="k">this</span><span class="p">.</span><span class="nx">tokens</span><span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">pos</span><span class="o">++</span><span class="p">]</span> <span class="o">:</span> <span class="p">[</span><span class="s1">&#39;EOF&#39;</span><span class="p">];</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">yytext</span> <span class="o">=</span> <span class="nx">token</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">yylineno</span> <span class="o">=</span> <span class="nx">token</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+      <span class="k">return</span> <span class="nx">token</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;setInput&quot;</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">tokens</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">tokens</span> <span class="o">=</span> <span class="nx">tokens</span><span class="p">;</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">pos</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;upcomingInput&quot;</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+
+  <span class="kd">var</span> <span class="nx">ast</span> <span class="o">=</span> <span class="nx">parser</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">tokens</span><span class="p">);</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;\nParser finished, abstract syntax tree: \n&#39;</span><span class="p">);</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">ast</span><span class="p">,</span><span class="kc">null</span><span class="p">,</span><span class="mi">2</span><span class="p">));</span>
+
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;\nIntepreting code, output: \n&quot;</span><span class="p">);</span>
+  <span class="nx">context</span> <span class="o">=</span> <span class="nx">interpreter</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="nx">ast</span><span class="p">);</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;\nIntepreter finished, final context:\n&#39;</span><span class="p">);</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">context</span><span class="p">);</span>
+  
+  <span class="k">return</span> <span class="nx">context</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nx">exports</span><span class="p">.</span><span class="nx">run</span> <span class="o">=</span> <span class="nx">run</span><span class="p">;</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

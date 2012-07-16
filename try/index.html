@@ -21,6 +21,11 @@
   </head>
 
   <body>
+    
+    <div id="error_container"><div id="error">
+      <pre>Uh-oh, looks like there might be an error in the code! </pre>
+    </div></div>
+
     <header>
       <div class="ingrid in-thirds">
         <div class="unit">
@@ -36,41 +41,11 @@
     </header>
 
     <section>
-      <div id="editor">def multiply(input, multiplier)
-  value = input * multiplier
-  return value
-end
-
-y = 7
-
-z = if (y > 5) then
-  print("true")
-  y = 10
-else
-  print("false")
-  y = 5
-end
-
-y = multiply(y,2)
-x = 0
-
-while (x < y) do
-  x = x + 1
-end
-
-x = x + 1
-
-return x </div>
+      <div id="editor_container" class="container"><div id="editor"></div></div>
       <script src="scripts/ace.js" type="text/javascript" charset="utf-8"></script>
       <script src="scripts/theme-github.js" type="text/javascript" charset="utf-8"></script>
       <script src="scripts/mode-ruby.js" type="text/javascript" charset="utf-8"></script>
       <script>
-       var editor = ace.edit("editor");
-       editor.setTheme("ace/theme/tomorrow");
-       var RubyMode = require("ace/mode/ruby").Mode;
-       editor.getSession().setMode(new RubyMode());
-       editor.setShowPrintMargin(false);
-
        (function($) {
          $.fn.blinky = function() {
            var that = this;
@@ -84,20 +59,42 @@ return x </div>
     
        $(document).ready(function(){
          $('.flash').blinky();
+         
          $('#run').click(function(){
            var context = Wardrobe.run(editor.getValue());
            $('#console pre emph.flash').before('<emph class="result">=> ' + context.value + '</emph>\n');
+           $('#console').scrollTop($('#console').children().height());
            return false;       
          });
+
+         var editor = ace.edit("editor");
+         editor.setTheme("ace/theme/tomorrow");
+         var RubyMode = require("ace/mode/ruby").Mode;
+         editor.getSession().setMode(new RubyMode());
+         editor.setShowPrintMargin(false);
+
+         $.get('../examples/class.wardrobe', function(data){
+           editor.setValue(data);
+           editor.clearSelection();
+           editor.moveCursorTo(0,0);
+         });
+
+         editor.focus();
        });
- 
+
+       function print(value) {
+         $('#console pre emph.flash').before('<emph class="print">' + value + '</emph>\n');
+         $('#console').scrollTop($('#console').children().height());
+       }
+
      </script>
 
-    <div id="console">
-      <pre>Welcome to Wadrobe (alpha)!
-<emph class="flash">▌</emph></pre>
-    </div>
+    <div id="console_container" class="container"><div id="console">
+      <pre>Welcome to Wadrobe (über-alpha)!
+<emph class="flash">▌</emph> </pre>
+    </div></div>
 
+  </section>
   </body>
 
 </html>
