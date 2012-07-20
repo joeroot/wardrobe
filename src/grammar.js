@@ -4,8 +4,8 @@ var grammar = {
   "startSymbol": "root",
 
   "operators": [
-    ["left", "DOT"],
     ["right", "ASSIGN"],
+    ["left", "DOT"],
     ["left", "MATH"],
     ["left", "+", "-"],
     ["left", "COMP"],
@@ -50,6 +50,7 @@ var grammar = {
       ["assign", "$$ = $1;"],
       ["operation", "$$ = $1;"],
       ["call", "$$ = $1;"],
+      ["create", "$$ = $1;"],
       ["function", "$$ = $1;"],
       ["class", "$$ = $1;"],
       ["primary", "$$ = $1;"],
@@ -70,6 +71,8 @@ var grammar = {
     ],
 
     "assign": [
+      ["CONST identifier", "$$ = new yy.Declare($1, $2, null);"],
+      ["CONST identifier ASSIGN expression", "$$ = new yy.Declare($1, $2, $4);"],
       ["identifier ASSIGN expression", "$$ = new yy.Assign($1, $3);"]
     ],
 
@@ -94,6 +97,10 @@ var grammar = {
     "call": [
       ["expression DOT identifier LPAREN arguments RPAREN", "$$ = new yy.Call($3, $1, $5);"],
       ["identifier LPAREN arguments RPAREN", "$$ = new yy.Call($1, null, $3);"] 
+    ],
+
+    "create": [
+      ["NEW CONST LPAREN arguments RPAREN", "$$ = new yy.Create($2, $4);"]
     ],
 
     "arguments": [

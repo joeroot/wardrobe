@@ -1,20 +1,22 @@
-Number n = 10.2
-Boolean b = true
-String s  = "foo"
+class Person
+  String name
 
-if b do
-  print s  
+  def setName(name)
+    this.name = name
+  end
+
+  def getName()
+    return this.name
+  end
 end
 
-b = false
+Person p = new Person()
+p.setName("Doe")
 
-if b do
-  print s
-end
+Number n = 10.5.divide(2).multiply(3).add(4).subtract(2)
 
-Number i = 1
+String s = p.getName();
 
-while (i < 10) do
-  i = i + 1
-  print i
-end
+String f = "John"
+f = f.concat(" ").concat(s)
+f.length() + 1

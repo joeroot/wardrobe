@@ -15,5 +15,5 @@ function parseArguments(argv) {
 
 commands = parseArguments(process.argv);
 context = wardrobe.run(commands.source);
-console.log("\nFormatted context:\n");
-console.log(JSON.stringify(context,null,2));
+console.log("\nFinal value\n");
+console.log(context.value);

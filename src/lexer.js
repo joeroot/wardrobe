@@ -1,4 +1,4 @@
-var keywords = ['this', 'class', 'def', 'if', 'then', 'else', 'while', 'do', 'end', 'return', 'true', 'false'];
+var keywords = ['this', 'new', 'class', 'def', 'if', 'then', 'else', 'while', 'do', 'end', 'return', 'true', 'false'];
 var assign = ['='];
 var operator = ['+', '-'];
 var comparators = ['==', '>', '<', '>=', '<='];

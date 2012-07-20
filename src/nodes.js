@@ -1,5 +1,18 @@
+var Runtime = require('./runtime').Runtime;
+
+// # `nodes.js`
+// `nodes.js` exports a series of node constructors for the parser to intialise.
+// Each node contains an `evaluate` method which the interpreter calls when
+// evaluating the node. The `context` parameter contains the current runtimes
+// context, and can be ammended and references as needed. The `evaluate` method
+// must return a `context`.
+
 exports.nodes = {
 
+  // The `Block` node evaluates blocks of codes as defined in Wardobe's
+  // specification. The constructor takes an array of lines, whilst the
+  // evaluate method then evaluates each line within the specified context,
+  // before returning the final context.
   Block: function(lines) {
     this.lines = lines;
 
@@ -12,6 +25,8 @@ exports.nodes = {
     };
   },
 
+  // The `Comment` node does nothing. Can be used as a hook if needed in the
+  // future.
   Comment: function(comment) {
     this.comment = comment;
 
@@ -20,7 +35,13 @@ exports.nodes = {
     };
   },
 
+  // The `Return` node evaluates return statements. The expression to be
+  // returned is evaluated within the supplied context. Though not explicitly
+  // defined here, Wardrobe always places the value of the last evaluated
+  // expression in the context value field, thus no explicit context
+  // manipulation is required.
   Return: function(expression) {
+    this.type = 'Return';
     this.expression = expression;
 
     this.evaluate = function(context) {
@@ -29,24 +50,27 @@ exports.nodes = {
     };
   },
 
+  // The 'Assign` node evaluates assigments, accepting an `Identifier` and 
+  // `Expression` node in its constructor. The `evaluate` method first evaluates
+  // the context, before assigning it in the context's identifier store. Its
+  // exact storage location is based upon the identifiier's scope.
   Assign: function(identifier, expression) {
+    this.type = 'Assign';
     this.identifier = identifier;
     this.expression = expression;
 
     this.evaluate = function(context) {
       context = this.expression.evaluate(context);
-      switch (this.identifier.scope) {
-        case 'this':
-          context.classes[context.current_class].locals[this.identifier.name] = context.value;
-        break;
-        default: 
-          context.locals[this.identifier.name] = context.value;
-        break;
+      if (this.identifier.scope == 'local') {
+        context.locals[this.identifier.name].value = context.value;
+      } else {
+        context.current_object.setProperty(this.identifier.name, context.value);
       }
       return context;
     };
   },
 
+  // If
   If: function(conditional, true_branch, false_branch) {
     this.conditional = conditional;
     this.true_branch = true_branch;
@@ -84,56 +108,39 @@ exports.nodes = {
     this.block = block;
 
     this.evaluate = function(context) {
-      var func = {};
-      func.name = this.identifier.name;
-      func.type = 'WardrobeFunction';
-      func.params = this.params;
-      func.block = this.block;
-
       if (context.current_class !== null) {
-        context.classes[context.current_class].locals[func.name] = func;
-      } else {
-        context.locals[func.name] = func;
+        context.current_class.createMethod(this.identifier.name, this.params, this.block);
       }
-
       return context; 
     };
   },
 
   // TODO: Call: decide how to handle local/global variables
   // TODO: Call: add argument length error checking
-  Call: function(identifier, target, args) {
+  Call: function(identifier, receiver, args) {
+    this.type = 'Call';
     this.identifier = identifier;
-    this.target = target;
+    this.method = this.identifier.name;
+    this.receiver = receiver;
     this.args = args;
 
     this.evaluate = function(context) {
       var args = [];
-      var func = context.locals[this.identifier.name];
-
       for (var a = 0; a < this.args.length; a++) {
         var arg = this.args[a];
         context = arg.evaluate(context);
         args[a] = context.value;
       }
 
-      if (this.identifier.name == "print" && this.target === null) {
-        if (typeof(wardrobe_in_browser) !== 'undefined') {
-          logToConsole(args);
-        } else {
-          console.log(args);
-        }
-      } else if (func !== null) {
-        for (var p = 0; p < func.params.length; p++) {
-          context.locals[func.params[p].name] = args[p]; 
-        }
-        context = func.block.evaluate(context);
-      }
+      context = receiver.evaluate(context);
+      receiver = context.value;
 
+      context = receiver.call(context, this.method, args); 
       return context;
     };
   },
 
+  // TODO: add lazy evaluation on operators, particularly booleans    
   Operator: function(operator, left, right) {
     this.operator = operator;
     this.left = left;
@@ -151,10 +158,10 @@ exports.nodes = {
         case '<=': context.value = (left <= right); break;
         case '>=': context.value = (left >= right); break;
         case '==': context.value = (left == right); break;
-        case '+': context.value = (left + right); break;
-        case '-': context.value = (left - right); break;
-        case '/': context.value = (left / right); break;
-        case '*': context.value = (left * right); break;
+        case '+': context = left.call(context, 'add', [right]); break;
+        case '-': context = left.call(context, 'subtract', [right]); break;
+        case '/': context = left.call(context, 'divide', [right]); break;
+        case '*': context = left.call(context, 'multiply', [right]); break;
         default: break;
       }
 
@@ -167,23 +174,31 @@ exports.nodes = {
     this.scope = scope;
 
     this.evaluate = function(context) {
-      switch (this.scope) {
-        case 'this':
-          context.value = context.classes[context.current_class].locals[this.name];
-        break;
-        default:
-          context.value = context.locals[this.name];
-        break;
+      if (this.scope == 'local') {
+        context.value = context.locals[this.name].value;
+      } else {
+        console.log("GET CURRENT OBJECT PROPERTY");
+        context.value = context.current_object.getProperty(this.name).value;
       }
       return context;
     };
   },
 
+//  Property: function(expression, property) {
+//    this.expression = expression;
+//    this.property = property;
+//
+//   this.evaluate = function(context) {
+//      context = this.expression.evaluate(context);
+//      context.value = context.value.property(this.property);
+//    };
+//  },
+
   Number: function(value) {
     this.value = value;
 
     this.evaluate = function(context) {
-      context.value = this.value;
+      context.value = Runtime.getClass('Number').new_object(this.value);
       return context;
     };
   },
@@ -192,7 +207,7 @@ exports.nodes = {
     this.value = value.slice(1, value.length - 1);
 
     this.evaluate = function(context) {
-      context.value = this.value;
+      context.value = Runtime.getClass('String').new_object(this.value);
       return context;
     };
   },
@@ -211,20 +226,46 @@ exports.nodes = {
     this.block = block;
 
     this.evaluate = function(context) {
-      var cls = {};
-      cls.name = this.name;
-      cls.type = 'WardrobeClass';
-      cls.block = this.block;
-      cls.locals = {};
-
-      var prior_class = context.current_class;
-      context.classes[cls.name] = cls;
-
-      context.current_class = cls.name;
-      context = block.evaluate(context);
+      var cls = Runtime.createClass(this.name, {}, {});
+      prior_class = context.current_class;
+      context.current_class = cls;
+      context = this.block.evaluate(context);
       context.current_class = prior_class;
+      return context;
+    };
+  },
 
+  Declare: function(cls, identifier, expression) {
+    this.type = 'Declare';
+    this.cls = cls; 
+    this.identifier = identifier;
+    this.expression = expression;
 
+    this.evaluate = function(context) {
+      if (this.expression === null) {
+        context.value = null;
+      } else {
+        context = this.expression.evaluate(context);
+      }
+      
+      cls = Runtime.getClass(this.cls);
+
+      if (context.current_class !== null) {
+        context.current_class.addProperty(cls, this.identifier.name, context.value);
+      } else {
+        context.locals[this.identifier.name] = {cls: cls, name: this.identifier.name, value: context.value};
+      }
+      
+      return context;
+    };
+  },
+
+  Create: function(cls, arguments) {
+    this.cls = cls;
+    this.arguments = arguments;
+
+    this.evaluate = function(context) {
+      context.value = Runtime.getClass(this.cls).new_object(arguments);
       return context;
     };
   }

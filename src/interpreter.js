@@ -3,9 +3,13 @@ function run(ast) {
 
   ast = setLoadStructure(ast);
 
-  for (i = 0; i < ast.length; i++) {
-    var node = ast[i];
-    context = node.evaluate(context);
+  try {
+    for (i = 0; i < ast.length; i++) {
+      var node = ast[i];
+      context = node.evaluate(context);
+    }
+  } catch(error) {
+    
   }
 
   return context;
@@ -14,8 +18,6 @@ function run(ast) {
 function emptyContext() {
   return {
     locals: {},
-    globals: {},
-    classes: {},
     current_class: null,
     current_object: null,
     value: null

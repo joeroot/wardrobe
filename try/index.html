@@ -61,7 +61,7 @@
          $('.flash').blinky();
          
          $('#run').click(function(){
-           var context = Wardrobe.run(editor.getValue());
+           var context = Wardrobe.run(editor.getValue()).value;
            $('#console pre emph.flash').before('<emph class="result">=> ' + context.value + '</emph>\n');
            $('#console').scrollTop($('#console').children().height());
            return false;       
@@ -73,7 +73,7 @@
          editor.getSession().setMode(new RubyMode());
          editor.setShowPrintMargin(false);
 
-         $.get('../examples/class.wardrobe', function(data){
+         $.get('../examples/simple.wardrobe', function(data){
            editor.setValue(data);
            editor.clearSelection();
            editor.moveCursorTo(0,0);
@@ -83,7 +83,7 @@
        });
 
        function print(value) {
-         $('#console pre emph.flash').before('<emph class="print">' + value + '</emph>\n');
+         $('#console pre emph.flash').before("<emph class='print'>" + value + "</emph>\n");
          $('#console').scrollTop($('#console').children().height());
        }
 
