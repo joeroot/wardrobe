@@ -78,7 +78,7 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       context = this.conditional.evaluate(context);
-      if (context.value !== null && context.value !== false) {
+      if (context.value !== null && context.value !== Runtime.getGlobal('false').value) {
         context = this.true_branch.evaluate(context);
       } else if (false_branch !== null) {
         context = this.false_branch.evaluate(context);
@@ -93,7 +93,7 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       context = this.conditional.evaluate(context);
-      while (context.value !== null && context.value !== false) {
+      while (context.value !== null && context.value !== Runtime.getGlobal('false').value) {
         context = this.block.evaluate(context);
         context = this.conditional.evaluate(context);
       }
@@ -152,7 +152,11 @@ exports.nodes = {
       context = this.right.evaluate(context);
       var right = context.value;
 
+      console.log(left);
+      console.log(right);
       switch(this.operator) {
+        case 'and': context = left.call(context, 'and', [right]); break;
+        case 'or': context = left.call(context, 'or', [right]); break;
         case '<': context.value = (left < right); break;
         case '>': context.value = (left > right); break;
         case '<=': context.value = (left <= right); break;
@@ -177,7 +181,6 @@ exports.nodes = {
       if (this.scope == 'local') {
         context.value = context.locals[this.name].value;
       } else {
-        console.log("GET CURRENT OBJECT PROPERTY");
         context.value = context.current_object.getProperty(this.name).value;
       }
       return context;
@@ -208,6 +211,42 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       context.value = Runtime.getClass('String').new_object(this.value);
+      return context;
+    };
+  },
+  
+  True: function(value) {
+    this.value = value;
+
+    this.evaluate = function(context) {
+      context.value = Runtime.getGlobal('true').value;
+      return context;
+    };
+  },
+
+  False: function(value) {
+    this.value = value;
+
+    this.evaluate = function(context) {
+      context.value = Runtime.getGlobal('false').value;
+      return context;
+    };
+  },
+
+  List: function(items) {
+    this.items = items;
+
+    this.evaluate = function(context) {
+      var list = [];
+      
+      for (var i = 0; i < this.items.length; i++) {
+        var item = this.items[i];
+        context = item.evaluate(context);
+        list.push(context.value);
+      }
+
+      context.value = Runtime.getClass('List').new_object(list);
+
       return context;
     };
   },
@@ -269,17 +308,4 @@ exports.nodes = {
       return context;
     };
   }
-
 };
-
-
-//function evaluateClass(node, context) {
-//  var name = node[1][1];
-//  var definition= node[2];
-//
-//  var cls = evaluate(definition, emptyContext());
-//  context.classes[name] = {};
-//  context.classes[name]['fn'] = cls['fn'];
-//  context.classes[name]['locals'] = cls['local'];
-//
-//  return context;

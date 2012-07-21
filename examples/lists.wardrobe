@@ -1,0 +1,6 @@
+List x = [4,3,2,5]
+x.pop()
+x.push(6)
+x.reverse()
+x.concat([8,10])
+x.get(5)

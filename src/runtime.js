@@ -28,7 +28,13 @@ WardrobeObject.prototype.getProperty = function(property) {
 };
 
 WardrobeObject.prototype.toString = function() {
-  var str= '<' + this.cls.name + ':' + this.value + '>';
+  var str = '<' + this.cls.name + ': ';
+  if (this.value != this) {
+    str += this.value;
+  } else {
+    str += this.properties;
+  }
+  str += '>';
   return str;
 };
 
@@ -192,19 +198,29 @@ WardrobeNumber.prototype.new_object = function(argument) {
   return new WardrobeObject(this, argument);
 };
 
-WardrobeTrue.prototype = new WardrobeClass();
-WardrobeTrue.prototype.constructor = WardrobeTrue;
-function WardrobeTrue() {
+WardrobeBoolean.prototype = new WardrobeClass();
+WardrobeBoolean.prototype.constructor = WardrobeBoolean;
+function WardrobeBoolean() {
   this.cls = Runtime.getClass('Class');
   this.value = this;
 
-  this.name = 'True';
+  this.name = 'Boolean';
+  this.methods = {};
+}
+
+WardrobeTrue.prototype = new WardrobeClass();
+WardrobeTrue.prototype.constructor = WardrobeTrue;
+function WardrobeTrue() {
+  this.cls = Runtime.getClass('Boolean');
+  this.value = this;
+
+  this.name = 'TrueBoolean';
   this.methods = {
     and: new WardrobeMethod(
       'and',
       [{name: 'right'}],
       {evaluate: function(context) {
-        var right = context.locals['right'];
+        var right = context.locals['right'].value;
         context.value = right;
         return context;
       }}
@@ -213,8 +229,7 @@ function WardrobeTrue() {
       'or',
       [{name: 'right'}],
       {evaluate: function(context) {
-        var receiver = context.current_object;
-        context.value = receiver;
+        context.value = Runtime.getGlobal('true').value;
         return context;
       }}
     )
@@ -228,17 +243,16 @@ WardrobeTrue.prototype.new_object = function() {
 WardrobeFalse.prototype = new WardrobeClass();
 WardrobeFalse.prototype.constructor = WardrobeFalse;
 function WardrobeFalse() {
-  this.cls = Runtime.getClass('Class');
+  this.cls = Runtime.getClass('Boolean');
   this.value = this;
 
-  this.name = 'False';
+  this.name = 'FalseBoolean';
   this.methods = {
     and: new WardrobeMethod(
       'and',
       [{name: 'right'}],
       {evaluate: function(context) {
-        var receiver = context.current_object;
-        context.value = receiver;
+        context.value = Runtime.getGlobal('false').value;
         return context;
       }}
     ),
@@ -246,7 +260,7 @@ function WardrobeFalse() {
       'or',
       [{name: 'right'}],
       {evaluate: function(context, receiver, arguments) {
-        var right = context.locals['right'];
+        var right = context.locals['right'].value;
         context.value = right;
         return context;
       }}
@@ -258,11 +272,95 @@ WardrobeFalse.prototype.new_object = function() {
   return new WardrobeObject(this, false);
 };
 
+WardrobeList.prototype = new WardrobeClass();
+WardrobeList.prototype.constructor = WardrobeList;
+function WardrobeList() {
+  this.cls = Runtime.getClass('Class');
+  this.value = this;
+
+  this.name = 'List';
+  this.methods = {
+    length: new WardrobeMethod(
+      'length',
+      [],
+      {evaluate: function(context) {
+        var receiver = context.current_object;
+        context.value = Runtime.getClass('Number').new_object(receiver.value.length);
+        return context;
+      }}
+    ),
+    reverse: new WardrobeMethod(
+      'reverse',
+      [],
+      {evaluate: function(context) {
+        context.current_object.value.reverse(); 
+        context.value = context.current_object;
+        return context;
+      }}
+    ),
+    concat: new WardrobeMethod(
+      'concat',
+      [{name: 'right'}],
+      {evaluate: function(context) {
+        var right = context.locals['right'].value;
+        var concat = context.current_object.value.concat(right.value);
+        context.current_object.value = concat;
+        return context;
+      }}
+    ),
+    pop: new WardrobeMethod(
+      'pop',
+      [],
+      {evaluate: function(context) {
+        var item = context.current_object.value.pop();
+        context.value = item;
+        return context;
+      }}
+    ),
+    push: new WardrobeMethod(
+      'push',
+      [{name: 'item'}],
+      {evaluate: function(context) {
+        var item = context.locals['item'].value;
+        context.current_object.value.push(item);
+        context.value = item;
+        return context;
+      }}
+    ),
+    get: new WardrobeMethod(
+      'get',
+      [{name: 'index'}],
+      {evaluate: function(context) {
+        var index = context.locals['index'].value;
+        context.value = context.current_object.value[index.value];
+        return context;
+      }}
+    ),
+    index: new WardrobeMethod(
+      'indexOf',
+      [{name: 'item'}],
+      {evaluate: function(context) {
+        var item = context.locals['item'].value;
+        console.log(context.current_object.value);
+        console.log(item);
+        var index = context.current_object.value.indexOf(item);
+        context.value = Runtime.getClass('Number').new_object(index);
+        return context;
+      }}
+    )
+  };
+}
+
+WardrobeList.prototype.new_object = function(list) {
+  return new WardrobeObject(this, list);
+};
+
 WardrobeRuntime = function(obj, cls, locals, classes) { 
   this.obj = obj;
   this.cls = cls;
   this.locals = {};
   this.classes = {};
+  this.globals = {};
 
   this.setCurrentObject = function(obj) {
     this.obj = obj;
@@ -278,13 +376,22 @@ WardrobeRuntime = function(obj, cls, locals, classes) {
     return this.cls;
   };
 
-  this.addLocal = function(name, local) {
-    this.locals[name] = local;
+  this.addLocal = function(name, value) {
+    this.locals[name] = {cls: value.cls, name: name, value: value};
     return this.locals[name];
   };
 
   this.getLocal = function(name) {
     return this.locals[name];
+  };
+
+  this.addGlobal= function(name, value) {
+    this.globals[name] = {cls: value.cls, name: name, value: value};
+    return this.globals[name];
+  };
+
+  this.getGlobal = function(name) {
+    return this.globals[name];
   };
 
   this.addClass = function(name, cls) {
@@ -313,8 +420,12 @@ Runtime.addClass('Object', new WardrobeClass('Object', {}, {}));
 Runtime.addClass('Method', new WardrobeClass('Method', {}, {}));
 Runtime.addClass('String', new WardrobeString());
 Runtime.addClass('Number', new WardrobeNumber());
-Runtime.addClass('List', new WardrobeClass('List', {}, {}));
-Runtime.addClass('True', new WardrobeClass('True', {}, {}));
-Runtime.addClass('False', new WardrobeClass('False', {}, {}));
+Runtime.addClass('List', new WardrobeList());
+Runtime.addClass('Boolean', new WardrobeBoolean());
+Runtime.addClass('TrueBoolean', new WardrobeTrue());
+Runtime.addClass('FalseBoolean', new WardrobeFalse());
+
+Runtime.addGlobal('true', Runtime.getClass('TrueBoolean').new_object());
+Runtime.addGlobal('false', Runtime.getClass('FalseBoolean').new_object());
 
 exports.Runtime = Runtime;

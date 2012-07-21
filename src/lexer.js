@@ -43,10 +43,12 @@ function scan(source) {
       i = i + value.length;
     }
     // Grammatical symbols
-    else if ((value = chunk.match(/\(|\)|\,/)) && value.index === 0) {
+    else if ((value = chunk.match(/\(|\)|\,|\[|\]/)) && value.index === 0) {
       value = value[0];
       if (value == '(') {tokens.push(['LPAREN', value, line]);}
       else if (value == ')') {tokens.push(['RPAREN', value, line]);}
+      else if (value == '[') {tokens.push(['LSQUARE', value, line]);}
+      else if (value == ']') {tokens.push(['RSQUARE', value, line]);}
       else if (value == ',') {tokens.push(['COMMA', value, line]);}
       i = i + value.length;
     }

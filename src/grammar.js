@@ -121,7 +121,20 @@ var grammar = {
 
     "literal": [
       ["NUMBER", "$$ = new yy.Number($1);"],
-      ["STRING", "$$ = new yy.String($1);"]
+      ["STRING", "$$ = new yy.String($1);"],
+      ["TRUE", "$$ = new yy.True($1);"],
+      ["FALSE", "$$ = new yy.False($1);"],
+      ["list", "$$  = $1;"]
+    ],
+    
+    "list": [
+      ["LSQUARE list_items RSQUARE", "$$ = new yy.List($2)"]
+    ],
+
+    "list_items": [
+      ["", "$$ = []"],
+      ["expression", "$$ = [$1]"],
+      ["list_items COMMA expression", "$$ = $1; $1.push($3);"] 
     ],
 
     "constant": [
