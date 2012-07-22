@@ -9,12 +9,14 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <link rel="stylesheet" type="text/css" href="css/ingrid.css">
     <link rel="stylesheet" type="text/css" href="css/blueprint.css">
+    <link rel="stylesheet" type="text/css" href="css/chosen.css">
     <link rel="stylesheet" type="text/css" href="css/typography.css">
     <link rel="stylesheet" type="text/css" href="css/layout.css">
     <link rel="stylesheet" type="text/css" href="css/editor.css">
 
     <script type="text/javascript" src="../lib/wardrobe.js"></script>
-    <script type="text/javascript" src="scripts/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery.min.js"></script>
+    <script type="text/javascript" src="scripts/chosen.jquery.js"></script>
     
     <script type="text/javascript" src="http://use.typekit.com/htb2rpi.js"></script>
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -29,6 +31,11 @@
     <header>
       <div class="ingrid in-thirds">
         <div class="unit">
+          <select id="files" class="chosen">
+            <option value='examples/simple.wardrobe'>simple.wardrobe</option>
+            <option value='examples/lists.wardrobe'>lists.wardrobe</option>
+            <option value='examples/boolean.wardrobe'>boolean.wardrobe</option>
+          </select>
           <a href="#" id="run">Run</a>
         </div>
         <div class="unit title">
@@ -58,11 +65,22 @@
        })(jQuery);
     
        $(document).ready(function(){
+         $('select#files').chosen();
+         $('select#files').on('change', function() {
+           var file = $(this).val();
+           $.get('../' + file, function(data){
+             editor.setValue(data);
+             editor.clearSelection();
+             editor.moveCursorTo(0,0);
+           });
+         });
          $('.flash').blinky();
          
          $('#run').click(function(){
-           var context = Wardrobe.run(editor.getValue()).value;
-           $('#console pre emph.flash').before('<emph class="result">=> ' + context.value + '</emph>\n');
+           var context = Wardrobe.run(editor.getValue());
+           var value = context.value.toString();
+           $('#console pre em.flash').before('<em class="result"></em>\n');
+           $('#console  em.result:last').text('=> ' + value);
            $('#console').scrollTop($('#console').children().height());
            return false;       
          });
@@ -73,7 +91,7 @@
          editor.getSession().setMode(new RubyMode());
          editor.setShowPrintMargin(false);
 
-         $.get('../examples/simple.wardrobe', function(data){
+         $.get('../' + $('select#files').val(), function(data){
            editor.setValue(data);
            editor.clearSelection();
            editor.moveCursorTo(0,0);
@@ -83,7 +101,9 @@
        });
 
        function print(value) {
-         $('#console pre emph.flash').before("<emph class='print'>" + value + "</emph>\n");
+         value = value.toString();
+         $('#console pre em.flash').before("<em class='print'></em>\n");
+         $('#console  em.print:last').text(value);
          $('#console').scrollTop($('#console').children().height());
        }
 
@@ -91,7 +111,7 @@
 
     <div id="console_container" class="container"><div id="console">
       <pre>Welcome to Wadrobe (über-alpha)!
-<emph class="flash">▌</emph> </pre>
+<em class="flash">▌</em> </pre>
     </div></div>
 
   </section>

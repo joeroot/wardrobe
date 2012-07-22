@@ -61,17 +61,20 @@
   color:#888;
 }
 
-#console emph.flash {
+#console em.flash {
+  font-style:normal;
   font-weight:normal;
   text-decoration:blink;
   color:#555;
 }
 
-#console emph.result {
+#console em.result {
+  font-style:normal;
   color:#388853;
 }
 
-#console emph.print {
+#console em.print {
+  font-style:normal;
   color:#666;
 }
 
