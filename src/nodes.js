@@ -132,10 +132,14 @@ exports.nodes = {
         args[a] = context.value;
       }
 
-      context = receiver.evaluate(context);
-      receiver = context.value;
+      if (this.receiver !== null) {
+        context = this.receiver.evaluate(context);
+        var receiver_object = context.value;
+        context = receiver_object.call(context, this.method, args); 
+      } else {
+        Runtime.getGlobal('system').value.call(context, 'print', args);
+      }
 
-      context = receiver.call(context, this.method, args); 
       return context;
     };
   },
@@ -161,7 +165,7 @@ exports.nodes = {
         case '>': context.value = (left > right); break;
         case '<=': context.value = (left <= right); break;
         case '>=': context.value = (left >= right); break;
-        case '==': context.value = (left == right); break;
+        case '==': context = left.call(context, 'equals', [right]); break;
         case '+': context = left.call(context, 'add', [right]); break;
         case '-': context = left.call(context, 'subtract', [right]); break;
         case '/': context = left.call(context, 'divide', [right]); break;

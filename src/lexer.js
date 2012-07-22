@@ -53,13 +53,13 @@ function scan(source) {
       i = i + value.length;
     }
     // Operators
-    else if ((value = chunk.match(/\=|>\=|<\=|>|<|\=\=|&&|\|\||\+|\-|\/|\*/)) && value.index === 0) {
+    else if ((value = chunk.match(/\=\=|>\=|<\=|>|<|\=|&&|\|\||\+|\-|\/|\*/)) && value.index === 0) {
       value = value[0];
-      if (assign.indexOf(value) >= 0) {tokens.push(['ASSIGN', value, line]);}
       if (operator.indexOf(value) >= 0) {tokens.push([value, value, line]);}
       else if (logic.indexOf(value) >= 0) {tokens.push(['LOGIC', value, line]);}
       else if (math.indexOf(value) >= 0) {tokens.push(['MATH', value, line]);}
       else if (comparators.indexOf(value) >= 0) {tokens.push(['COMP', value, line]);}
+      else if (assign.indexOf(value) >= 0) {tokens.push(['ASSIGN', value, line]);}
       i = i + value.length;
     }
     // Numbers
