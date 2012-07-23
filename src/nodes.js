@@ -79,7 +79,7 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       context = this.conditional.evaluate(context);
-      if (context.getReturnObject !== null && context.getReturnObject() !== Runtime.getGlobal('false').value) {
+      if (context.getReturnObject !== null && context.getReturnObject() !== Runtime.getGlobalObject('false')) {
         context = this.true_branch.evaluate(context);
       } else if (false_branch !== null) {
         context = this.false_branch.evaluate(context);
@@ -94,7 +94,7 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       context = this.conditional.evaluate(context);
-      while (context.getReturnObject() !== null && context.getReturnObject() !== Runtime.getGlobal('false').value) {
+      while (context.getReturnObject() !== null && context.getReturnObject() !== Runtime.getGlobalObject('false')) {
         context = this.block.evaluate(context);
         context = this.conditional.evaluate(context);
       }
@@ -138,7 +138,7 @@ exports.nodes = {
         var receiver_object = context.getReturnObject();
         context = receiver_object.call(context, this.method, args); 
       } else {
-        Runtime.getGlobal('system').value.call(context, 'print', args);
+        Runtime.getGlobalObject('system').call(context, 'print', args);
       }
 
       return context;
@@ -212,7 +212,7 @@ exports.nodes = {
     this.value = value;
 
     this.evaluate = function(context) {
-      context.setReturnObject(Runtime.getGlobal('true').value);
+      context.setReturnObject(Runtime.getGlobalObject('true'));
       return context;
     };
   },
@@ -221,7 +221,7 @@ exports.nodes = {
     this.value = value;
 
     this.evaluate = function(context) {
-      context.setReturnObject(Runtime.getGlobal('false').value);
+      context.setReturnObject(Runtime.getGlobalObject('false'));
       return context;
     };
   },

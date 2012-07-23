@@ -21,13 +21,17 @@ WardrobeRuntime.prototype.getCurrentClass = function() {
   return this.cls;
 };
 
-WardrobeRuntime.prototype.addGlobal = function(name, value) {
-  this.globals[name] = {cls: value.cls, name: name, value: value};
+WardrobeRuntime.prototype.addGlobal = function(name, object) {
+  this.globals[name] = {type: object.cls, object: object};
   return this.globals[name];
 };
 
 WardrobeRuntime.prototype.getGlobal = function(name) {
   return this.globals[name];
+};
+
+WardrobeRuntime.prototype.getGlobalObject = function(name) {
+  return this.globals[name].object;
 };
 
 WardrobeRuntime.prototype.addClass = function(name, cls) {
@@ -286,7 +290,7 @@ function WardrobeString() {
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var right = context.getLocalObject('right');
-      var object = Runtime.getGlobal((receiver.value == right.value).toString()).value;
+      var object = Runtime.getGlobalObject((receiver.value == right.value).toString());
       context.setReturnObject(object);
       return context;
     }}
@@ -355,7 +359,7 @@ function WardrobeNumber() {
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var right = context.getLocalObject('right');
-      var object = Runtime.getGlobal((receiver.value == right.value).toString()).value;
+      var object = Runtime.getGlobalObject((receiver.value == right.value).toString());
       context.setReturnObject(object);
       return context;
     }}
@@ -398,7 +402,7 @@ function WardrobeTrue() {
     'or',
     [{name: 'right'}],
     {evaluate: function(context) {
-      context.setReturnObject(Runtime.getGlobal('true').value);
+      context.setReturnObject(Runtime.getGlobalObject('true'));
       return context;
     }}
   );
@@ -408,7 +412,7 @@ function WardrobeTrue() {
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var right = context.getLocalObject('right');
-      var object = Runtime.getGlobal((receiver.value == right.value).toString()).value;
+      var object = Runtime.getGlobalObject((receiver.value == right.value).toString());
       context.setReturnObject(object);
       return context;
     }}
@@ -431,7 +435,7 @@ function WardrobeFalse() {
     'and',
     [{name: 'right'}],
     {evaluate: function(context) {
-      context.setReturnObject(Runtime.getGlobal('false').value);
+      context.setReturnObject(Runtime.getGlobalObject('false'));
       return context;
     }}
   );
@@ -450,7 +454,7 @@ function WardrobeFalse() {
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var right = context.getLocalObject('right');
-      var object = Runtime.getGlobal((receiver.value == right.value).toString()).value;
+      var object = Runtime.getGlobalObject((receiver.value == right.value).toString());
       context.setReturnObject(object);
       return context;
     }}
