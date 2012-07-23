@@ -205,8 +205,8 @@ WardrobeClass.prototype.createMethod = function(name, params, body) {
   return method;
 };
 
-WardrobeClass.prototype.addProperty = function(name, cls, object) {
-  this.properties[name] = {cls: cls, object: object};
+WardrobeClass.prototype.addProperty = function(name, type, object) {
+  this.properties[name] = {type: type, object: object};
 };
 
 WardrobeClass.prototype.new_object = function(args) {

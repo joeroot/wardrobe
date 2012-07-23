@@ -280,12 +280,12 @@ exports.nodes = {
         context = this.expression.evaluate(context);
       }
       
-      cls = Runtime.getClass(this.cls);
+      type = Runtime.getClass(this.cls);
 
       if (context.current_class !== null) {
-        context.getCurrentClass().addProperty(this.identifier.name, cls, context.getReturnObject());
+        context.getCurrentClass().addProperty(this.identifier.name, type, context.getReturnObject());
       } else {
-        context.addLocal(this.identifier.name, cls, context.getReturnObject());
+        context.addLocal(this.identifier.name, type, context.getReturnObject());
       }
       
       return context;
