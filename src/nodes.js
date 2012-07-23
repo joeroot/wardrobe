@@ -1,5 +1,6 @@
 var Runtime = require('./runtime').Runtime;
 
+
 // # `nodes.js`
 // `nodes.js` exports a series of node constructors for the parser to intialise.
 // Each node contains an `evaluate` method which the interpreter calls when
@@ -62,9 +63,9 @@ exports.nodes = {
     this.evaluate = function(context) {
       context = this.expression.evaluate(context);
       if (this.identifier.scope == 'local') {
-        context.locals[this.identifier.name].value = context.value;
+        context.setLocalObject(this.identifier.name, context.getReturnObject());
       } else {
-        context.current_object.setProperty(this.identifier.name, context.value);
+        context.getCurrentObject().setProperty(this.identifier.name, context.getReturnObject());
       }
       return context;
     };
@@ -78,7 +79,7 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       context = this.conditional.evaluate(context);
-      if (context.value !== null && context.value !== Runtime.getGlobal('false').value) {
+      if (context.getReturnObject !== null && context.getReturnObject() !== Runtime.getGlobal('false').value) {
         context = this.true_branch.evaluate(context);
       } else if (false_branch !== null) {
         context = this.false_branch.evaluate(context);
@@ -93,7 +94,7 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       context = this.conditional.evaluate(context);
-      while (context.value !== null && context.value !== Runtime.getGlobal('false').value) {
+      while (context.getReturnObject() !== null && context.getReturnObject() !== Runtime.getGlobal('false').value) {
         context = this.block.evaluate(context);
         context = this.conditional.evaluate(context);
       }
@@ -129,12 +130,12 @@ exports.nodes = {
       for (var a = 0; a < this.args.length; a++) {
         var arg = this.args[a];
         context = arg.evaluate(context);
-        args[a] = context.value;
+        args[a] = context.getReturnObject();
       }
 
       if (this.receiver !== null) {
         context = this.receiver.evaluate(context);
-        var receiver_object = context.value;
+        var receiver_object = context.getReturnObject();
         context = receiver_object.call(context, this.method, args); 
       } else {
         Runtime.getGlobal('system').value.call(context, 'print', args);
@@ -152,19 +153,17 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       context = this.left.evaluate(context);
-      var left = context.value;
+      var left = context.getReturnObject();
       context = this.right.evaluate(context);
-      var right = context.value;
+      var right = context.getReturnObject();
 
-      console.log(left);
-      console.log(right);
       switch(this.operator) {
         case 'and': context = left.call(context, 'and', [right]); break;
         case 'or': context = left.call(context, 'or', [right]); break;
-        case '<': context.value = (left < right); break;
-        case '>': context.value = (left > right); break;
-        case '<=': context.value = (left <= right); break;
-        case '>=': context.value = (left >= right); break;
+        case '<': break;
+        case '>': break;
+        case '<=': break;
+        case '>=': break;
         case '==': context = left.call(context, 'equals', [right]); break;
         case '+': context = left.call(context, 'add', [right]); break;
         case '-': context = left.call(context, 'subtract', [right]); break;
@@ -183,29 +182,19 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       if (this.scope == 'local') {
-        context.value = context.locals[this.name].value;
+        context.setReturnObject(context.getLocalObject(this.name));
       } else {
-        context.value = context.current_object.getProperty(this.name).value;
+        context.setReturnObject(context.getCurrentObject().getPropertyObject(this.name));
       }
       return context;
     };
   },
 
-//  Property: function(expression, property) {
-//    this.expression = expression;
-//    this.property = property;
-//
-//   this.evaluate = function(context) {
-//      context = this.expression.evaluate(context);
-//      context.value = context.value.property(this.property);
-//    };
-//  },
-
   Number: function(value) {
     this.value = value;
 
     this.evaluate = function(context) {
-      context.value = Runtime.getClass('Number').new_object(this.value);
+      context.setReturnObject(Runtime.getClass('Number').new_object(this.value));
       return context;
     };
   },
@@ -214,7 +203,7 @@ exports.nodes = {
     this.value = value.slice(1, value.length - 1);
 
     this.evaluate = function(context) {
-      context.value = Runtime.getClass('String').new_object(this.value);
+      context.setReturnObject(Runtime.getClass('String').new_object(this.value));
       return context;
     };
   },
@@ -223,7 +212,7 @@ exports.nodes = {
     this.value = value;
 
     this.evaluate = function(context) {
-      context.value = Runtime.getGlobal('true').value;
+      context.setReturnObject(Runtime.getGlobal('true').value);
       return context;
     };
   },
@@ -232,7 +221,7 @@ exports.nodes = {
     this.value = value;
 
     this.evaluate = function(context) {
-      context.value = Runtime.getGlobal('false').value;
+      context.setReturnObject(Runtime.getGlobal('false').value);
       return context;
     };
   },
@@ -246,10 +235,10 @@ exports.nodes = {
       for (var i = 0; i < this.items.length; i++) {
         var item = this.items[i];
         context = item.evaluate(context);
-        list.push(context.value);
+        list.push(context.getReturnObject());
       }
 
-      context.value = Runtime.getClass('List').new_object(list);
+      context.setReturnObject(Runtime.getClass('List').new_object(list));
 
       return context;
     };
@@ -273,7 +262,7 @@ exports.nodes = {
       prior_class = context.current_class;
       context.current_class = cls;
       context = this.block.evaluate(context);
-      context.current_class = prior_class;
+      context.setCurrentClass(prior_class);
       return context;
     };
   },
@@ -286,7 +275,7 @@ exports.nodes = {
 
     this.evaluate = function(context) {
       if (this.expression === null) {
-        context.value = null;
+        context.setReturnObject(null);
       } else {
         context = this.expression.evaluate(context);
       }
@@ -294,9 +283,9 @@ exports.nodes = {
       cls = Runtime.getClass(this.cls);
 
       if (context.current_class !== null) {
-        context.current_class.addProperty(cls, this.identifier.name, context.value);
+        context.getCurrentClass().addProperty(this.identifier.name, cls, context.getReturnObject());
       } else {
-        context.locals[this.identifier.name] = {cls: cls, name: this.identifier.name, value: context.value};
+        context.addLocal(this.identifier.name, cls, context.getReturnObject());
       }
       
       return context;
@@ -308,7 +297,8 @@ exports.nodes = {
     this.arguments = arguments;
 
     this.evaluate = function(context) {
-      context.value = Runtime.getClass(this.cls).new_object(arguments);
+      var object = Runtime.getClass(this.cls).new_object(this.arguments);
+      context.setReturnObject(object);
       return context;
     };
   }

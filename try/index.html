@@ -78,7 +78,7 @@
          
          $('#run').click(function(){
            var context = Wardrobe.run(editor.getValue());
-           var value = context.value.toString();
+           var value = context.getReturnObject().toString();
            $('#console pre em.flash').before('<em class="result"></em>\n');
            $('#console  em.result:last').text('=> ' + value);
            $('#console').scrollTop($('#console').children().height());

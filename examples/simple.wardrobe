@@ -17,7 +17,8 @@ Number n = 10.5.divide(2).multiply(3).add(4).subtract(2)
 
 String s = p.getName();
 
+print(p)
+
 String f = "John"
 f = f.concat(" ").concat(s)
 f.length() + 1
-print(p)

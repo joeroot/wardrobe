@@ -1,5 +1,7 @@
+var Context = require('./runtime').Context;
+
 function run(ast) {
-  var context = emptyContext();
+  var context = new Context();
 
   ast = setLoadStructure(ast);
 
@@ -13,15 +15,6 @@ function run(ast) {
   }
 
   return context;
-}
-
-function emptyContext() {
-  return {
-    locals: {},
-    current_class: null,
-    current_object: null,
-    value: null
-  };
 }
 
 function setLoadStructure(ast) {
