@@ -296,12 +296,20 @@ exports.nodes = {
     };
   },
 
-  Create: function(cls, arguments) {
+  Create: function(cls, args) {
     this.cls = cls;
-    this.arguments = arguments;
+    this.args = args;
 
     this.evaluate = function(context) {
-      var object = Runtime.getClass(this.cls).new_object(this.arguments);
+      var args = [];
+      for (var a = 0; a < this.args.length; a++) {
+        var arg = this.args[a];
+        context = arg.evaluate(context);
+        args[a] = context.getReturnObject();
+      }
+
+      var object = Runtime.getClass(this.cls).new_object(args);
+
       context.setReturnObject(object);
       return context;
     };

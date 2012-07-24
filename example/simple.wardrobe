@@ -1,3 +1,5 @@
+# Declaration of Person class with property name and methods
+# setName and getName.
 class Person
   String name
 
@@ -10,8 +12,18 @@ class Person
   end
 end
 
+# Class Teenager inherits all methods and properites from its
+# parent class, Person. Can define additional properties and
+# methods, in this case, age, setAge and getAge. Additionally
+# an init method can be used for when creating an object of a
+# class. In this case, all Teenagers are intialised with an 
+# age.
 class Teenager extends Person
-  Number this.age
+  Number age
+
+  def init(age)
+    this.age = age
+  end
 
   def setAge(age)
     this.age = age
@@ -22,10 +34,12 @@ class Teenager extends Person
   end
 end
 
+# Everything is an object.
+Number n = 10.5.divide(2).multiply(3).add(4).subtract(2)
+
+# Create a new person object then call setName on it.
 Person p = new Person()
 p.setName("Doe")
-
-Number n = 10.5.divide(2).multiply(3).add(4).subtract(2)
 
 String s = p.getName();
 
@@ -36,10 +50,11 @@ f = f.concat(" ").concat(s)
 f.length() + 1
 p.getClass().toString()
 
-Teenager t = new Teenager()
+# Teenager is initialised with an age of 15.
+Teenager t = new Teenager(15)
 t.setName("Smith")
-t.setAge(13)
-
 print(t)
 
+# Can change intialised age with the setAge method.
+t.setAge(13)
 t.getAge()

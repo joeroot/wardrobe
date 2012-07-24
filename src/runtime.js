@@ -214,8 +214,11 @@ WardrobeClass.prototype.createMethod = function(name, params, body) {
 WardrobeClass.prototype.getMethod = function(name) {
   var method = null;
   if (this.methods[name] !== undefined && typeof(this.methods[name]) == 'object') {
+    //console.log(name + " " + this.name);
     method = this.methods[name];
   } else if (this.hasSuperClass()) {
+  //console.log(this.name + ":");
+  //console.log(this.methods);
     method = this.getSuperClass().getMethod(name);
   }
   return method;
@@ -258,8 +261,9 @@ WardrobeClass.prototype.toString = function() {
 };
 
 WardrobeClass.prototype.new_object = function(args) {
+  var context = new Context();
   var obj = new WardrobeObject(this, null);
-  //obj.call(init, args);
+  this.getMethod('init').call(context, obj, args);
   return obj;
 };
 
@@ -311,6 +315,13 @@ function WardrobeObjectClass() {
 }
 
 WardrobeObjectClass.prototype.installMethods = function() {
+  this.methods.init= new WardrobeMethod(
+    'init', 
+    [], 
+    {evaluate: function(context) {
+      return context;
+    }}
+  );
   this.methods.toString = new WardrobeMethod(
     'toString', 
     [], 
