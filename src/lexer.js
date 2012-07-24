@@ -11,13 +11,6 @@ function scan(source) {
   var line = 1;
   var i = 0;
 
-  // Trims the start of the file
-  var trim = source.match(/((\s)*\n|(\s)*\r)+/);
-  if (trim.index === 0) {
-    source = source.substr(trim[0].length);
-    line = line + trim[0].replace(/ /g, '').length;
-  }
-  
   //source = source.replace(/(\n|\r)+/g, '\n');
 
   while (i < source.length) {
@@ -93,6 +86,11 @@ function scan(source) {
       i = i + 1;
     }
   }
+
+  // Drops any starting or trailing whitespace/newlines
+  if (tokens[0][0] == 'NEWLINE') {tokens.shift();}
+  if (tokens[tokens.length-1][0] == 'NEWLINE') {tokens.pop();}
+
   return tokens;
 }
 

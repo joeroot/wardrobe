@@ -248,13 +248,14 @@ exports.nodes = {
     this.name = name;
 
     this.evaluate = function(context) {
+      context.setReturnObject(Runtime.getClass(this.name));
       return context;
     };
   },
 
   Class: function(constant, super_class, block) {
     this.type = 'Class';
-    this.name = constant.name;
+    this.name = constant;
     this.super_name = 'Object';
     if (super_class !== null) {
       this.super_name = super_class.name;

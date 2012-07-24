@@ -25,11 +25,8 @@ var grammar = {
 
     "program": [
       ["line", "$$ = [$1];"],
-      ["program t line", "$$ = $1; $1.push($3);"]
-    ],
-
-    "block": [
-      ["t program t", "$$ = new yy.Block($2);"] 
+      ["program t line", "$$ = $1; $1.push($3);"],
+      ["program t", "$$ = $1;"]
     ],
 
     "line": [
@@ -40,6 +37,10 @@ var grammar = {
     "statement": [
       ["COMMENT", "$$ = new yy.Comment($1);"],
       ["RETURN primary", "$$ = new yy.Return($2);"]
+    ],
+
+    "block": [
+      ["t program t", "$$ = new yy.Block($2);"] 
     ],
 
     "expression": [
@@ -76,12 +77,10 @@ var grammar = {
     ],
 
     "operation": [
-      ["+ expression", "$$ = new yy.Operator($1, null, $2);"],
-      ["- expression", "$$ = new yy.Operator($1, null, $2);"],
       ["expression + expression", "$$ = new yy.Operator($2, $1, $3);"],
       ["expression - expression", "$$ = new yy.Operator($2, $1, $3);"],
-      ["expression MATH expression", "$$ = new yy.Operator($2, $1, $3);"],
       ["expression COMP expression", "$$ = new yy.Operator($2, $1, $3);"],
+      ["expression MATH expression", "$$ = new yy.Operator($2, $1, $3);"],
       ["expression LOGIC expression", "$$ = new yy.Operator($2, $1, $3);"] 
     ],
 
@@ -106,13 +105,12 @@ var grammar = {
 
     "arguments": [
       ["", "$$ = [];"],
-      ["expression", "$$ = [$1];"],
-      ["arguments COMMA expression", "$$ = $1; $1.push($3);"]
+      ["primary", "$$ = [$1];"],
+      ["arguments COMMA primary", "$$ = $1; $1.push($3);"]
     ],
 
     "primary": [
       ["identifier", "$$ = $1;"],
-      ["constant", "$$ = $1;"],
       ["literal", "$$ = $1;"]
     ],
 
@@ -121,18 +119,14 @@ var grammar = {
       ["THIS DOT IDENT", "$$ = new yy.Identifier($3, 'this');"]
     ],
 
-    "constant": [
-      ["CONST", "$$ = new yy.Const($1);"]
-    ],
-
     "literal": [
       ["NUMBER", "$$ = new yy.Number($1);"],
       ["STRING", "$$ = new yy.String($1);"],
       ["TRUE", "$$ = new yy.True($1);"],
       ["FALSE", "$$ = new yy.False($1);"],
-      ["list", "$$ = $1;"]
+      ["list", "$$  = $1;"]
     ],
-
+    
     "list": [
       ["LSQUARE list_items RSQUARE", "$$ = new yy.List($2)"]
     ],
@@ -143,9 +137,13 @@ var grammar = {
       ["list_items COMMA expression", "$$ = $1; $1.push($3);"] 
     ],
 
+    "constant": [
+      ["CONST", "$$ = new yy.Const($1);"]
+    ],
+
     "class": [
-      ["CLASS CONST block END", "$$ = new yy.Class($2, null, $3);"],
-      ["CLASS CONST EXTENDS constant block END", "$$ = new yy.Class($2, $4, $5);"]
+      ["CLASS constant block END", "$$ = new yy.Class($2, null, $3);"],
+      ["CLASS constant EXTENDS constant block END", "$$ = new yy.Class($2, $4, $5);"]
     ]
 
   }

@@ -1,9 +1,15 @@
+Number i = -2
+print(i)
+
+print(Object)
 
 Number n = 10
 
-    
+
+print(10.5.multiply(n.add(2)).subtract(2))
+
+
+Number m = 5
+m*3+4
+
   
-
-n.multiply(n.add(2))
-
-n 
