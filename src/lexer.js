@@ -11,6 +11,13 @@ function scan(source) {
   var line = 1;
   var i = 0;
 
+  // Trims the start of the file
+  var trim = source.match(/((\s)*\n|(\s)*\r)+/);
+  if (trim.index === 0) {
+    source = source.substr(trim[0].length);
+    line = line + trim[0].replace(/ /g, '').length;
+  }
+  
   //source = source.replace(/(\n|\r)+/g, '\n');
 
   while (i < source.length) {
@@ -75,10 +82,10 @@ function scan(source) {
       i = i + value.length;
     }
     // Newlines
-    else if ((value = chunk.match(/(\n|\r)+/)) && value.index === 0) {
+    else if ((value = chunk.match(/((\s)*\n|(\s)*\r)+/)) && value.index === 0) {
       value = value[0];
       tokens.push(["NEWLINE", value, line]);
-      line = line + value.length;
+      line = line + value.replace(/ /g, '').length;
       i = i + value.length;
     }
     else {

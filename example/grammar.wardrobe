@@ -1,0 +1,9 @@
+
+Number n = 10
+
+    
+  
+
+n.multiply(n.add(2))
+
+n 
