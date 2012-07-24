@@ -142,6 +142,15 @@ WardrobeObject.prototype.call = function(context, name, args) {
   return context;
 };
 
+WardrobeObject.prototype.setValue = function(value) {
+  this.value = value;
+  return value;
+};
+
+WardrobeObject.prototype.getValue = function() {
+  return this.value;
+};
+
 WardrobeObject.prototype.setProperty = function(property, object) {
   this.properties[property].object = object;
   return this.properties[property];
@@ -452,6 +461,26 @@ function WardrobeNumber() {
       var right = context.getLocalObject('right');
       var object = Runtime.getGlobalObject((receiver.value == right.value).toString());
       context.setReturnObject(object);
+      return context;
+    }}
+  );
+  this.methods.positive= new WardrobeMethod(
+    'positive',
+    [],
+    {evaluate: function(context) {
+      var receiver = context.getCurrentObject();
+      receiver.setValue(+receiver.getValue());
+      context.setReturnObject(receiver);
+      return context;
+    }}
+  );
+  this.methods.negative= new WardrobeMethod(
+    'negative',
+    [],
+    {evaluate: function(context) {
+      var receiver = context.getCurrentObject();
+      receiver.setValue(-receiver.getValue());
+      context.setReturnObject(receiver);
       return context;
     }}
   );

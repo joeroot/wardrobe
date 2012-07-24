@@ -152,24 +152,36 @@ exports.nodes = {
     this.right = right;
 
     this.evaluate = function(context) {
-      context = this.left.evaluate(context);
-      var left = context.getReturnObject();
-      context = this.right.evaluate(context);
-      var right = context.getReturnObject();
+      var right = null;
+      if (this.left !== null) {
+        context = this.left.evaluate(context);
+        var left = context.getReturnObject();
+        context = this.right.evaluate(context);
+        right = context.getReturnObject();
 
-      switch(this.operator) {
-        case 'and': context = left.call(context, 'and', [right]); break;
-        case 'or': context = left.call(context, 'or', [right]); break;
-        case '<': break;
-        case '>': break;
-        case '<=': break;
-        case '>=': break;
-        case '==': context = left.call(context, 'equals', [right]); break;
-        case '+': context = left.call(context, 'add', [right]); break;
-        case '-': context = left.call(context, 'subtract', [right]); break;
-        case '/': context = left.call(context, 'divide', [right]); break;
-        case '*': context = left.call(context, 'multiply', [right]); break;
-        default: break;
+        switch(this.operator) {
+          case 'and': context = left.call(context, 'and', [right]); break;
+          case 'or': context = left.call(context, 'or', [right]); break;
+          case '<': break;
+          case '>': break;
+          case '<=': break;
+          case '>=': break;
+          case '==': context = left.call(context, 'equals', [right]); break;
+          case '+': context = left.call(context, 'add', [right]); break;
+          case '-': context = left.call(context, 'subtract', [right]); break;
+          case '/': context = left.call(context, 'divide', [right]); break;
+          case '*': context = left.call(context, 'multiply', [right]); break;
+          default: break;
+        }
+      } else {
+        context = this.right.evaluate(context);
+        right = context.getReturnObject();
+
+        switch(this.operator) {
+          case '+': context = right.call(context, 'positive', []); break;
+          case '-': context = right.call(context, 'negative', []); break;
+          default: break;
+        }
       }
 
       return context;
