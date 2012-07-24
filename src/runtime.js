@@ -645,6 +645,10 @@ function WardrobeList() {
   );
 }
 
+WardrobeList.prototype.toString = function() {
+  return '[' + this.value + ']'; 
+};
+
 WardrobeList.prototype.new_object = function(list) {
   return new WardrobeObject(this, list);
 };
