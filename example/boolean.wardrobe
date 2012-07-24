@@ -1,5 +1,15 @@
-if (true and false) then
-  7
+if (true and false)
+  print(7)
 else
-  8
+  print(8)
+end
+
+Number n = 5
+
+if (n == 5)
+  print("first")
+else if (n == 6)
+  print("second")
+else 
+  print("last")
 end

@@ -6,8 +6,8 @@ var grammar = {
   "operators": [
     ["right", "ASSIGN"],
     ["left", "DOT"],
-    ["left", "MATH"],
     ["left", "+", "-"],
+    ["left", "MATH"],
     ["left", "COMP"],
     ["left", "LOGIC"],
     ["right", "FOR", "WHILE"]
@@ -57,8 +57,9 @@ var grammar = {
     ],
 
     "if": [
-      ["IF expression THEN block END", "$$ = new yy.If($2, $4, null);"],
-      ["IF expression THEN block ELSE block END", "$$ = new yy.If($2, $4, $6);"]
+      ["IF expression block END", "$$ = new yy.If($2, $3, null);"],
+      ["IF expression block ELSE block END", "$$ = new yy.If($2, $3, $5);"],
+      ["IF expression block ELSE if", "$$ = new yy.If($2, $3, $5);"]
     ],
 
     "while": [
