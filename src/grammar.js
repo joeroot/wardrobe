@@ -142,7 +142,8 @@ var grammar = {
     ],
 
     "class": [
-      ["CLASS constant block END", "$$ = new yy.Class($2, $3);"]
+      ["CLASS constant block END", "$$ = new yy.Class($2, null, $3);"],
+      ["CLASS constant EXTENDS constant block END", "$$ = new yy.Class($2, $4, $5);"]
     ]
 
   }

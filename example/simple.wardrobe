@@ -10,6 +10,18 @@ class Person
   end
 end
 
+class Teenager extends Person
+  Number this.age
+
+  def setAge(age)
+    this.age = age
+  end
+
+  def getAge()
+    this.age
+  end
+end
+
 Person p = new Person()
 p.setName("Doe")
 
@@ -22,3 +34,12 @@ print(p)
 String f = "John"
 f = f.concat(" ").concat(s)
 f.length() + 1
+p.getClass().toString()
+
+Teenager t = new Teenager()
+t.setName("Smith")
+t.setAge(13)
+
+print(t)
+
+t.getAge()

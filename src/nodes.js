@@ -252,13 +252,17 @@ exports.nodes = {
     };
   },
 
-  Class: function(constant, block) {
+  Class: function(constant, super_class, block) {
     this.type = 'Class';
     this.name = constant.name;
+    this.super_name = 'Object';
+    if (super_class !== null) {
+      this.super_name = super_class.name;
+    }
     this.block = block;
 
     this.evaluate = function(context) {
-      var cls = Runtime.createClass(this.name, {}, {});
+      var cls = Runtime.createClass(this.name, Runtime.getClass(this.super_name));
       prior_class = context.current_class;
       context.current_class = cls;
       context = this.block.evaluate(context);

@@ -39,8 +39,8 @@ WardrobeRuntime.prototype.addClass = function(name, cls) {
   return this.getClass(name);
 };
 
-WardrobeRuntime.prototype.createClass = function(name, params, properties) {
-  var cls = new WardrobeClass(name, params, properties);
+WardrobeRuntime.prototype.createClass = function(name, super_class) {
+  var cls = new WardrobeClass(name, super_class);
   this.addClass(name, cls);
   return this.getClass(name);
 };
@@ -126,7 +126,7 @@ var WardrobeObject = function(cls, value) {
   this.value = value;
   if (value === null) {this.value = this;}
   if (Runtime !== undefined) {
-    this.properties = this.cls.properties;
+    this.properties = this.cls.getProperties();
   } else {
     this.properties = {};
   }
@@ -136,8 +136,9 @@ WardrobeObject.prototype.getClass = function() {
   return this.cls;
 };
 
-WardrobeObject.prototype.call = function(context, method, args) {
-  context = this.cls.methods[method].call(context, this, args);
+WardrobeObject.prototype.call = function(context, name, args) {
+  var method = this.cls.getMethod(name);
+  method.call(context, this, args);
   return context;
 };
 
@@ -185,7 +186,7 @@ WardrobeObject.prototype.toString = function() {
 
 WardrobeClass.prototype = new WardrobeObject(); 
 WardrobeClass.prototype.constructor = WardrobeClass;
-function WardrobeClass(name, methods, properties) {
+function WardrobeClass(name, super_class) {
   if (Runtime !== undefined) {
     this.cls = Runtime.getClass('Class');  
   } else {
@@ -193,8 +194,9 @@ function WardrobeClass(name, methods, properties) {
   }
   this.value = this;
 
+  this.super_class = super_class;
   this.name = name;
-  this.methods = methods;
+  this.methods = {};
   this.properties = {};
 }
 
@@ -209,8 +211,50 @@ WardrobeClass.prototype.createMethod = function(name, params, body) {
   return method;
 };
 
+WardrobeClass.prototype.getMethod = function(name) {
+  var method = null;
+  if (this.methods[name] !== undefined && typeof(this.methods[name]) == 'object') {
+    method = this.methods[name];
+  } else if (this.hasSuperClass()) {
+    method = this.getSuperClass().getMethod(name);
+  }
+  return method;
+};
+
+WardrobeClass.prototype.hasMethod = function(method) {
+  return this.methods[method] !== undefined;
+};
+
 WardrobeClass.prototype.addProperty = function(name, type, object) {
   this.properties[name] = {type: type, object: object};
+};
+
+WardrobeClass.prototype.getProperties = function() {
+  var properties = {};
+  if (this.hasSuperClass()) {
+    properties = this.getSuperClass().getProperties();
+  }
+  for (var property in this.properties) {
+    properties[property] = this.properties[property];
+  }
+  return properties;
+};
+
+WardrobeClass.prototype.getSuperClass = function() {
+  return this.super_class;
+};
+
+WardrobeClass.prototype.setSuperClass = function(super_class) {
+  this.super_class = super_class;
+  return this.super_class;
+};
+
+WardrobeClass.prototype.hasSuperClass = function() {
+  return this.super_class !== null;
+};
+
+WardrobeClass.prototype.toString = function() {
+  return '<Class:' + this.name + '>';
 };
 
 WardrobeClass.prototype.new_object = function(args) {
@@ -255,6 +299,40 @@ WardrobeMethod.prototype.call = function(context, receiver, args) {
   return context;
 };
 
+WardrobeObjectClass.prototype = new WardrobeClass();
+WardrobeObjectClass.prototype.constructor = WardrobeObjectClass;
+function WardrobeObjectClass() {
+  this.cls = null;
+  this.value = this;
+
+  this.name = 'Object';
+  this.super_class = null;
+  this.methods = {};
+}
+
+WardrobeObjectClass.prototype.installMethods = function() {
+  this.methods.toString = new WardrobeMethod(
+    'toString', 
+    [], 
+    {evaluate: function(context) {
+      var receiver = context.getCurrentObject();
+      var object = Runtime.getClass('String').new_object(receiver.toString());
+      context.setReturnObject(object);
+      return context;
+    }}
+  );
+  this.methods.getClass= new WardrobeMethod(
+    'class',
+    [],
+    {evaluate: function(context) {
+      var receiver = context.getCurrentObject();
+      var object = receiver.cls;
+      context.setReturnObject(object);
+      return context;
+    }}
+  );
+};
+
 WardrobeString.prototype = new WardrobeClass();
 WardrobeString.prototype.constructor = WardrobeString;
 function WardrobeString() {
@@ -262,6 +340,7 @@ function WardrobeString() {
   this.value = this;
 
   this.name = 'String';
+  this.super_class = Runtime.getClass('Object');
   this.methods = {};
   this.methods.length = new WardrobeMethod(
     'length', 
@@ -308,6 +387,7 @@ function WardrobeNumber() {
   this.value = this;
 
   this.name = 'Number';
+  this.super_class = Runtime.getClass('Object');
   this.methods = {};
   this.methods.add = new WardrobeMethod(
     'add', 
@@ -378,16 +458,18 @@ function WardrobeBoolean() {
   this.value = this;
 
   this.name = 'Boolean';
+  this.super_class = Runtime.getClass('Object');
   this.methods = {};
 }
 
 WardrobeTrue.prototype = new WardrobeClass();
 WardrobeTrue.prototype.constructor = WardrobeTrue;
 function WardrobeTrue() {
-  this.cls = Runtime.getClass('Boolean');
+  this.cls = Runtime.getClass('Class');
   this.value = this;
 
   this.name = 'TrueBoolean';
+  this.super_class = Runtime.getClass('Boolean');
   this.methods = {};
   this.methods.and = new WardrobeMethod(
     'and',
@@ -426,10 +508,11 @@ WardrobeTrue.prototype.new_object = function() {
 WardrobeFalse.prototype = new WardrobeClass();
 WardrobeFalse.prototype.constructor = WardrobeFalse;
 function WardrobeFalse() {
-  this.cls = Runtime.getClass('Boolean');
+  this.cls = Runtime.getClass('Class');
   this.value = this;
 
   this.name = 'FalseBoolean';
+  this.super_class = Runtime.getClass('Boolean');
   this.methods = {};
   this.methods.and = new WardrobeMethod(
     'and',
@@ -472,6 +555,7 @@ function WardrobeList() {
   this.value = this;
 
   this.name = 'List';
+  this.super_class = Runtime.getClass('Object');
   this.methods = {}; 
   this.methods.length = new WardrobeMethod(
     'length',
@@ -561,6 +645,7 @@ function WardrobeSystem() {
   this.value = this;
 
   this.name = 'System';
+  this.super_class = Runtime.getClass('Object');
   this.methods = {}; 
   this.methods.print = new WardrobeMethod(
     'print',
@@ -580,14 +665,19 @@ WardrobeSystem.prototype.new_object = function() {
   return new WardrobeObject(this, null);
 };
 
-var wardrobe_class = new WardrobeClass('Class', {}, {});
+var wardrobe_class = new WardrobeClass('Class', null);
 wardrobe_class.cls = wardrobe_class;
+
+var wardrobe_object_class = new WardrobeObjectClass();
+wardrobe_object_class.cls = wardrobe_class;
+
+wardrobe_class.setSuperClass(wardrobe_object_class);
 
 var Runtime = new WardrobeRuntime(wardrobe_class, wardrobe_class.cls, {});
 
 Runtime.addClass('Class', wardrobe_class);
-Runtime.addClass('Object', new WardrobeClass('Object', {}, {}));
-Runtime.addClass('Method', new WardrobeClass('Method', {}, {}));
+Runtime.addClass('Object', wardrobe_object_class);
+Runtime.addClass('Method', new WardrobeClass('Method', null));
 Runtime.addClass('String', new WardrobeString());
 Runtime.addClass('Number', new WardrobeNumber());
 Runtime.addClass('List', new WardrobeList());
@@ -595,6 +685,8 @@ Runtime.addClass('Boolean', new WardrobeBoolean());
 Runtime.addClass('TrueBoolean', new WardrobeTrue());
 Runtime.addClass('FalseBoolean', new WardrobeFalse());
 Runtime.addClass('System', new WardrobeSystem());
+
+Runtime.getClass('Object').installMethods();
 
 Runtime.addGlobal('true', Runtime.getClass('TrueBoolean').new_object());
 Runtime.addGlobal('false', Runtime.getClass('FalseBoolean').new_object());
