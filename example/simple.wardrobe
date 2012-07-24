@@ -35,7 +35,10 @@ class Teenager extends Person
 end
 
 # Everything is an object.
-Number n = 10.5.divide(2).multiply(3).add(4).subtract(2)
+Number n1 = 10.5.divide(2).multiply(3).add(4).subtract(2)
+Number n2 = 10.5/2*3+4-2
+
+print(n1 == n2)
 
 # Create a new person object then call setName on it.
 Person p = new Person()
