@@ -3,10 +3,12 @@ var nodes = require('./nodes').nodes;
 var parser = require('./parser').parser;
 var interpreter = require('./interpreter');
 
-function run(source) {
+function run(source, debug) {
   var tokens = lexer.lex(source);
-  console.log('Lexer finished, tokens: \n');
-  console.log(tokens);
+  if (debug) {
+    console.log('Lexer finished, tokens: \n');
+    console.log(tokens);
+  }
 
   parser.yy = nodes; 
   parser.lexer =  {
@@ -26,13 +28,17 @@ function run(source) {
   };
 
   var ast = parser.parse(tokens);
-  console.log('\nParser finished, abstract syntax tree: \n');
-  console.log(ast);
+  if (debug) {
+    console.log('\nParser finished, abstract syntax tree: \n');
+    console.log(ast);
 
-  console.log("\nIntepreting code, output: \n");
+    console.log("\nIntepreting code, output: \n");
+  }
   context = interpreter.run(ast);
-  console.log('\nIntepreter finished, final context:\n');
-  console.log(context);
+  if (debug) {
+    console.log('\nIntepreter finished, final context:\n');
+    console.log(context);
+  }
   return context;
 }
 
