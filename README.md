@@ -6,15 +6,19 @@ The project is currently under heavy development, and is by no means ready for u
 
 ## Versions
 
-Current version, **v0.1.0**.
+Current version, **v0.2.0**.
+
+### Version 0.3.0
+
+Version 0.3.0 aims to introduce full type-checking throughout the interpreter.
 
 ### Version 0.2.0
 Version 0.2.0 aims to introduce a class system to the language.
 
-- basic `object` model
-- abstraction of operators and basic functions into `object` class
-- class definitions
-- inheritance and polymorphism
+- ~~basic `object` model~~
+- ~~abstraction of operators and basic functions into `object` class~~
+- ~~class definitions~~
+- ~~inheritance~~ and polymorphism
 
 
 ### Version 0.1.0
