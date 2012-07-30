@@ -17,15 +17,76 @@
     <script type="text/javascript" src="../lib/wardrobe.js"></script>
     <script type="text/javascript" src="scripts/jquery.min.js"></script>
     <script type="text/javascript" src="scripts/chosen.jquery.js"></script>
-    
+
     <script type="text/javascript" src="http://use.typekit.com/htb2rpi.js"></script>
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+
+    <script src="scripts/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="scripts/theme-github.js" type="text/javascript" charset="utf-8"></script>
+    <script src="scripts/mode-ruby.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+      (function($) {
+        $.fn.blinky = function() {
+          var that = this;
+          function go() {
+            $(that).toggle();
+            setTimeout(go, 800); 
+          };
+          go();
+        };
+      })(jQuery);
+
+      $(document).ready(function(){
+        $('select#files').chosen();
+        $('select#files').on('change', function() {
+          var file = $(this).val();
+          $.get('../' + file, function(data){
+            editor.setValue(data);
+            editor.clearSelection();
+            editor.moveCursorTo(0,0);
+          });
+        });
+        $('.flash').blinky();
+
+        $('#run').click(function(){
+          var context = Wardrobe.run(editor.getValue());
+          var value = context.getReturnObject().toString();
+          $('#console pre em.flash').before('\<em class="result"\>\<\/em\>\n');
+          $('#console  em.result:last').text('=> ' + value);
+          $('#console').scrollTop($('#console').children().height());
+          return false;       
+        });
+
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/tomorrow");
+        var RubyMode = require("ace/mode/ruby").Mode;
+        editor.getSession().setMode(new RubyMode());
+        editor.setShowPrintMargin(false);
+
+        $.get('../' + $('select#files').val(), function(data){
+          editor.setValue(data);
+          editor.clearSelection();
+          editor.moveCursorTo(0,0);
+        });
+
+        editor.focus();
+      });
+
+      function print(value) {
+        value = value.toString();
+        $('#console pre em.flash').before("\<em class='print'\>\<\/em\>\n");
+        $('#console  em.print:last').text(value);
+        $('#console').scrollTop($('#console').children().height());
+      }
+
+    </script>
+
   </head>
 
   <body>
-    
+
     <div id="error_container"><div id="error">
-      <pre>Uh-oh, looks like there might be an error in the code! </pre>
+        <pre>Uh-oh, looks like there might be an error in the code! </pre>
     </div></div>
 
     <header>
@@ -49,72 +110,12 @@
 
     <section>
       <div id="editor_container" class="container"><div id="editor"></div></div>
-      <script src="scripts/ace.js" type="text/javascript" charset="utf-8"></script>
-      <script src="scripts/theme-github.js" type="text/javascript" charset="utf-8"></script>
-      <script src="scripts/mode-ruby.js" type="text/javascript" charset="utf-8"></script>
-      <script>
-       (function($) {
-         $.fn.blinky = function() {
-           var that = this;
-           function go() {
-             $(that).toggle();
-             setTimeout(go, 800); 
-           };
-           go();
-         };
-       })(jQuery);
-    
-       $(document).ready(function(){
-         $('select#files').chosen();
-         $('select#files').on('change', function() {
-           var file = $(this).val();
-           $.get('../' + file, function(data){
-             editor.setValue(data);
-             editor.clearSelection();
-             editor.moveCursorTo(0,0);
-           });
-         });
-         $('.flash').blinky();
-         
-         $('#run').click(function(){
-           var context = Wardrobe.run(editor.getValue());
-           var value = context.getReturnObject().toString();
-           $('#console pre em.flash').before('<em class="result"></em>\n');
-           $('#console  em.result:last').text('=> ' + value);
-           $('#console').scrollTop($('#console').children().height());
-           return false;       
-         });
-
-         var editor = ace.edit("editor");
-         editor.setTheme("ace/theme/tomorrow");
-         var RubyMode = require("ace/mode/ruby").Mode;
-         editor.getSession().setMode(new RubyMode());
-         editor.setShowPrintMargin(false);
-
-         $.get('../' + $('select#files').val(), function(data){
-           editor.setValue(data);
-           editor.clearSelection();
-           editor.moveCursorTo(0,0);
-         });
-
-         editor.focus();
-       });
-
-       function print(value) {
-         value = value.toString();
-         $('#console pre em.flash').before("<em class='print'></em>\n");
-         $('#console  em.print:last').text(value);
-         $('#console').scrollTop($('#console').children().height());
-       }
-
-     </script>
-
-    <div id="console_container" class="container"><div id="console">
-      <pre>Welcome to Wadrobe (über-alpha)!
+      <div id="console_container" class="container"><div id="console">
+          <pre>Welcome to Wadrobe (über-alpha)!
 <em class="flash">▌</em> </pre>
-    </div></div>
+      </div></div>
 
-  </section>
+    </section>
   </body>
 
 </html>
