@@ -51,24 +51,22 @@ header h3 {
 
 header a#run {
   position:relative;
-  top:1px;
+  top:2px;
+  left:-15px;
   font: 15px "inconsolata";
   line-height:22px;
-  color:#FFF;
-  background: #29A8DF;
-  padding: 3px 15px;
+  color:#555;
+  background: #fff;
+  padding: 4px 15px 4px 30px;
   border-radius: 4px;
-  /*text-shadow: 0 2px 0 #2182AA;*/
-  box-shadow: 0 3px 0 #2182AA;
+  border:1px solid #aaa;
+  border-left:none;
   text-decoration: none;
-  /*-webkit-font-smoothing: antialiased;*/
+  z-index:0;
 }
 
 header a#run:hover {
   position:relative;
-  top:4px;
-  box-shadow:none;
-  box-shadow: 0 -1px 0 #2182AA;
 }
 
 #files {
