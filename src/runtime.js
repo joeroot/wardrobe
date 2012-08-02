@@ -280,7 +280,7 @@ WardrobeClass.prototype.toString = function() {
   return '<Class:' + this.name + '>';
 };
 
-WardrobeClass.prototype.new_object = function(args) {
+WardrobeClass.prototype.newObject = function(args) {
   var context = new Context();
   var obj = new WardrobeObject(this, null);
   this.getMethod('init').call(context, obj, args);
@@ -351,7 +351,7 @@ WardrobeObjectClass.prototype.installMethods = function() {
     [], 
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
-      var object = Runtime.getClass('String').new_object(receiver.toString());
+      var object = Runtime.getClass('String').newObject(receiver.toString());
       context.setReturnObject(object);
       return context;
     }}
@@ -379,7 +379,7 @@ function WardrobeString() {
   this.methods = {};
 }
 
-WardrobeString.prototype.new_object = function(string) {
+WardrobeString.prototype.newObject = function(string) {
   return new WardrobeObject(this, string);
 };
 
@@ -389,7 +389,7 @@ WardrobeString.prototype.installMethods = function() {
     [], 
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
-      var object = Runtime.getClass('Number').new_object(receiver.value.length);
+      var object = Runtime.getClass('Number').newObject(receiver.value.length);
       context.setReturnObject(object);
       return context;
     }}
@@ -400,14 +400,14 @@ WardrobeString.prototype.installMethods = function() {
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var right = context.getLocalObject('right');
-      var object = Runtime.getClass('String').new_object(receiver.value + right.value);
+      var object = Runtime.getClass('String').newObject(receiver.value + right.value);
       context.setReturnObject(object);
       return context;
     }}
   );
   this.methods.equals = new WardrobeMethod(
     'equals',
-    [{type: {name: 'String'}, idnetifier: {name: 'right'}}],
+    [{type: {name: 'String'}, identifier: {name: 'right'}}],
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var right = context.getLocalObject('right');
@@ -429,7 +429,7 @@ function WardrobeNumber() {
   this.methods = {};
 }
 
-WardrobeNumber.prototype.new_object = function(argument) {
+WardrobeNumber.prototype.newObject = function(argument) {
   return new WardrobeObject(this, argument);
 };
 
@@ -440,7 +440,7 @@ WardrobeNumber.prototype.installMethods = function() {
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var right = context.getLocalObject('right');
-      var object = Runtime.getClass('Number').new_object(receiver.value + right.value);
+      var object = Runtime.getClass('Number').newObject(receiver.value + right.value);
       context.setReturnObject(object);
       return context;
     }}
@@ -451,7 +451,7 @@ WardrobeNumber.prototype.installMethods = function() {
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var right = context.getLocalObject('right');
-      var object = Runtime.getClass('Number').new_object(receiver.value - right.value);
+      var object = Runtime.getClass('Number').newObject(receiver.value - right.value);
       context.setReturnObject(object);
       return context;
     }}
@@ -462,7 +462,7 @@ WardrobeNumber.prototype.installMethods = function() {
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var right = context.getLocalObject('right');
-      var object = Runtime.getClass('Number').new_object(receiver.value / right.value);
+      var object = Runtime.getClass('Number').newObject(receiver.value / right.value);
       context.setReturnObject(object);
       return context;
     }}
@@ -473,7 +473,7 @@ WardrobeNumber.prototype.installMethods = function() {
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var right = context.getLocalObject('right');
-      var object = Runtime.getClass('Number').new_object(receiver.value * right.value);
+      var object = Runtime.getClass('Number').newObject(receiver.value * right.value);
       context.setReturnObject(object);
       return context;
     }}
@@ -575,7 +575,7 @@ WardrobeTrue.prototype.installMethods = function() {
   );
 };
 
-WardrobeTrue.prototype.new_object = function() {
+WardrobeTrue.prototype.newObject = function() {
   return new WardrobeObject(this, true);
 };
 
@@ -590,7 +590,7 @@ function WardrobeFalse() {
   this.methods = {};
 }
 
-WardrobeFalse.prototype.new_object = function() {
+WardrobeFalse.prototype.newObject = function() {
   return new WardrobeObject(this, false);
 };
 
@@ -642,7 +642,7 @@ WardrobeList.prototype.installMethods = function() {
     [],
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
-      var object = Runtime.getClass('Number').new_object(receiver.value.length);
+      var object = Runtime.getClass('Number').newObject(receiver.value.length);
       context.setReturnObject(object);
       return context;
     }}
@@ -708,7 +708,7 @@ WardrobeList.prototype.installMethods = function() {
           break;
         }
       }
-      context.setReturnObject(Runtime.getClass('Number').new_object(index));
+      context.setReturnObject(Runtime.getClass('Number').newObject(index));
       return context;
     }}
   );
@@ -718,7 +718,7 @@ WardrobeList.prototype.toString = function() {
   return '[' + this.value + ']'; 
 };
 
-WardrobeList.prototype.new_object = function(list) {
+WardrobeList.prototype.newObject = function(list) {
   return new WardrobeObject(this, list);
 };
 
@@ -748,7 +748,7 @@ WardrobeSystem.prototype.installMethods = function() {
   );
 };
 
-WardrobeSystem.prototype.new_object = function() {
+WardrobeSystem.prototype.newObject = function() {
   return new WardrobeObject(this, null);
 };
 
@@ -781,9 +781,9 @@ Runtime.getClass('TrueBoolean').installMethods();
 Runtime.getClass('FalseBoolean').installMethods();
 Runtime.getClass('System').installMethods();
 
-Runtime.addGlobal('true', Runtime.getClass('TrueBoolean').new_object());
-Runtime.addGlobal('false', Runtime.getClass('FalseBoolean').new_object());
-Runtime.addGlobal('system', Runtime.getClass('System').new_object());
+Runtime.addGlobal('true', Runtime.getClass('TrueBoolean').newObject());
+Runtime.addGlobal('false', Runtime.getClass('FalseBoolean').newObject());
+Runtime.addGlobal('system', Runtime.getClass('System').newObject());
 
 exports.Runtime = Runtime;
 exports.Context = Context;

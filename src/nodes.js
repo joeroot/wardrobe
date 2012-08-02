@@ -174,7 +174,7 @@ var Number = function(value) {
   this.value = value;
 
   this.evaluate = function(context) {
-    context.setReturnObject(Runtime.getClass('Number').new_object(this.value));
+    context.setReturnObject(Runtime.getClass('Number').newObject(this.value));
     return context;
   };
 };
@@ -187,7 +187,7 @@ var String = function(value) {
   this.value = value.slice(1, value.length - 1);
 
   this.evaluate = function(context) {
-    context.setReturnObject(Runtime.getClass('String').new_object(this.value));
+    context.setReturnObject(Runtime.getClass('String').newObject(this.value));
     return context;
   };
 };
@@ -226,7 +226,7 @@ var List = function(items) {
       list.push(context.getReturnObject());
     }
 
-    context.setReturnObject(Runtime.getClass('List').new_object(list));
+    context.setReturnObject(Runtime.getClass('List').newObject(list));
 
     return context;
   };
@@ -245,7 +245,7 @@ var This = function() {
 var Class = function(constant, inherits, block) {
   this.kind = 'Class';
   this.constant= constant;
-  this.inherits = inherits || new Constant('Object'); //TODO: fix this to create a new constant
+  this.inherits = inherits || new Constant('Object'); 
   this.block = block;
 
   this.evaluate = function(context) {
@@ -266,7 +266,7 @@ var Class = function(constant, inherits, block) {
 
 var Function = function(type, identifier, params, block) {
   this.kind = 'Function';
-  this.type = type || {name: 'Object'}; //TODO: fix this to create a new constant
+  this.type = type || new Constant('Object');
   this.identifier = identifier;
   this.params = params;
   this.block = block;
@@ -342,9 +342,9 @@ var Create = function(constant, args) {
     }
 
     var cls = Runtime.getClass(this.constant.name);
-    var new_object = cls.new_object(args);
+    var newObject = cls.newObject(args);
 
-    context.setReturnObject(new_object);
+    context.setReturnObject(newObject);
     return context;
   };
 };
