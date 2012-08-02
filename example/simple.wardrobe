@@ -3,7 +3,7 @@
 class Person
   String name
 
-  def setName(name)
+  def setName(String name)
     this.name = name
   end
 
@@ -21,16 +21,22 @@ end
 class Teenager extends Person
   Number age
 
-  def init(age)
+  def init(String name, Number age)
+    this.name = name
     this.age = age
   end
 
-  def setAge(age)
+  def setAge(Number age)
     this.age = age
   end
 
   def getAge()
     this.age
+  end
+
+  def setAgeAndName(String name, Number age)
+    this.setName(name)
+    this.setAge(age)
   end
 end
 
@@ -52,13 +58,19 @@ print(p)
 
 String f = "John"
 f = f.concat(" ").concat(p.getName())
+print(p.getName())
+
 print("Length of ".concat(f).concat(" is ").concat(f.length().toString()))
 
 # Teenager is initialised with an age of 15.
-Teenager t = new Teenager(15)
+Teenager t = new Teenager(age: 15, name: "Root")
+print(t)
 t.setName("Smith")
 print(t)
 
-# Can change intialised age with the setAge method.
+# Can change intialised age with parent's setAge method.
 t.setAge(13)
-t.getAge()
+print(t.getAge())
+
+t.setAgeAndName(name: "Watson", age: 19)
+print(t)
