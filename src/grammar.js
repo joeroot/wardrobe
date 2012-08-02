@@ -54,6 +54,7 @@ var grammar = {
       ["value"],
       ["assign"],
       ["literal"],
+      ["constant"],
       ["class"],
       ["function"],
       ["call"],
