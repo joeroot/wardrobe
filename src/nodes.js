@@ -10,10 +10,6 @@ var Runtime = require('./runtime').Runtime;
 
 exports.nodes = {
 
-  // The `Block` node evaluates blocks of codes as defined in Wardobe's
-  // specification. The constructor takes an array of lines, whilst the
-  // evaluate method then evaluates each line within the specified context,
-  // before returning the final context.
   Block: function(lines) {
     this.lines = lines;
 
@@ -26,8 +22,6 @@ exports.nodes = {
     };
   },
 
-  // The `Comment` node does nothing. Can be used as a hook if needed in the
-  // future.
   Comment: function(comment) {
     this.comment = comment;
 
@@ -36,13 +30,8 @@ exports.nodes = {
     };
   },
 
-  // The `Return` node evaluates return statements. The expression to be
-  // returned is evaluated within the supplied context. Though not explicitly
-  // defined here, Wardrobe always places the value of the last evaluated
-  // expression in the context value field, thus no explicit context
-  // manipulation is required.
   Return: function(expression) {
-    this.type = 'Return';
+    this.kind = 'Return';
     this.expression = expression;
 
     this.evaluate = function(context) {
@@ -51,27 +40,373 @@ exports.nodes = {
     };
   },
 
-  // The 'Assign` node evaluates assigments, accepting an `Identifier` and 
-  // `Expression` node in its constructor. The `evaluate` method first evaluates
-  // the context, before assigning it in the context's identifier store. Its
-  // exact storage location is based upon the identifiier's scope.
-  Assign: function(identifier, expression) {
-    this.type = 'Assign';
+  Declare: function(type, identifier) {
+    this.kind = 'Declare';
+    this.type = type;
     this.identifier = identifier;
-    this.expression = expression;
 
     this.evaluate = function(context) {
-      context = this.expression.evaluate(context);
-      if (this.identifier.scope == 'local') {
-        context.setLocalObject(this.identifier.name, context.getReturnObject());
+      var name = this.identifier.name;
+      var type = Runtime.getClass(this.type.name);
+
+      var isObjectProperty = context.current_class !== null;
+
+      // If we are within a class definition (i.e. current class is null), 
+      // declare as an object property, otherwise declare as a local variable.
+      if (isObjectProperty) {
+        context.getCurrentClass().addProperty(name, type, null);
       } else {
-        context.getCurrentObject().setProperty(this.identifier.name, context.getReturnObject());
+        context.addLocal(name, type, null);
       }
+
       return context;
     };
   },
 
-  // If
+  Assign: function(assignable, expression) {
+    this.kind = 'Assign';
+    this.assignable = assignable;
+    this.expression = expression;
+
+    this.evaluate = function(context) {
+      var name;
+      switch (this.assignable.kind) {
+        case 'Declare':
+          name = this.assignable.identifier.name;
+          context = this.assignable.evaluate(context);
+          context = this.expression.evaluate(context);
+          context.setLocalObject(name, context.getReturnObject());
+          break;
+        case 'Identifier':
+          name = this.assignable.name;
+          context = this.expression.evaluate(context);
+          context.setLocalObject(name, context.getReturnObject());
+          break;
+        case 'Property': 
+          context = this.assignable.expression.evaluate(context); 
+          var receiver = context.getReturnObject();
+          var property = this.assignable.identifier.name;
+          context = this.expression.evaluate(context);
+          receiver.setProperty(property, context.getReturnObject()); 
+          break;
+        case 'ListAccessor': break;
+        default: break;
+      }
+
+      return context;
+    };
+  },
+
+  /**
+   * @param {String} name identifier's name
+   */
+  Identifier: function(name) {
+    this.kind = 'Identifier';
+    this.name = name;
+
+    this.evaluate = function(context) {
+      var object = context.getLocalObject(this.name);
+     
+      context.setReturnObject(object);
+     
+      return context;
+    };
+  },
+
+  /**
+   * @param {Node} expression expression whose property is being retrieved
+   * @param {Identifier} identifier property to be retrieved
+   */
+  Property: function(expression, identifier) {
+    this.kind = 'Property';
+    this.expression = expression;
+    this.identifier = identifier;
+
+    this.evaluate = function(context) {
+      context = this.expression.evaluate(context); 
+
+      var receiver = context.getReturnObject();
+      var property = this.identifier.name;
+
+      var object = receiver.getPropertyObject(property);
+      context.setReturnObject(object);
+
+      return context;
+    };
+  },
+
+  /**
+   * @param {Expression} expression expression which should evaluate to a List object
+   * @param {Expression} index_expression expression which should evaluate to a Number denoting the index
+   */
+  ListAccessor: function(expression, index_expression) {
+    this.kind = 'ListAccessor';
+    this.expression = expression;
+    this.index_expression = index_expression;
+
+    this.evaluate = function(context) {
+      context = this.expression.evaluate(context);
+      var list = context.getCurrentObject();
+
+      context = this.index_expression.evaluate(context);
+      var index = context.getCurrentObject();
+
+      context = list.call(context, 'get', {unary: index});
+    };
+  },
+
+  /**
+   * @param {String} name constant's name
+   */
+  Constant: function(name) {
+    this.kind = 'Constant';
+    this.name = name;
+
+    this.evaluate = function(context) {
+      var cls = Runtime.getClass(this.name);
+      context.setReturnObject(cls);
+      return context;
+    };
+  },
+
+  /**
+   * @param {Number} value numeric value of number
+   */
+  Number: function(value) {
+    this.kind = 'Number';
+    this.value = value;
+
+    this.evaluate = function(context) {
+      context.setReturnObject(Runtime.getClass('Number').new_object(this.value));
+      return context;
+    };
+  },
+
+  /**
+   * @param {String} value string value of string
+   */
+  String: function(value) {
+    this.kind = 'String';
+
+    this.value = value.slice(1, value.length - 1);
+
+    this.evaluate = function(context) {
+      context.setReturnObject(Runtime.getClass('String').new_object(this.value));
+      return context;
+    };
+  },
+
+  True: function() {
+    this.kind = 'True';
+
+    this.evaluate = function(context) {
+      context.setReturnObject(Runtime.getGlobalObject('true'));
+      return context;
+    };
+  },
+
+  False: function() {
+    this.kind = 'False';
+
+    this.evaluate = function(context) {
+      context.setReturnObject(Runtime.getGlobalObject('false'));
+      return context;
+    };
+  },
+
+  /**
+   * @param {[Expression]} items array of expressions to intialise the List with
+   */
+  List: function(items) {
+    this.kind = 'List';
+    this.items = items;
+
+    this.evaluate = function(context) {
+      var list = [];
+
+      for (var i = 0; i < this.items.length; i++) {
+        var item = this.items[i];
+        context = item.evaluate(context);
+        list.push(context.getReturnObject());
+      }
+
+      context.setReturnObject(Runtime.getClass('List').new_object(list));
+
+      return context;
+    };
+  },
+
+  This: function() {
+    this.kind = 'This';
+
+    this.evaluate = function(context) {
+      var current = context.getCurrentObject();
+      context.setReturnObject(current);
+      return context;
+    };
+  },
+
+  Class: function(constant, inherits, block) {
+    this.kind = 'Class';
+    this.constant= constant;
+    this.inherits = inherits || {name: 'Object'}; //TODO: fix this to create a new constant
+    this.block = block;
+
+    this.evaluate = function(context) {
+      var name = this.constant.name;
+      var super_cls = Runtime.getClass(this.inherits.name);
+      var cls = Runtime.createClass(name, super_cls);
+
+      var prior_cls = context.getCurrentClass();
+      context.setCurrentClass(cls);
+
+      context = this.block.evaluate(context);
+
+      context.setCurrentClass(prior_cls);
+
+      return context;
+    };
+  },
+
+  Function: function(type, identifier, params, block) {
+    this.kind = 'Function';
+    this.type = type || {name: 'Object'}; //TODO: fix this to create a new constant
+    this.identifier = identifier;
+    this.params = params;
+    this.block = block;
+
+    this.evaluate = function(context) {
+      var name = this.identifier.name;
+
+      if (context.getCurrentClass() !== null) {
+        context.getCurrentClass().createMethod(name, this.params, this.block);
+      } else {
+        Runtime.createMethod(name, this.params, this.block);
+      }
+      
+      return context; 
+    };
+  },
+
+  Param: function(type, identifier) {
+    this.type = type;
+    this.identifier = identifier;
+
+    this.evaluate = function(context) {
+      return context;
+    };
+  },
+
+  Call: function(identifier, receiver, args) {
+    this.kind = 'Call';
+    this.identifier = identifier;
+    this.receiver = receiver;
+    this.args = args;
+
+    this.evaluate = function(context) {
+      var args = {};
+      for (var a = 0; a < this.args.length; a++) {
+        var arg = this.args[a];
+        context = arg.evaluate(context);
+        var name = arg.identifier.name;
+        var object = context.getReturnObject();
+        args[name] = object;
+      }
+      
+      var method_name = this.identifier.name;
+      
+      if (this.receiver !== null) {
+        // evaluate the receiever, before calling the method on the returned object
+        context = this.receiver.evaluate(context);
+        var receiver_object = context.getReturnObject();
+        context = receiver_object.call(context, method_name, args); 
+      } else if (method_name == 'print'){
+        context = Runtime.getGlobalObject('system').call(context, 'print', args);
+      } else {
+        context = Runtime.getMethod(method_name).call(context, null, args);
+      }
+
+      return context;
+    };
+  },
+
+  Create: function(constant, args) {
+    this.kind = 'Create';
+    this.constant = constant;
+    this.args = args;
+
+    this.evaluate = function(context) {
+      var args = {};
+      for (var a = 0; a < this.args.length; a++) {
+        var arg = this.args[a];
+        context = arg.evaluate(context);
+        var name = arg.identifier.name;
+        var object = context.getReturnObject();
+        args[name] = object;
+      }
+
+      var cls = Runtime.getClass(this.constant.name);
+      var new_object = cls.new_object(args);
+
+      context.setReturnObject(new_object);
+      return context;
+    };
+  },
+
+  Argument: function(identifier, argument) {
+    this.kind = 'Argument';
+    this.identifier = identifier;
+    this.argument = argument;
+
+    this.evaluate = function(context) {
+      context = this.argument.evaluate(context);
+      return context;
+    };
+  },
+
+  // TODO: add lazy evaluation on operators, particularly booleans    
+  Operator: function(operator, left, right) {
+    this.operator = operator;
+    this.left = left;
+    this.right = right;
+
+    this.evaluate = function(context) {
+      var right = null;
+      if (this.left !== null) {
+        context = this.left.evaluate(context);
+        var left = context.getReturnObject();
+        context = this.right.evaluate(context);
+        var args = {unary: context.getReturnObject()};
+
+        switch(this.operator) {
+          case 'and': context = left.call(context, 'and', args); break;
+          case 'or': context = left.call(context, 'or', args); break;
+          case '<': break;
+          case '>': context = left.call(context, 'greaterThan', args); break;
+          case '<=': break;
+          case '>=': break;
+          case '==': context = left.call(context, 'equals', args); break;
+          case '+': context = left.call(context, 'add', args); break;
+          case '-': context = left.call(context, 'subtract', args); break;
+          case '/': context = left.call(context, 'divide', args); break;
+          case '*': context = left.call(context, 'multiply', args); break;
+          default: break;
+        }
+      } else {
+        context = this.right.evaluate(context);
+        right = context.getReturnObject();
+
+        switch(this.operator) {
+          case '+': context = right.call(context, 'positive', []); break;
+          case '-': context = right.call(context, 'negative', []); break;
+          default: break;
+        }
+      }
+
+      return context;
+    };
+  },
+
   If: function(conditional, true_branch, false_branch) {
     this.conditional = conditional;
     this.true_branch = true_branch;
@@ -98,232 +433,6 @@ exports.nodes = {
         context = this.block.evaluate(context);
         context = this.conditional.evaluate(context);
       }
-      return context;
-    };
-  },
-
-  Function: function(identifier, params, block) {
-    this.type = 'Function';
-    this.identifier = identifier;
-    this.params = params;
-    this.block = block;
-
-    this.evaluate = function(context) {
-      if (context.current_class !== null) {
-        context.current_class.createMethod(this.identifier.name, this.params, this.block);
-      }
-      return context; 
-    };
-  },
-
-  // TODO: Call: decide how to handle local/global variables
-  // TODO: Call: add argument length error checking
-  Call: function(identifier, receiver, args) {
-    this.type = 'Call';
-    this.identifier = identifier;
-    this.method = this.identifier.name;
-    this.receiver = receiver;
-    this.args = args;
-
-    this.evaluate = function(context) {
-      var args = [];
-      for (var a = 0; a < this.args.length; a++) {
-        var arg = this.args[a];
-        context = arg.evaluate(context);
-        args[a] = context.getReturnObject();
-      }
-
-      if (this.receiver !== null) {
-        context = this.receiver.evaluate(context);
-        var receiver_object = context.getReturnObject();
-        context = receiver_object.call(context, this.method, args); 
-      } else {
-        Runtime.getGlobalObject('system').call(context, 'print', args);
-      }
-
-      return context;
-    };
-  },
-
-  // TODO: add lazy evaluation on operators, particularly booleans    
-  Operator: function(operator, left, right) {
-    this.operator = operator;
-    this.left = left;
-    this.right = right;
-
-    this.evaluate = function(context) {
-      var right = null;
-      if (this.left !== null) {
-        context = this.left.evaluate(context);
-        var left = context.getReturnObject();
-        context = this.right.evaluate(context);
-        right = context.getReturnObject();
-
-        switch(this.operator) {
-          case 'and': context = left.call(context, 'and', [right]); break;
-          case 'or': context = left.call(context, 'or', [right]); break;
-          case '<': break;
-          case '>': break;
-          case '<=': break;
-          case '>=': break;
-          case '==': context = left.call(context, 'equals', [right]); break;
-          case '+': context = left.call(context, 'add', [right]); break;
-          case '-': context = left.call(context, 'subtract', [right]); break;
-          case '/': context = left.call(context, 'divide', [right]); break;
-          case '*': context = left.call(context, 'multiply', [right]); break;
-          default: break;
-        }
-      } else {
-        context = this.right.evaluate(context);
-        right = context.getReturnObject();
-
-        switch(this.operator) {
-          case '+': context = right.call(context, 'positive', []); break;
-          case '-': context = right.call(context, 'negative', []); break;
-          default: break;
-        }
-      }
-
-      return context;
-    };
-  },
-
-  Identifier: function(name, scope) {
-    this.name = name;
-    this.scope = scope;
-
-    this.evaluate = function(context) {
-      if (this.scope == 'local') {
-        context.setReturnObject(context.getLocalObject(this.name));
-      } else {
-        context.setReturnObject(context.getCurrentObject().getPropertyObject(this.name));
-      }
-      return context;
-    };
-  },
-
-  Number: function(value) {
-    this.value = value;
-
-    this.evaluate = function(context) {
-      context.setReturnObject(Runtime.getClass('Number').new_object(this.value));
-      return context;
-    };
-  },
-
-  String: function(value) {
-    this.value = value.slice(1, value.length - 1);
-
-    this.evaluate = function(context) {
-      context.setReturnObject(Runtime.getClass('String').new_object(this.value));
-      return context;
-    };
-  },
-  
-  True: function(value) {
-    this.value = value;
-
-    this.evaluate = function(context) {
-      context.setReturnObject(Runtime.getGlobalObject('true'));
-      return context;
-    };
-  },
-
-  False: function(value) {
-    this.value = value;
-
-    this.evaluate = function(context) {
-      context.setReturnObject(Runtime.getGlobalObject('false'));
-      return context;
-    };
-  },
-
-  List: function(items) {
-    this.items = items;
-
-    this.evaluate = function(context) {
-      var list = [];
-      
-      for (var i = 0; i < this.items.length; i++) {
-        var item = this.items[i];
-        context = item.evaluate(context);
-        list.push(context.getReturnObject());
-      }
-
-      context.setReturnObject(Runtime.getClass('List').new_object(list));
-
-      return context;
-    };
-  },
-
-  Const: function(name) {
-    this.name = name;
-
-    this.evaluate = function(context) {
-      context.setReturnObject(Runtime.getClass(this.name));
-      return context;
-    };
-  },
-
-  Class: function(constant, super_class, block) {
-    this.type = 'Class';
-    this.name = constant;
-    this.super_name = 'Object';
-    if (super_class !== null) {
-      this.super_name = super_class.name;
-    }
-    this.block = block;
-
-    this.evaluate = function(context) {
-      var cls = Runtime.createClass(this.name, Runtime.getClass(this.super_name));
-      prior_class = context.current_class;
-      context.current_class = cls;
-      context = this.block.evaluate(context);
-      context.setCurrentClass(prior_class);
-      return context;
-    };
-  },
-
-  Declare: function(cls, identifier, expression) {
-    this.type = 'Declare';
-    this.cls = cls; 
-    this.identifier = identifier;
-    this.expression = expression;
-
-    this.evaluate = function(context) {
-      if (this.expression === null) {
-        context.setReturnObject(null);
-      } else {
-        context = this.expression.evaluate(context);
-      }
-      
-      type = Runtime.getClass(this.cls);
-
-      if (context.current_class !== null) {
-        context.getCurrentClass().addProperty(this.identifier.name, type, context.getReturnObject());
-      } else {
-        context.addLocal(this.identifier.name, type, context.getReturnObject());
-      }
-      
-      return context;
-    };
-  },
-
-  Create: function(cls, args) {
-    this.cls = cls;
-    this.args = args;
-
-    this.evaluate = function(context) {
-      var args = [];
-      for (var a = 0; a < this.args.length; a++) {
-        var arg = this.args[a];
-        context = arg.evaluate(context);
-        args[a] = context.getReturnObject();
-      }
-
-      var object = Runtime.getClass(this.cls).new_object(args);
-
-      context.setReturnObject(object);
       return context;
     };
   }

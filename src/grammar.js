@@ -6,6 +6,7 @@ var grammar = {
   "operators": [
     ["right", "ASSIGN"],
     ["left", "DOT"],
+    ["right", "COMMA"],
     ["left", "+", "-"],
     ["left", "MATH"],
     ["left", "COMP"],
@@ -20,7 +21,7 @@ var grammar = {
     ],
 
     "t": [
-      ["NEWLINE", "$$ = $1;"]
+      ["NEWLINE"]
     ],
 
     "program": [
@@ -31,49 +32,134 @@ var grammar = {
     "block": [
       ["t program t", "$$ = new yy.Block($2);"] 
     ],
-
+    
     "line": [
-      ["statement", "$$ = $1;"],
-      ["expression", "$$ = $1;"]
+      ["statement"],
+      ["expression"]
     ],
 
+    // Statements do not evaluate as objects
     "statement": [
-      ["COMMENT", "$$ = new yy.Comment($1);"],
-      ["RETURN primary", "$$ = new yy.Return($2);"]
+      ["COMMENT", "$$ = new yy.Comment($1);"],           // e.g. # This is a comment
+      ["RETURN expression", "$$ = new yy.Return($2);"],  // e.g. return x, return square.getWidth()
+      ["declare"]                                     
+    ],
+
+    "declare": [
+      ["constant identifier", "$$ = new yy.Declare($1, $2);"]  // e.g. Number n, String s 
     ],
 
     "expression": [
-      ["if", "$$ = $1;"],
-      ["while", "$$ = $1;"],
-      ["for", "$$ = $1;"],
-      ["assign", "$$ = $1;"],
-      ["operation", "$$ = $1;"],
-      ["call", "$$ = $1;"],
-      ["create", "$$ = $1;"],
-      ["function", "$$ = $1;"],
-      ["class", "$$ = $1;"],
-      ["primary", "$$ = $1;"],
+      ["bracketed"],
+      ["value"],
+      ["assign"],
+      ["literal"],
+      ["class"],
+      ["function"],
+      ["call"],
+      ["create"],
+      ["operation"],
+      ["if"],
+      ["while"]
+    ],
+
+    "bracketed": [
       ["LPAREN expression RPAREN", "$$ = $2;"]
     ],
 
-    "if": [
-      ["IF expression block END", "$$ = new yy.If($2, $3, null);"],
-      ["IF expression block ELSE block END", "$$ = new yy.If($2, $3, $5);"],
-      ["IF expression block ELSE if", "$$ = new yy.If($2, $3, $5);"]
-    ],
-
-    "while": [
-      ["WHILE expression DO block END", "$$ = new yy.While($2, $4);"]
-    ],
-
-    "for": [
-      ["FOR ident IN expression DO block END", "$$ = new yy.For($2, $4, $6);"]
+    "value": [
+      ["assignable"],
+      ["const"],
+      ["this"]
     ],
 
     "assign": [
-      ["CONST identifier", "$$ = new yy.Declare($1, $2, null);"],
-      ["CONST identifier ASSIGN expression", "$$ = new yy.Declare($1, $2, $4);"],
-      ["identifier ASSIGN expression", "$$ = new yy.Assign($1, $3);"]
+      ["declare ASSIGN expression", "$$ = new yy.Assign($1, $3);"],    // e.g. Number x = 10
+      ["assignable ASSIGN expression", "$$ = new yy.Assign($1, $3);"]  // e.g. x = 20
+    ],
+
+    "assignable": [
+      ["identifier"],
+      ["property"]
+      //["list_accessor"] 
+    ],
+
+    "identifier": [
+      ["IDENT", "$$ = new yy.Identifier($1);"]  // e.g. x, width, name
+    ],
+
+    "property": [
+      ["expression DOT identifier", "$$ = new yy.Property($1, $3);"]  // e.g. this.x, obj.width
+    ],
+
+    "list_accessor": [
+      ["expression LSQUARE expression RSQUARE", "$$ = new yy.ListAccessor($1, $3);"]  // e.g. names[0], items[x]
+    ],
+
+    "constant": [
+      ["CONST", "$$ = new yy.Constant($1);"]  // e.g. Number, String
+    ],
+
+    "literal": [
+      ["NUMBER", "$$ = new yy.Number($1);"],  // e.g. 10, 1.33
+      ["STRING", "$$ = new yy.String($1);"],  // e.g. "hello world"
+      ["TRUE", "$$ = new yy.True();"],      // i.e. true
+      ["FALSE", "$$ = new yy.False();"],    // i.e. false
+      ["list"]
+    ],
+
+    "list": [
+      ["LSQUARE list_items RSQUARE", "$$ = new yy.List($2)"]  // e.g. [1,2,3,4]
+    ],
+
+    "list_items": [
+      ["", "$$ = []"],                                          // i.e. empty list
+      ["expression", "$$ = [$1]"],                              // e.g. 1
+      ["list_items COMMA expression", "$$ = $1; $1.push($3);"]  // e.g. 1,2,3,4
+    ],
+
+    "this": [
+      ["THIS", "$$ = new yy.This();"]  // i.e. this
+    ],
+
+    "class": [
+      ["CLASS constant block END", "$$ = new yy.Class($2, null, $3);"],
+      ["CLASS constant EXTENDS constant block END", "$$ = new yy.Class($2, $4, $5);"]
+    ],
+
+    "function": [
+      ["DEF identifier LPAREN params RPAREN block END", "$$ = new yy.Function(null, $2, $4, $6);"],
+      ["DEF constant identifier LPAREN params RPAREN block END", "$$ = new yy.Function($2, $3, $5, $7);"]
+    ],
+
+    "params": [
+      ["", "$$ = [];"],
+      ["constant identifier", "$$ = [new yy.Param($1, $2)];"],
+      ["params COMMA constant identifier", "$$ = $1; $1.push(new yy.Param($3, $4));"]
+    ],
+
+    "call": [
+      ["expression DOT identifier LPAREN arguments RPAREN", "$$ = new yy.Call($3, $1, $5);"], // e.g. 2.add(10), obj.update(name: "John", age: 71) 
+      ["identifier LPAREN arguments RPAREN", "$$ = new yy.Call($1, null, $3);"]               // e.g. print(10), error(message: "Error!", code: 10)
+    ],
+
+    "create": [
+      ["NEW constant LPAREN arguments RPAREN", "$$ = new yy.Create($2, $4);"]  // new Person(name: John, age: 71)
+    ],
+
+    "arguments": [
+      ["unary_argument"],
+      ["named_arguments"]
+    ],
+
+    "unary_argument": [
+      ["expression", "$$ = [new yy.Argument(new yy.Identifier('unary'), $1)];"]  // e.g. 19, x, "hello"
+    ],
+
+    "named_arguments": [
+      ["", "$$ = [];"],                                                                                   // i.e empty arguments
+      ["identifier COLON expression", "$$ = [new yy.Argument($1, $3)];"],                                   // i.e. name: "John"
+      ["named_arguments COMMA identifier COLON expression", "$$ = $1; $1.push(new yy.Argument($3, $5));"]   // i.e. name: "John", age: 71
     ],
 
     "operation": [
@@ -85,73 +171,34 @@ var grammar = {
       ["expression COMP expression", "$$ = new yy.Operator($2, $1, $3);"],
       ["expression LOGIC expression", "$$ = new yy.Operator($2, $1, $3);"] 
     ],
-
-    "function": [
-      ["DEF identifier LPAREN params RPAREN block END", "$$ = new yy.Function($2, $4, $6);"]
+    
+    "if": [
+      ["IF expression block END", "$$ = new yy.If($2, $3, null);"],           // e.g. if bool BLOCK end
+      ["IF expression block ELSE block END", "$$ = new yy.If($2, $3, $5);"],  // e.g. if bool BLOCK else BLOCK end
+      ["IF expression block ELSE if", "$$ = new yy.If($2, $3, $5);"]          // e.g. if bool BLOCK else IF
     ],
 
-    "params": [
-      ["", "$$ = [];"],
-      ["identifier", "$$ = [$1];"],
-      ["params COMMA identifier", "$$ = $1; $1.push($3);"]
+    "while": [
+      ["WHILE expression DO block END", "$$ = new yy.While($2, $4);"]  // e.g. while bool do BLOCK end
     ],
 
-    "call": [
-      ["expression DOT identifier LPAREN arguments RPAREN", "$$ = new yy.Call($3, $1, $5);"],
-      ["identifier LPAREN arguments RPAREN", "$$ = new yy.Call($1, null, $3);"] 
-    ],
-
-    "create": [
-      ["NEW CONST LPAREN arguments RPAREN", "$$ = new yy.Create($2, $4);"]
-    ],
-
-    "arguments": [
-      ["", "$$ = [];"],
-      ["expression", "$$ = [$1];"],
-      ["arguments COMMA expression", "$$ = $1; $1.push($3);"]
-    ],
-
-    "primary": [
-      ["identifier", "$$ = $1;"],
-      ["constant", "$$ = $1;"],
-      ["literal", "$$ = $1;"]
-    ],
-
-    "identifier": [
-      ["IDENT", "$$ = new yy.Identifier($1, 'local');"],
-      ["THIS DOT IDENT", "$$ = new yy.Identifier($3, 'this');"]
-    ],
-
-    "constant": [
-      ["CONST", "$$ = new yy.Const($1);"]
-    ],
-
-    "literal": [
-      ["NUMBER", "$$ = new yy.Number($1);"],
-      ["STRING", "$$ = new yy.String($1);"],
-      ["TRUE", "$$ = new yy.True($1);"],
-      ["FALSE", "$$ = new yy.False($1);"],
-      ["list", "$$ = $1;"]
-    ],
-
-    "list": [
-      ["LSQUARE list_items RSQUARE", "$$ = new yy.List($2)"]
-    ],
-
-    "list_items": [
-      ["", "$$ = []"],
-      ["expression", "$$ = [$1]"],
-      ["list_items COMMA expression", "$$ = $1; $1.push($3);"] 
-    ],
-
-    "class": [
-      ["CLASS CONST block END", "$$ = new yy.Class($2, null, $3);"],
-      ["CLASS CONST EXTENDS constant block END", "$$ = new yy.Class($2, $4, $5);"]
+    "for": [
+      ["FOR identifier IN expression DO block END", ""],
+      ["FOR declare IN expression DO block END", "$$ = new yy.For($2, $4, $6);"]  // e.g. for Number n in ns do BLOCK end 
     ]
 
   }
 
 };
+
+for (rule in grammar.bnf) {
+  expressions = grammar.bnf[rule];
+  for (var i = 0; i < expressions.length; i++) {
+    if (expressions[i].length == 1) {expressions[i].push("$$ = $1;");}
+  }
+}
+
+console.log(grammar.bnf);
 
 var parser = new Parser(grammar, {debug: true});
 
