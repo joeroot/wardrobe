@@ -51,16 +51,14 @@ header h3 {
 
 header a#run {
   position:relative;
-  top:2px;
-  left:-15px;
-  font: 15px "inconsolata";
+  top:1px;
+  font: 14px "myriad-pro";
   line-height:22px;
   color:#555;
   background: #fff;
-  padding: 4px 15px 4px 30px;
+  padding: 3px 15px 4px 15px;
   border-radius: 4px;
   border:1px solid #aaa;
-  border-left:none;
   text-decoration: none;
   z-index:0;
 }

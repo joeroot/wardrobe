@@ -3,12 +3,12 @@
   -webkit-box-sizing: content-box; /* Safari/Chrome, other WebKit */
   -moz-box-sizing: content-box;    /* Firefox, other Gecko */
   box-sizing: content-box;         /* Opera/IE 8+ */
-  font: 13px "inconsolata";
-  line-height:22px;
+  font: 14px "myriad-pro";
+  line-height:24px;
 }
 
 .chzn-container {
-  font-size: 13px;
+  font-size: 14px;
   position: relative;
   display: inline-block;
   zoom: 1;
@@ -37,13 +37,10 @@
   -webkit-border-radius: 5px;
   -moz-border-radius   : 5px;
   border-radius        : 5px;
-  border-top-right-radius:0px;
-  border-bottom-right-radius:0px;
   -moz-background-clip   : padding;
   -webkit-background-clip: padding-box;
   background-clip        : padding-box;
   border: 1px solid #aaaaaa;
-  border-right:none;
   display: block;
   overflow: hidden;
   white-space: nowrap;
@@ -54,31 +51,6 @@
   color: #444444;
   text-decoration: none;
   z-index:10;
-}
-
-.chzn-container-single:after, .chzn-container-single:before {
-  left: 100%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  left:199px;
-  z-index:1000;
-  pointer-events: none;
-}
-
-.chzn-container-single:after {
-  border-left-color: #ffffff;
-  border-width: 11px;
-  top: 50%;
-  margin-top: -11px;
-}
-.chzn-container-single:before {
-  border-left-color: #b5b5b5;
-  border-width: 13px;
-  top: 50%;
-  margin-top: -13px;
 }
 
 .chzn-container-single .chzn-default {
@@ -145,8 +117,8 @@
   padding: 4px 0px 4px 0px;
   outline: 0;
   border: 1px solid #aaa;
-  font-family:inconsolata;
-  font-size: 13px;
+  font-family:myriad-pro;
+  font-size: 14px;
 }
 .chzn-container-single .chzn-drop {
   -webkit-border-radius: 0 0 4px 4px;
@@ -187,7 +159,7 @@
 .chzn-container-multi .chzn-choices .search-field input {
   color: #666;
   background: transparent !important;
-  font: 13px "inconsolata";
+  font: 14px "myriad-pro";
   border: 0 !important;
   height: 15px;
   padding: 5px;
@@ -321,6 +293,14 @@
 .chzn-container-active .chzn-single {
   border: 1px solid #5897fb;
 }
+
+.chzn-container-active chzn-single:before {
+  border-left: 1px solid #5897fb;
+  border-width: 13px;
+  top: 50%;
+  margin-top: -13px;
+}
+
 .chzn-container-active .chzn-single-with-drop {
   border: 1px solid #aaa;
   -webkit-box-shadow: 0 1px 0 #fff inset;
