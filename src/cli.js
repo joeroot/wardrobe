@@ -14,6 +14,6 @@ function parseArguments(argv) {
 }
 
 commands = parseArguments(process.argv);
-context = wardrobe.run(commands.source);
+context = wardrobe.run(commands.source, true);
 console.log("\nFinal value\n");
 console.log(context.getReturnObject().toString());
