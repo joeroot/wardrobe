@@ -7,7 +7,7 @@
 body {
   color:#333;
   background:#FFF;
-  font-size:16px;
+  font: 16px "museo-sans", Helvetica, Arial, sans-serif;
 }
 
 .ingrid {
@@ -23,9 +23,9 @@ header {
   min-width:800px;
   position:absolute;
   height:47px;
+  padding:10px;
   width:100%;
   z-index:2;
-  padding:10px;
   background:#FFF;
   -webkit-box-shadow: 0px 0px 10px 0px #666;
   -moz-box-shadow: 0px 0px 10px 0px #666;
@@ -49,23 +49,50 @@ header h3 {
   text-transform:uppercase;
 }
 
-header a#run {
-  position:relative;
-  top:1px;
-  font: 14px "myriad-pro";
+a.icon {
+  float:left;
+  display:block;
+  height:28px;
+  width:28px;
+  padding:2px 6px 6px 6px;
+  text-align:center;
+  font: 13px "museo-sans";
+  border-radius:4px;
+  margin-left:10px;
   line-height:22px;
-  color:#555;
-  background: #fff;
-  padding: 3px 15px 4px 15px;
-  border-radius: 4px;
-  border:1px solid #aaa;
+  color: #fff;
+  background:#555;
   text-decoration: none;
   z-index:0;
 }
 
-header a#run:hover {
-  position:relative;
+a.icon img {
+  height:13px;
+  width:13px;
 }
+
+header a.icon#run {
+  padding-top:2px;
+  padding-left:6px;
+  background:#AF4921;
+}
+
+header a.icon#run:hover {
+  background:#B33300;
+}
+
+header a.icon#run img {
+  height:16px;
+  width:16px;
+}
+header a.icon#store {
+  background:#4271AE;
+}
+
+header a.icon#store:hover {
+  background:#2763AD;
+}
+
 
 #files {
   width:200px;

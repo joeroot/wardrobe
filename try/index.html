@@ -9,14 +9,17 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <link rel="stylesheet" type="text/css" href="css/ingrid.css">
     <link rel="stylesheet" type="text/css" href="css/blueprint.css">
-    <link rel="stylesheet" type="text/css" href="css/chosen.css">
+    <link rel="stylesheet" type="text/css" href="css/dropkick.css">
+    <link rel="stylesheet" type="text/css" href="css/tooltip.css">
     <link rel="stylesheet" type="text/css" href="css/typography.css">
     <link rel="stylesheet" type="text/css" href="css/layout.css">
     <link rel="stylesheet" type="text/css" href="css/editor.css">
+    <link href="//get.pictos.cc/fonts/2474/1" rel="stylesheet" type="text/css">
 
     <script type="text/javascript" src="../lib/wardrobe.js"></script>
     <script type="text/javascript" src="scripts/jquery.min.js"></script>
-    <script type="text/javascript" src="scripts/chosen.jquery.js"></script>
+    <script type="text/javascript" src="scripts/jquery.dropkick.js"></script>
+    <script type="text/javascript" src="scripts/jquery.bootstrap.tooltip.js"></script>
 
     <script type="text/javascript" src="http://use.typekit.com/htb2rpi.js"></script>
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
@@ -37,14 +40,15 @@
       })(jQuery);
 
       $(document).ready(function(){
-        $('select#files').chosen();
-        $('select#files').on('change', function() {
-          var file = $(this).val();
-          $.get('../' + file, function(data){
-            editor.setValue(data);
-            editor.clearSelection();
-            editor.moveCursorTo(0,0);
-          });
+        $('select#files').dropkick({
+          change: function() {
+            var file = $(this).val();
+            $.get('../' + file, function(data){
+              editor.setValue(data);
+              editor.clearSelection();
+              editor.moveCursorTo(0,0);
+            });
+          }
         });
         $('.flash').blinky();
 
@@ -56,6 +60,8 @@
           $('#console').scrollTop($('#console').children().height());
           return false;       
         });
+
+        $('.icon').tooltip({placement: 'bottom'});
 
         var editor = ace.edit("editor");
         editor.setTheme("ace/theme/tomorrow");
@@ -92,14 +98,15 @@
     <header>
       <div class="ingrid in-thirds">
         <div class="unit">
-          <select id="files">
+          <select id="files" name='pretty' class="files">
             <option value='example/simple.wardrobe'>simple.wardrobe</option>
             <option value='example/factorial.wardrobe'>factorial.wardrobe</option>
             <option value='example/fibonacci.wardrobe'>fibonacci.wardrobe</option>
             <option value='example/lists.wardrobe'>lists.wardrobe</option>
             <option value='example/boolean.wardrobe'>boolean.wardrobe</option>
           </select>
-          <a href="#" id="run">Run</a>
+          <a href="#" id="run" class='icon' title='Run'><img alt='Run' src='images/icons/201-play.png' /></a>
+          <a href="#" id="store" class='icon' title='Stash'><img alt='Stash' src='images/icons/180-stickynote.png' /></a>
         </div>
         <div class="unit title">
           <h3>Wardrobe</h3>

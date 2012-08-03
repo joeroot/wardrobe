@@ -1,13 +1,14 @@
 body {
-  font-family: "minion-pro";
   font-size:16px;
 }
 
 header h1 {
+  font-family: "minion-pro", Georgia, serif;
   text-transform:uppercase;
 }
 
 header h3 {
+  font-family: "minion-pro", Georgia, serif;
   line-height:1.5em;
 }
   
