@@ -13,9 +13,16 @@ function run(source, debug) {
   parser.yy = nodes; 
   parser.lexer =  {
     "lex": function() {
-      var token = this.tokens[this.pos] ? this.tokens[this.pos++] : ['EOF'];
+      var token = this.tokens[this.pos] ? this.tokens[this.pos++] : ['EOF', '', 0, 0];
       this.yytext = token[1];
       this.yylineno = token[2];
+      this.yyleng = this.yytext.length;
+      this.yylloc = {
+        first_line: this.yylineno, 
+        last_line: this.yylineno, 
+        first_column: token[3], 
+        last_column: token[3] + this.yyleng
+      };
       return token[0];
     },
     "setInput": function(tokens) {

@@ -7,26 +7,38 @@ var Runtime = require('./runtime').Runtime;
 // context, and can be ammended and references as needed. The `evaluate` method
 // must return a `context`.
 
-var Node = function() {
+var Node = function(kind) {
+  this.kind = kind;
+  this.range = {
+    first_line: 0,
+    first_column: 0,
+    last_line: 0,
+    last_column: 0
+  };
 };
 
 Node.prototype.evaluate = function(context) {
   try {
     context = this.evaluateNode(context);
   } catch(error) {
-    if (error.is_wardrobe_error && !error.hasLineNo()) {
-      error.setLineNo(this.line_no);
+    if (error.is_wardrobe_error) {
+      error.addToStack(this);
     }
     throw error;
   }
   return context;
 };
 
-Block.prototype = new Node();
+Node.prototype.getStartColumn = function() {return this.range.first_column;};
+Node.prototype.getEndColumn = function() {return this.range.last_column;};
+Node.prototype.getStartLine = function() {return this.range.first_line;};
+Node.prototype.getEndLine = function() {return this.range.last_line;};
+
+Block.prototype = new Node('Block');
 Block.prototype.constructor = Block;
-function Block(lines, line_no, text) {
+function Block(lines, range, text) {
   this.lines = lines;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -38,11 +50,11 @@ function Block(lines, line_no, text) {
   };
 }
 
-Comment.prototype = new Node();
+Comment.prototype = new Node('Comment');
 Comment.prototype.constructor = Comment;
-function Comment(comment, line_no, text) {
+function Comment(comment, range, text) {
   this.comment = comment;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -50,12 +62,11 @@ function Comment(comment, line_no, text) {
   };
 }
 
-Return.prototype = new Node();
+Return.prototype = new Node('Return');
 Return.prototype.constructor = Return;
-function Return(expression, line_no, text) {
-  this.kind = 'Return';
+function Return(expression, range, text) {
   this.expression = expression;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -64,13 +75,12 @@ function Return(expression, line_no, text) {
   };
 }
 
-Declare.prototype = new Node();
+Declare.prototype = new Node('Declare');
 Declare.prototype.constructor = Declare;
-function Declare (type, identifier, line_no, text) {
-  this.kind = 'Declare';
+function Declare (type, identifier, range, text) {
   this.type = type;
   this.identifier = identifier;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -91,13 +101,12 @@ function Declare (type, identifier, line_no, text) {
   };
 }
 
-Assign.prototype = new Node();
+Assign.prototype = new Node('Assign');
 Assign.prototype.constructor = Assign;
-function Assign(assignable, expression, line_no, text) {
-  this.kind = 'Assign';
+function Assign(assignable, expression, range, text) {
   this.assignable = assignable;
   this.expression = expression;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -129,15 +138,14 @@ function Assign(assignable, expression, line_no, text) {
   };
 }
 
-Identifier.prototype = new Node();
+Identifier.prototype = new Node('Identifier');
 Identifier.prototype.constructor = Identifier;
 /**
  * @param {String} name identifier's name
  */
-function Identifier(name, line_no, text) {
-  this.kind = 'Identifier';
+function Identifier(name, range, text) {
   this.name = name;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -149,17 +157,16 @@ function Identifier(name, line_no, text) {
   };
 }
 
-Property.prototype = new Node();
+Property.prototype = new Node('Property');
 Property.prototype.constructor = Property;
 /**
  * @param {Node} expression expression whose property is being retrieved
  * @param {Identifier} identifier property to be retrieved
  */
-function Property(expression, identifier, line_no, text) {
-  this.kind = 'Property';
+function Property(expression, identifier, range, text) {
   this.expression = expression;
   this.identifier = identifier;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -175,17 +182,16 @@ function Property(expression, identifier, line_no, text) {
   };
 }
 
-ListAccessor.prototype = new Node();
+ListAccessor.prototype = new Node('ListAccessor');
 ListAccessor.prototype.constructor = ListAccessor;
 /**
  * @param {Expression} expression expression which should evaluate to a List object
  * @param {Expression} index_expression expression which should evaluate to a Number denoting the index
  */
-function ListAccessor(expression, index_expression, line_no, text) {
-  this.kind = 'ListAccessor';
+function ListAccessor(expression, index_expression, range, text) {
   this.expression = expression;
   this.index_expression = index_expression;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -199,15 +205,14 @@ function ListAccessor(expression, index_expression, line_no, text) {
   };
 }
 
-Constant.prototype = new Node();
+Constant.prototype = new Node('Constant');
 Constant.prototype.constructor = Constant;
 /**
  * @param {String} name constant's name
  */
-function Constant(name, line_no, text) {
-  this.kind = 'Constant';
+function Constant(name, range, text) {
   this.name = name;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -217,15 +222,14 @@ function Constant(name, line_no, text) {
   };
 }
 
-Number.prototype = new Node();
+Number.prototype = new Node('Number');
 Number.prototype.constructor = Number;
 /**
  * @param {Number} value numeric value of number
  */
-function Number(value, line_no, text) {
-  this.kind = 'Number';
-  this.value = value;
-  this.line_no = line_no;
+function Number(value, range, text) {
+  this.value = parseFloat(value);
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -234,15 +238,14 @@ function Number(value, line_no, text) {
   };
 }
 
-String.prototype = new Node();
+String.prototype = new Node('String');
 String.prototype.constructor = String;
 /**
  * @param {String} value string value of string
  */
-function String(value, line_no, text) {
-  this.kind = 'String';
+function String(value, range, text) {
   this.value = value.slice(1, value.length - 1);
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -251,11 +254,10 @@ function String(value, line_no, text) {
   };
 }
 
-True.prototype = new Node();
+True.prototype = new Node('True');
 True.prototype.constructor = True;
-function True(line_no, text) {
-  this.kind = 'True';
-  this.line_no = line_no;
+function True(range, text) {
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -264,11 +266,10 @@ function True(line_no, text) {
   };
 }
 
-False.prototype = new Node();
+False.prototype = new Node('False');
 False.prototype.constructor = False;
-function False(line_no, text) {
-  this.kind = 'False';
-  this.line_no = line_no;
+function False(range, text) {
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -277,15 +278,14 @@ function False(line_no, text) {
   };
 }
 
-List.prototype = new Node();
+List.prototype = new Node('List');
 List.prototype.constructor = List;
 /**
  * @param {[Expression]} items array of expressions to intialise the List with
  */
-function List(items, line_no, text) {
-  this.kind = 'List';
+function List(items, range, text) {
   this.items = items;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -303,11 +303,10 @@ function List(items, line_no, text) {
   };
 }
 
-This.prototype = new Node();
+This.prototype = new Node('This');
 This.prototype.constructor = This;
-function This(line_no, text) {
-  this.kind = 'This';
-  this.line_no = line_no;
+function This(range, text) {
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -317,14 +316,13 @@ function This(line_no, text) {
   };
 }
 
-Class.prototype = new Node();
+Class.prototype = new Node('Class');
 Class.prototype.constructor = Class;
-function Class(constant, inherits, block, line_no, text) {
-  this.kind = 'Class';
+function Class(constant, inherits, block, range, text) {
   this.constant= constant;
   this.inherits = inherits || new Constant('Object'); 
   this.block = block;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -343,15 +341,14 @@ function Class(constant, inherits, block, line_no, text) {
   };
 }
 
-Function.prototype = new Node();
+Function.prototype = new Node('Function');
 Function.prototype.constructor = Function;
-function Function(type, identifier, params, block, line_no, text) {
-  this.kind = 'Function';
+function Function(type, identifier, params, block, range, text) {
   this.type = type || new Constant('Object');
   this.identifier = identifier;
   this.params = params;
   this.block = block;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -367,12 +364,12 @@ function Function(type, identifier, params, block, line_no, text) {
   };
 }
 
-Param.prototype = new Node();
+Param.prototype = new Node('Param');
 Param.prototype.constructor = Param;
-function Param(type, identifier, line_no, text) {
+function Param(type, identifier, range, text) {
   this.type = type;
   this.identifier = identifier;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -380,14 +377,13 @@ function Param(type, identifier, line_no, text) {
   };
 }
 
-Call.prototype = new Node();
+Call.prototype = new Node('Call');
 Call.prototype.constructor = Call;
-function Call(identifier, receiver, args, line_no, text) {
-  this.kind = 'Call';
+function Call(identifier, receiver, args, range, text) {
   this.identifier = identifier;
   this.receiver = receiver;
   this.args = args;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -417,13 +413,12 @@ function Call(identifier, receiver, args, line_no, text) {
   };
 }
 
-Create.prototype = new Node();
+Create.prototype = new Node('Create');
 Create.prototype.constructor = Create;
-function Create(constant, args, line_no, text) {
-  this.kind = 'Create';
+function Create(constant, args, range, text) {
   this.constant = constant;
   this.args = args;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -444,13 +439,12 @@ function Create(constant, args, line_no, text) {
   };
 }
 
-Argument.prototype = new Node();
+Argument.prototype = new Node('Argument');
 Argument.prototype.constructor = Argument;
-function Argument(identifier, argument, line_no, text) {
-  this.kind = 'Argument';
+function Argument(identifier, argument, range, text) {
   this.identifier = identifier;
   this.argument = argument;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -460,13 +454,13 @@ function Argument(identifier, argument, line_no, text) {
 }
 
 // TODO: add lazy evaluation on operators, particularly booleans    
-Operator.prototype = new Node();
+Operator.prototype = new Node('Operator');
 Operator.prototype.constructor = Operator;
-function Operator(operator, left, right, line_no, text) {
+function Operator(operator, left, right, range, text) {
   this.operator = operator;
   this.left = left;
   this.right = right;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -506,13 +500,13 @@ function Operator(operator, left, right, line_no, text) {
   };
 }
 
-If.prototype = new Node();
+If.prototype = new Node('If');
 If.prototype.constructor = If;
-function If(conditional, true_branch, false_branch, line_no, text) {
+function If(conditional, true_branch, false_branch, range, text) {
   this.conditional = conditional;
   this.true_branch = true_branch;
   this.false_branch = false_branch;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -526,12 +520,12 @@ function If(conditional, true_branch, false_branch, line_no, text) {
   };
 }
 
-While.prototype = new Node();
+While.prototype = new Node('While');
 While.prototype.constructor = While;
-function While(conditional, block, line_no, text) {
+function While(conditional, block, range, text) {
   this.conditional = conditional;
   this.block = block;
-  this.line_no = line_no;
+  this.range = range;
   this.text = text;
 
   this.evaluateNode = function(context) {
@@ -568,6 +562,6 @@ exports.nodes = {
   Argument: Argument,
   Operator: Operator,
   If: If,
-    While: While
+  While: While
 };
 

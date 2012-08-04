@@ -14,7 +14,7 @@ function run(ast) {
     if (error.is_wardrobe_error) {
       switch (error.error) {
         default: 
-          console.log(error.errorString());
+          console.log(error);
           context = error.context;
           break;
       }

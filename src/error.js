@@ -16,29 +16,15 @@ function WardrobeNoMethodError(context, method) {
   this.method = method;
 }
 
-WardrobeNoMethodError.prototype.errorString = function() {
-  var str = this.stack[0].line_no + ": ";
+WardrobeNoMethodError.prototype.toString = function() {
+  var str = this.stack[0].getStartLine() + ": ";
   str += "No method " + this.method + " for objects of class " + this.receiver.cls.name + ".";
   for (var i = 1; i < this.stack.length; i++) {
-    str += '\n' + this.stack[i].line_no + ' ' + this.stack[i].kind;
+    str += '\n' + this.stack[i].getStartLine() + ' ' + this.stack[i].kind;
   }
   return str;
 };
 
-WardrobeMissingArgumentError.prototype = new WardrobeError();
-WardrobeMissingArgumentError.prototype.constructor = WardrobeMissingArgumentError;
-function WardrobeMissingArgumentError(context, method, missing) {
-  this.error = 'MissingArgument';
-  this.context = context;
-  this.receiver = context.getReturnObject();
-  this.method = method;
-}
-
-WardrobeMissingArgumentError.prototype.errorString = function() {
-  var str = this.line_no + ": ";
-  str += "No method " + this.method + " for objects of class " + this.receiver.cls.name + ".";
-  return str;
-};
 
 exports.WardrobeError = WardrobeError;
 exports.WardrobeNoMethodError = WardrobeNoMethodError;
