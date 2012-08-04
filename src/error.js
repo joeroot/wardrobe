@@ -18,7 +18,7 @@ function WardrobeNoMethodError(context, method) {
 
 WardrobeNoMethodError.prototype.toString = function() {
   var str = this.stack[0].getStartLine() + ": ";
-  str += "No method " + this.method + " for objects of class " + this.receiver.cls.name + ".";
+  str += "No method " + this.stack[0].identifier.name + " for objects of class " + this.receiver.cls.name + ".";
   for (var i = 1; i < this.stack.length; i++) {
     str += '\n' + this.stack[i].getStartLine() + ' ' + this.stack[i].kind;
   }
