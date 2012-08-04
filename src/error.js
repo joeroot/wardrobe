@@ -1,14 +1,11 @@
 var WardrobeError = function() {
   this.error = 'Undefined';
 };
-
 WardrobeError.prototype.is_wardrobe_error =  true;
-WardrobeError.prototype.line_no = null; 
-
-WardrobeError.prototype.hasLineNo = function() {return this.line_no !== null;};
-WardrobeError.prototype.setLineNo = function(line_no) {this.line_no = line_no;};
-WardrobeError.prototype.getLineNo = function() {return this.line_no;};
+WardrobeError.prototype.stack = [];
 WardrobeError.prototype.errorString = function() {return "An error has occured.";};
+WardrobeError.prototype.addToStack = function(node) {this.stack.push(node);};
+WardrobeError.prototype.getStack = function() {return this.stack;};
 
 WardrobeNoMethodError.prototype = new WardrobeError();
 WardrobeNoMethodError.prototype.constructor = WardrobeNoMethodError;
@@ -20,8 +17,11 @@ function WardrobeNoMethodError(context, method) {
 }
 
 WardrobeNoMethodError.prototype.errorString = function() {
-  var str = this.line_no + ": ";
-  str += "No method " + this.method + " for object's of class " + this.receiver.cls.name + ".";
+  var str = this.stack[0].line_no + ": ";
+  str += "No method " + this.method + " for objects of class " + this.receiver.cls.name + ".";
+  for (var i = 1; i < this.stack.length; i++) {
+    str += '\n' + this.stack[i].line_no + ' ' + this.stack[i].kind;
+  }
   return str;
 };
 
@@ -36,7 +36,7 @@ function WardrobeMissingArgumentError(context, method, missing) {
 
 WardrobeMissingArgumentError.prototype.errorString = function() {
   var str = this.line_no + ": ";
-  str += "No method " + this.method + " for object's of class " + this.receiver.cls.name + ".";
+  str += "No method " + this.method + " for objects of class " + this.receiver.cls.name + ".";
   return str;
 };
 
