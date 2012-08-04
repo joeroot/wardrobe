@@ -39,7 +39,7 @@
   }
   .dk_label {
     position:relative;
-    top:3px;
+    top:4px;
     padding:0px 0px 0px 10px;
   }
   .dk_toggle:after {
@@ -60,6 +60,7 @@
   position: relative;
 }
   .dk_open .dk_toggle:after {
+    padding:3px 10px 3px 10px;
     -webkit-transform:rotate(-180deg);
     -moz-transform:rotate(-180deg); 
     -o-transform:rotate(-180deg); 

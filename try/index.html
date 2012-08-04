@@ -79,7 +79,7 @@
       });
 
       function print(value) {
-        value = value.toString();
+        value = value.toString().toString();
         $('#console pre em.flash').before("\<em class='print'\>\<\/em\>\n");
         $('#console  em.print:last').text(value);
         $('#console').scrollTop($('#console').children().height());
