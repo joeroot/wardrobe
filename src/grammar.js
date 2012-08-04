@@ -30,7 +30,7 @@ var grammar = {
     ],
 
     "block": [
-      ["t program t", "$$ = new yy.Block($2);"] 
+      ["t program t", "$$ = new yy.Block($2, yylineno, yytext);"] 
     ],
     
     "line": [
@@ -40,13 +40,13 @@ var grammar = {
 
     // Statements do not evaluate as objects
     "statement": [
-      ["COMMENT", "$$ = new yy.Comment($1);"],           // e.g. # This is a comment
-      ["RETURN expression", "$$ = new yy.Return($2);"],  // e.g. return x, return square.getWidth()
+      ["COMMENT", "$$ = new yy.Comment($1, yylineno, yytext);"],           // e.g. # This is a comment
+      ["RETURN expression", "$$ = new yy.Return($2, yylineno, yytext);"],  // e.g. return x, return square.getWidth()
       ["declare"]                                     
     ],
 
     "declare": [
-      ["constant identifier", "$$ = new yy.Declare($1, $2);"]  // e.g. Number n, String s 
+      ["constant identifier", "$$ = new yy.Declare($1, $2, yylineno, yytext);"]  // e.g. Number n, String s 
     ],
 
     "expression": [
@@ -75,8 +75,8 @@ var grammar = {
     ],
 
     "assign": [
-      ["declare ASSIGN expression", "$$ = new yy.Assign($1, $3);"],    // e.g. Number x = 10
-      ["assignable ASSIGN expression", "$$ = new yy.Assign($1, $3);"]  // e.g. x = 20
+      ["declare ASSIGN expression", "$$ = new yy.Assign($1, $3, yylineno, yytext);"],    // e.g. Number x = 10
+      ["assignable ASSIGN expression", "$$ = new yy.Assign($1, $3, yylineno, yytext);"]  // e.g. x = 20
     ],
 
     "assignable": [
@@ -86,26 +86,26 @@ var grammar = {
     ],
 
     "identifier": [
-      ["IDENT", "$$ = new yy.Identifier($1);"]  // e.g. x, width, name
+      ["IDENT", "$$ = new yy.Identifier($1, yylineno, yytext);"]  // e.g. x, width, name
     ],
 
     "property": [
-      ["expression DOT identifier", "$$ = new yy.Property($1, $3);"]  // e.g. this.x, obj.width
+      ["expression DOT identifier", "$$ = new yy.Property($1, $3, yylineno, yytext);"]  // e.g. this.x, obj.width
     ],
 
     "list_accessor": [
-      ["expression LSQUARE expression RSQUARE", "$$ = new yy.ListAccessor($1, $3);"]  // e.g. names[0], items[x]
+      ["expression LSQUARE expression RSQUARE", "$$ = new yy.ListAccessor($1, $3, yylineno, yytext);"]  // e.g. names[0], items[x]
     ],
 
     "constant": [
-      ["CONST", "$$ = new yy.Constant($1);"]  // e.g. Number, String
+      ["CONST", "$$ = new yy.Constant($1, yylineno, yytext);"]  // e.g. Number, String
     ],
 
     "literal": [
-      ["NUMBER", "$$ = new yy.Number($1);"],  // e.g. 10, 1.33
-      ["STRING", "$$ = new yy.String($1);"],  // e.g. "hello world"
-      ["TRUE", "$$ = new yy.True();"],      // i.e. true
-      ["FALSE", "$$ = new yy.False();"],    // i.e. false
+      ["NUMBER", "$$ = new yy.Number($1, yylineno, yytext);"],  // e.g. 10, 1.33
+      ["STRING", "$$ = new yy.String($1, yylineno, yytext);"],  // e.g. "hello world"
+      ["TRUE", "$$ = new yy.True(yylineno, yytext);"],      // i.e. true
+      ["FALSE", "$$ = new yy.False(yylineno, yytext);"],    // i.e. false
       ["list"]
     ],
 
@@ -120,32 +120,32 @@ var grammar = {
     ],
 
     "this": [
-      ["THIS", "$$ = new yy.This();"]  // i.e. this
+      ["THIS", "$$ = new yy.This(yylineno, yytext);"]  // i.e. this
     ],
 
     "class": [
-      ["CLASS constant block END", "$$ = new yy.Class($2, null, $3);"],
-      ["CLASS constant EXTENDS constant block END", "$$ = new yy.Class($2, $4, $5);"]
+      ["CLASS constant block END", "$$ = new yy.Class($2, null, $3, yylineno, yytext);"],
+      ["CLASS constant EXTENDS constant block END", "$$ = new yy.Class($2, $4, $5, yylineno, yytext);"]
     ],
 
     "function": [
-      ["DEF identifier LPAREN params RPAREN block END", "$$ = new yy.Function(null, $2, $4, $6);"],
-      ["DEF constant identifier LPAREN params RPAREN block END", "$$ = new yy.Function($2, $3, $5, $7);"]
+      ["DEF identifier LPAREN params RPAREN block END", "$$ = new yy.Function(null, $2, $4, $6, yylineno, yytext);"],
+      ["DEF constant identifier LPAREN params RPAREN block END", "$$ = new yy.Function($2, $3, $5, $7, yylineno, yytext);"]
     ],
 
     "params": [
       ["", "$$ = [];"],
       ["constant identifier", "$$ = [new yy.Param($1, $2)];"],
-      ["params COMMA constant identifier", "$$ = $1; $1.push(new yy.Param($3, $4));"]
+      ["params COMMA constant identifier", "$$ = $1; $1.push(new yy.Param($3, $4, yylineno, yytext));"]
     ],
 
     "call": [
-      ["expression DOT identifier LPAREN arguments RPAREN", "$$ = new yy.Call($3, $1, $5);"], // e.g. 2.add(10), obj.update(name: "John", age: 71) 
-      ["identifier LPAREN arguments RPAREN", "$$ = new yy.Call($1, null, $3);"]               // e.g. print(10), error(message: "Error!", code: 10)
+      ["expression DOT identifier LPAREN arguments RPAREN", "$$ = new yy.Call($3, $1, $5, yylineno, yytext);"], // e.g. 2.add(10), obj.update(name: "John", age: 71) 
+      ["identifier LPAREN arguments RPAREN", "$$ = new yy.Call($1, null, $3, yylineno, yytext);"]               // e.g. print(10), error(message: "Error!", code: 10)
     ],
 
     "create": [
-      ["NEW constant LPAREN arguments RPAREN", "$$ = new yy.Create($2, $4);"]  // new Person(name: John, age: 71)
+      ["NEW constant LPAREN arguments RPAREN", "$$ = new yy.Create($2, $4, yylineno, yytext);"]  // new Person(name: John, age: 71)
     ],
 
     "arguments": [
@@ -160,32 +160,32 @@ var grammar = {
     "named_arguments": [
       ["", "$$ = [];"],                                                                                   // i.e empty arguments
       ["identifier COLON expression", "$$ = [new yy.Argument($1, $3)];"],                                   // i.e. name: "John"
-      ["named_arguments COMMA identifier COLON expression", "$$ = $1; $1.push(new yy.Argument($3, $5));"]   // i.e. name: "John", age: 71
+      ["named_arguments COMMA identifier COLON expression", "$$ = $1; $1.push(new yy.Argument($3, $5, yylineno, yytext));"]   // i.e. name: "John", age: 71
     ],
 
     "operation": [
-      ["+ expression", "$$ = new yy.Operator($1, null, $2);"],
-      ["- expression", "$$ = new yy.Operator($1, null, $2);"],
-      ["expression + expression", "$$ = new yy.Operator($2, $1, $3);"],
-      ["expression - expression", "$$ = new yy.Operator($2, $1, $3);"],
-      ["expression MATH expression", "$$ = new yy.Operator($2, $1, $3);"],
-      ["expression COMP expression", "$$ = new yy.Operator($2, $1, $3);"],
-      ["expression LOGIC expression", "$$ = new yy.Operator($2, $1, $3);"] 
+      ["+ expression", "$$ = new yy.Operator($1, null, $2, yylineno, yytext);"],
+      ["- expression", "$$ = new yy.Operator($1, null, $2, yylineno, yytext);"],
+      ["expression + expression", "$$ = new yy.Operator($2, $1, $3, yylineno, yytext);"],
+      ["expression - expression", "$$ = new yy.Operator($2, $1, $3, yylineno, yytext);"],
+      ["expression MATH expression", "$$ = new yy.Operator($2, $1, $3, yylineno, yytext);"],
+      ["expression COMP expression", "$$ = new yy.Operator($2, $1, $3, yylineno, yytext);"],
+      ["expression LOGIC expression", "$$ = new yy.Operator($2, $1, $3, yylineno, yytext);"] 
     ],
     
     "if": [
-      ["IF expression block END", "$$ = new yy.If($2, $3, null);"],           // e.g. if bool BLOCK end
-      ["IF expression block ELSE block END", "$$ = new yy.If($2, $3, $5);"],  // e.g. if bool BLOCK else BLOCK end
-      ["IF expression block ELSE if", "$$ = new yy.If($2, $3, $5);"]          // e.g. if bool BLOCK else IF
+      ["IF expression block END", "$$ = new yy.If($2, $3, null, yylineno, yytext);"],           // e.g. if bool BLOCK end
+      ["IF expression block ELSE block END", "$$ = new yy.If($2, $3, $5, yylineno, yytext);"],  // e.g. if bool BLOCK else BLOCK end
+      ["IF expression block ELSE if", "$$ = new yy.If($2, $3, $5, yylineno, yytext);"]          // e.g. if bool BLOCK else IF
     ],
 
     "while": [
-      ["WHILE expression DO block END", "$$ = new yy.While($2, $4);"]  // e.g. while bool do BLOCK end
+      ["WHILE expression DO block END", "$$ = new yy.While($2, $4, yylineno, yytext);"]  // e.g. while bool do BLOCK end
     ],
 
     "for": [
       ["FOR identifier IN expression DO block END", ""],
-      ["FOR declare IN expression DO block END", "$$ = new yy.For($2, $4, $6);"]  // e.g. for Number n in ns do BLOCK end 
+      ["FOR declare IN expression DO block END", "$$ = new yy.For($2, $4, $6, yylineno, yytext);"]  // e.g. for Number n in ns do BLOCK end 
     ]
 
   }

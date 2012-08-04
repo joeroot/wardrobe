@@ -1,5 +1,7 @@
 "use strict";
 
+var error = require('./error');
+
 /**
  * Initialises a new runtime environment
  *
@@ -152,7 +154,11 @@ WardrobeObject.prototype.getClass = function() {
 
 WardrobeObject.prototype.call = function(context, name, args) {
   var method = this.cls.getMethod(name);
-  method.call(context, this, args);
+  if (method !== null) {
+    method.call(context, this, args);
+  } else {
+    throw new error.WardrobeNoMethodError(context, name);
+  }
   return context;
 };
 
@@ -740,7 +746,7 @@ WardrobeSystem.prototype.installMethods = function() {
     {evaluate: function(context) {
       var obj = context.getLocalObject('object').value;
       if (typeof(window) != 'undefined') {
-        logToConsole(obj.toString());
+        logToConsole(obj);
       }
       console.log(obj.toString());
       return context;

@@ -1,0 +1,15 @@
+class Person
+  String name
+
+  def setName(String name)
+    this.name = name
+  end
+
+  def getName()
+    this.notAMethod()
+    return this.name
+  end
+end
+
+Person p = new Person()
+p.getName()

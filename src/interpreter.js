@@ -11,7 +11,16 @@ function run(ast) {
       context = node.evaluate(context);
     }
   } catch(error) {
-    
+    if (error.is_wardrobe_error) {
+      switch (error.error) {
+        default: 
+          console.log(error.errorString());
+          context = error.context;
+          break;
+      }
+    } else {
+      throw error;
+    }
   }
 
   return context;
