@@ -7,7 +7,7 @@
 body {
   color:#333;
   background:#FFF;
-  font: 16px "museo-sans", Helvetica, Arial, sans-serif;
+  font: 16px "proxima-nova", Helvetica, Arial, sans-serif;
 }
 
 .ingrid {
@@ -56,7 +56,7 @@ a.icon {
   width:28px;
   padding:2px 6px 6px 6px;
   text-align:center;
-  font: 13px "museo-sans";
+  font: 13px "proxima-nova";
   border-radius:4px;
   margin-left:10px;
   line-height:22px;
@@ -92,7 +92,6 @@ header a.icon#store {
 header a.icon#store:hover {
   background:#2763AD;
 }
-
 
 #files {
   width:200px;

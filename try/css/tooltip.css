@@ -35,12 +35,13 @@
   box-sizing: border-box;
 }
 .tooltip {
+  font-weight:500;
   position: absolute;
   z-index: 1020;
   display: block;
   visibility: visible;
   padding: 5px;
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing:1px;
   opacity: 0;
   filter: alpha(opacity=0);

@@ -64,8 +64,7 @@
 #console em.flash {
   font-style:normal;
   font-weight:normal;
-  text-decoration:blink;
-  color:#555;
+  color:#888;
 }
 
 #console em.result {

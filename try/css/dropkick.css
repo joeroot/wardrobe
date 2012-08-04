@@ -13,7 +13,7 @@
   -moz-box-sizing: border-box;    /* Firefox, other Gecko */
   box-sizing: border-box;         /* Opera/IE 8+ */
   float:left;
-  font: 13px "museo-sans";
+  font: 14px "proxima-nova";
   line-height:22px;
   /*margin-right:10px;*/
 }
@@ -119,6 +119,8 @@
   .dk_options a:visited {
     display: block;
     padding:3px 10px;
+    color:#666;
+    border-bottom:1px solid #EEE; 
   }
   .dk_options li:last-child a {
     border-bottom:none;
