@@ -2,7 +2,40 @@ var fs = require('fs');
 
 desc('Builds Wardrobe for the browser.');
 task('browser', function (params) {
-  var files = ['lexer', 'runtime', 'nodes', 'parser', 'interpreter', 'wardrobe'];
+  var files = [
+    'lexer', 
+    'runtime', 
+    'error', 
+    'nodes/node', 
+    'nodes/constant', 
+    'nodes/argument', 
+    'nodes/assign', 
+    'nodes/block', 
+    'nodes/call', 
+    'nodes/class', 
+    'nodes/comment', 
+    'nodes/create', 
+    'nodes/declare', 
+    'nodes/false', 
+    'nodes/function', 
+    'nodes/identifier', 
+    'nodes/if', 
+    'nodes/list', 
+    'nodes/listaccessor', 
+    'nodes/number', 
+    'nodes/operator', 
+    'nodes/param', 
+    'nodes/property', 
+    'nodes/return', 
+    'nodes/string', 
+    'nodes/this', 
+    'nodes/true', 
+    'nodes/while', 
+    'nodes', 
+    'parser', 
+    'interpreter', 
+    'wardrobe'
+  ];
   var src = fs.readFileSync("src/browser.js");
   
   src = src + "(function(root) {\n";
@@ -15,6 +48,13 @@ task('browser', function (params) {
     src = src + "  var exports = this;\n";
     src = src + "  " + fs.readFileSync("src/" + file + ".js");
     src = src + "}\n";
+    var split = file.split('/');
+    if (split.length > 1) {
+      console.log(split[1] + " " + file);
+      src = src + "require['./" + split[1] + "'] = require['./" + file + "'];\n";
+    } else {
+      src = src + "require['../" + file + "'] = require['./" + file + "'];\n";
+    }
   }
 
   src = src + "    return require['./wardrobe'];";
