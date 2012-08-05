@@ -1,15 +1,33 @@
 class Person
-  String name
+  String name = "Root"
 
   def setName(String name)
     this.name = name
-  end
+   end
 
   def getName()
-    this.notAMethod()
+    #this.notAMethod()
     return this.name
   end
 end
 
+def missingParams(Number m, Number n)
+  print(m)
+ end
+
 Person p = new Person()
+Person p2 = new Person()
+print(p.getName())
+p2.setName("Tim")
+print(p)
+print(p2)
+
+# p.setName(name: "Joe", notAParam: 10)
+# missingParams(m: 10)
+# anotherFakeMethod()
+# notAVariable
+# notAVariable = 10
+p.notAProperty = "Rly?"
+# print(p.notAProperty)
+# p.setName()
 p.getName()

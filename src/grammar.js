@@ -154,12 +154,12 @@ var grammar = {
     ],
 
     "unary_argument": [
-      ["expression", "$$ = [new yy.Argument(new yy.Identifier('unary'), $1)];"]  // e.g. 19, x, "hello"
+      ["expression", "$$ = [new yy.Argument(new yy.Identifier('unary', @$, yytext), $1, @$, yytext)];"]  // e.g. 19, x, "hello"
     ],
 
     "named_arguments": [
       ["", "$$ = [];"],                                                                                   // i.e empty arguments
-      ["identifier COLON expression", "$$ = [new yy.Argument($1, $3)];"],                                   // i.e. name: "John"
+      ["identifier COLON expression", "$$ = [new yy.Argument($1, $3, @$, yytext)];"],                                   // i.e. name: "John"
       ["named_arguments COMMA identifier COLON expression", "$$ = $1; $1.push(new yy.Argument($3, $5, @$, yytext));"]   // i.e. name: "John", age: 71
     ],
 

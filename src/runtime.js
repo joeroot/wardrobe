@@ -54,7 +54,7 @@ WardrobeRuntime.prototype.createMethod = function(name, params, body) {
 };
 
 WardrobeRuntime.prototype.getMethod = function(name) {
-  var method = null;
+  var method = undefined;
   if (this.methods[name] !== undefined && typeof(this.methods[name]) == 'object') {
     method = this.methods[name];
   }
@@ -139,12 +139,16 @@ Context.prototype.setReturnObject = function(object) {
 
 var WardrobeObject = function(cls, value) {
   this.cls = cls;
+  this.properties = {};
   this.value = value;
   if (value === null) {this.value = this;}
   if (Runtime !== undefined) {
-    this.properties = this.cls.getProperties();
-  } else {
-    this.properties = {};
+    var properties = this.cls.getProperties();
+    for (var property in properties) {
+      this.properties[property] = {};
+      this.properties[property].type = properties[property].type;
+      this.properties[property].object = properties[property].object;
+    }
   }
 };
 
@@ -157,7 +161,7 @@ WardrobeObject.prototype.call = function(context, name, args) {
   if (method !== null) {
     method.call(context, this, args);
   } else {
-    throw new error.WardrobeNoMethodError(context, name);
+    throw new error.WardrobeNoSuchMethodError(context, this);
   }
   return context;
 };
@@ -181,7 +185,7 @@ WardrobeObject.prototype.getProperty = function(property) {
 };
 
 WardrobeObject.prototype.getPropertyObject = function(property) {
-  return this.properties[property].object;
+  return this.getProperty(property).object;
 };
 
 WardrobeObject.prototype.toString = function() {
@@ -258,6 +262,10 @@ WardrobeClass.prototype.addProperty = function(name, type, object) {
   this.properties[name] = {type: type, object: object};
 };
 
+WardrobeClass.prototype.setPropertyObject = function(name, object) {
+  this.properties[name].object = object;
+};
+
 WardrobeClass.prototype.getProperties = function() {
   var properties = {};
   if (this.hasSuperClass()) {
@@ -304,14 +312,32 @@ function WardrobeMethod(name, params, body) {
 
 WardrobeMethod.prototype.call = function(context, receiver, args) { 
   var old_context = context.clone();
+  var missing_params = [];
+  var params_list = [];
   var param, name, type, arg;
-  
+
   for (var p = 0; p < this.params.length; p++) {
     param = this.params[p];
     name = param.identifier.name;
+    params_list.push(name);
     type = Runtime.getClass(param.type.name);
     arg = args[name] || args.unary;
+    if (arg === undefined) {missing_params.push(param);}
     context.addLocal(name, type, arg);
+  }
+
+  if (missing_params.length > 0) {
+    throw new error.WardrobeMissingArgumentsError(context, receiver, missing_params);
+  }
+
+  if (this.params.length == 1) {params_list.push("unary");}
+  var incorrect_params = [];
+  for (arg in args) {
+    if (params_list.indexOf(arg) == -1) {incorrect_params.push(arg);}
+  }
+
+  if (incorrect_params.length > 0) {
+    throw new error.WardrobeNoSuchParameterError(context, receiver, incorrect_params);
   }
 
   context.setCurrentObject(receiver);
@@ -709,7 +735,7 @@ WardrobeList.prototype.installMethods = function() {
       var list = context.getCurrentObject().value;
       var index = -1;
       for (var i = 0; i < list.length; i++) {
-        if (list[i].call(context, 'equals', [item]).getReturnObject().value) {
+        if (list[i].call(context, 'equals', {unary: item}).getReturnObject().value) {
           index = i;
           break;
         }

@@ -1,4 +1,5 @@
 var Runtime = require('./runtime').Runtime;
+var error = require('./error');
 
 // # `nodes.js`
 // `nodes.js` exports a series of node constructors for the parser to intialise.
@@ -18,10 +19,11 @@ var Node = function(kind) {
 };
 
 Node.prototype.evaluate = function(context) {
+  var ignore = [];
   try {
     context = this.evaluateNode(context);
   } catch(error) {
-    if (error.is_wardrobe_error) {
+    if (error.is_wardrobe_error && ignore.indexOf(this.kind) == -1) {
       error.addToStack(this);
     }
     throw error;
@@ -110,26 +112,45 @@ function Assign(assignable, expression, range, text) {
   this.text = text;
 
   this.evaluateNode = function(context) {
-    var name;
+    var name, err;
     switch (this.assignable.kind) {
       case 'Declare':
         name = this.assignable.identifier.name;
-      context = this.assignable.evaluate(context);
-      context = this.expression.evaluate(context);
-      context.setLocalObject(name, context.getReturnObject());
-      break;
+        context = this.assignable.evaluate(context);
+        context = this.expression.evaluate(context);
+        var object = context.getReturnObject();
+        if (context.current_class === null) { 
+          context.setLocalObject(name, object);
+        } else {
+          context.getCurrentClass().setPropertyObject(name, object);
+        }
+        break;
       case 'Identifier':
         name = this.assignable.name;
-      context = this.expression.evaluate(context);
-      context.setLocalObject(name, context.getReturnObject());
-      break;
+
+        if (context.getLocal(name) === undefined) {
+          err = new error.WardrobeUndeclaredPropertyOrVariable(context, null);
+          err.addToStack(this.assignable);
+          throw err;
+        }
+
+        context = this.expression.evaluate(context);
+        context.setLocalObject(name, context.getReturnObject());
+        break;
       case 'Property': 
         context = this.assignable.expression.evaluate(context); 
-      var receiver = context.getReturnObject();
-      var property = this.assignable.identifier.name;
-      context = this.expression.evaluate(context);
-      receiver.setProperty(property, context.getReturnObject()); 
-      break;
+        var receiver = context.getReturnObject();
+        var property = this.assignable.identifier.name;
+
+        if (receiver.getProperty(property) === undefined) {
+          err = new error.WardrobeUndeclaredPropertyOrVariable(context, receiver);
+          err.addToStack(this.assignable);
+          throw err;
+        }
+
+        context = this.expression.evaluate(context);
+        receiver.setProperty(property, context.getReturnObject()); 
+        break;
       case 'ListAccessor': break;
       default: break;
     }
@@ -149,10 +170,12 @@ function Identifier(name, range, text) {
   this.text = text;
 
   this.evaluateNode = function(context) {
+    if (context.getLocal(this.name) === undefined) {
+      throw new error.WardrobeUndeclaredPropertyOrVariable(context, null);
+    }
+
     var object = context.getLocalObject(this.name);
-
     context.setReturnObject(object);
-
     return context;
   };
 }
@@ -174,6 +197,10 @@ function Property(expression, identifier, range, text) {
 
     var receiver = context.getReturnObject();
     var property = this.identifier.name;
+
+    if (receiver.getProperty(property) === undefined) {
+      throw new error.WardrobeUndeclaredPropertyOrVariable(context, receiver);
+    }
 
     var object = receiver.getPropertyObject(property);
     context.setReturnObject(object);
@@ -399,13 +426,16 @@ function Call(identifier, receiver, args, range, text) {
     var method_name = this.identifier.name;
 
     if (this.receiver !== null) {
-      // evaluate the receiever, before calling the method on the returned object
+      // evaluate the receiver, before calling the method on the returned object
       context = this.receiver.evaluate(context);
       var receiver_object = context.getReturnObject();
       context = receiver_object.call(context, method_name, args); 
     } else if (method_name == 'print'){
       context = Runtime.getGlobalObject('system').call(context, 'print', args);
     } else {
+      if (Runtime.getMethod(method_name) === undefined) {
+        throw new error.WardrobeNoSuchMethodError(context, null);
+      }
       context = Runtime.getMethod(method_name).call(context, null, args);
     }
 
