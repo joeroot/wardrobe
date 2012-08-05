@@ -27,7 +27,6 @@ function scan(source) {
     // Comments
     else if ((value = chunk.match(/#[^\n|\r]*/)) && value.index=== 0) {
       value = value[0]; 
-      console.log(value);
       tokens.push(["COMMENT", value, line, character]);
       character = character + value.length;
       i = i + value.length;
