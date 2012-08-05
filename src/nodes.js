@@ -16,14 +16,14 @@ var Node = function(kind) {
     last_line: 0,
     last_column: 0
   };
+  this.ignore = [];
 };
 
 Node.prototype.evaluate = function(context) {
-  var ignore = [];
   try {
     context = this.evaluateNode(context);
   } catch(error) {
-    if (error.is_wardrobe_error && ignore.indexOf(this.kind) == -1) {
+    if (error.is_wardrobe_error && this.ignore.indexOf(this.kind) == -1) {
       error.addToStack(this);
     }
     throw error;
@@ -38,6 +38,9 @@ Node.prototype.getEndLine = function() {return this.range.last_line;};
 
 Block.prototype = new Node('Block');
 Block.prototype.constructor = Block;
+/*
+ * 
+ */
 function Block(lines, range, text) {
   this.lines = lines;
   this.range = range;
