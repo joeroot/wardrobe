@@ -2,15 +2,18 @@ var lexer = require('./lexer');
 var nodes = require('./nodes').nodes;
 var parser = require('./parser').parser;
 var interpreter = require('./interpreter');
+var errors = require('./errors');
 
 function run(source, debug) {
   var tokens = lexer.lex(source);
+  
   if (debug) {
     console.log('Lexer finished, tokens: \n');
     console.log(tokens);
   }
 
   parser.yy = nodes; 
+  
   parser.lexer =  {
     "lex": function() {
       var token = this.tokens[this.pos] ? this.tokens[this.pos++] : ['EOF', '', 0, 0];
@@ -33,8 +36,14 @@ function run(source, debug) {
       return "";
     }
   };
+  
+  parser.yy.parseError = function (err, hash) {
+    //if (!(hash.expected.indexOf("';'") >= 0 && (hash.token === 'CLOSEBRACE' || parser.yy.lineBreak || parser.yy.lastLineBreak || hash.token === 1))) {
+    throw new errors.WardrobeSyntaxError(hash);
+  };
 
   var ast = parser.parse(tokens);
+
   if (debug) {
     console.log('\nParser finished, abstract syntax tree: \n');
     console.log(ast);
@@ -46,6 +55,7 @@ function run(source, debug) {
     console.log('\nIntepreter finished, final context:\n');
     console.log(context);
   }
+  
   return context;
 }
 

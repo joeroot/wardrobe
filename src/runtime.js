@@ -1,6 +1,6 @@
 "use strict";
 
-var error = require('./error');
+var errors = require('./errors');
 
 /**
  * Initialises a new runtime environment
@@ -161,7 +161,7 @@ WardrobeObject.prototype.call = function(context, name, args) {
   if (method !== null) {
     method.call(context, this, args);
   } else {
-    throw new error.WardrobeNoSuchMethodError(context, this);
+    throw new errors.WardrobeNoSuchMethodError(context, this);
   }
   return context;
 };
@@ -327,7 +327,7 @@ WardrobeMethod.prototype.call = function(context, receiver, args) {
   }
 
   if (missing_params.length > 0) {
-    throw new error.WardrobeMissingArgumentsError(context, receiver, missing_params);
+    throw new errors.WardrobeMissingArgumentsError(context, receiver, missing_params);
   }
 
   if (this.params.length == 1) {params_list.push("unary");}
@@ -337,7 +337,7 @@ WardrobeMethod.prototype.call = function(context, receiver, args) {
   }
 
   if (incorrect_params.length > 0) {
-    throw new error.WardrobeNoSuchParameterError(context, receiver, incorrect_params);
+    throw new errors.WardrobeNoSuchParameterError(context, receiver, incorrect_params);
   }
 
   context.setCurrentObject(receiver);
@@ -437,8 +437,8 @@ WardrobeString.prototype.installMethods = function() {
       return context;
     }}
   );
-  this.methods.equals = new WardrobeMethod(
-    'equals',
+  this.methods.equal = new WardrobeMethod(
+    'equal',
     [{type: {name: 'String'}, identifier: {name: 'right'}}],
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
@@ -510,8 +510,8 @@ WardrobeNumber.prototype.installMethods = function() {
       return context;
     }}
   );
-  this.methods.equals = new WardrobeMethod(
-    'equals',
+  this.methods.equal = new WardrobeMethod(
+    'equal',
     [{type: {name: 'Number'}, identifier: {name: 'right'}}],
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
@@ -528,6 +528,17 @@ WardrobeNumber.prototype.installMethods = function() {
       var receiver = context.getCurrentObject();
       var right = context.getLocalObject('right');
       var object = Runtime.getGlobalObject((receiver.value > right.value).toString());
+      context.setReturnObject(object);
+      return context;
+    }}
+  );
+  this.methods.lessThan = new WardrobeMethod(
+    'lessThan',
+    [{type: {name: 'Number'}, identifier: {name: 'right'}}],
+    {evaluate: function(context) {
+      var receiver = context.getCurrentObject();
+      var right = context.getLocalObject('right');
+      var object = Runtime.getGlobalObject((receiver.value < right.value).toString());
       context.setReturnObject(object);
       return context;
     }}
@@ -565,6 +576,19 @@ function WardrobeBoolean() {
   this.methods = {};
 }
 
+WardrobeBoolean.prototype.installMethods = function() {
+  this.methods.negate = new WardrobeMethod(
+    'negate',
+    [],
+    {evaluate: function(context) {
+      var receiver = context.getCurrentObject();
+      var object = Runtime.getGlobalObject((!receiver.value).toString());
+      context.setReturnObject(object);
+      return context;
+    }}
+  );
+};
+
 WardrobeTrue.prototype = new WardrobeClass();
 WardrobeTrue.prototype.constructor = WardrobeTrue;
 function WardrobeTrue() {
@@ -594,8 +618,8 @@ WardrobeTrue.prototype.installMethods = function() {
       return context;
     }}
   );
-  this.methods.equals = new WardrobeMethod(
-    'equals',
+  this.methods.equal = new WardrobeMethod(
+    'equal',
     [{type: {name: 'Boolean'}, identifier: {name: 'right'}}],
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
@@ -644,8 +668,8 @@ WardrobeFalse.prototype.installMethods = function() {
       return context;
     }}
   );
-  this.methods.equals = new WardrobeMethod(
-    'equals',
+  this.methods.equal = new WardrobeMethod(
+    'equal',
     [{type: {name: 'Boolean'}, identifier: {name: 'right'}}],
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
@@ -735,7 +759,7 @@ WardrobeList.prototype.installMethods = function() {
       var list = context.getCurrentObject().value;
       var index = -1;
       for (var i = 0; i < list.length; i++) {
-        if (list[i].call(context, 'equals', {unary: item}).getReturnObject().value) {
+        if (list[i].call(context, 'equal', {unary: item}).getReturnObject().value) {
           index = i;
           break;
         }
@@ -809,6 +833,7 @@ Runtime.getClass('Object').installMethods();
 Runtime.getClass('String').installMethods();
 Runtime.getClass('Number').installMethods();
 Runtime.getClass('List').installMethods();
+Runtime.getClass('Boolean').installMethods();
 Runtime.getClass('TrueBoolean').installMethods();
 Runtime.getClass('FalseBoolean').installMethods();
 Runtime.getClass('System').installMethods();

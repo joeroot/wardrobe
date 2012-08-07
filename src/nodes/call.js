@@ -1,6 +1,6 @@
 var Node = require('./node').Node;
 var Runtime = require('../runtime').Runtime;
-var error = require('../error');
+var errors = require('../errors');
 
 Call.prototype = new Node('Call');
 Call.prototype.constructor = Call;
@@ -32,7 +32,7 @@ function Call(identifier, receiver, args, range, text) {
       context = Runtime.getGlobalObject('system').call(context, 'print', args);
     } else {
       if (Runtime.getMethod(method_name) === undefined) {
-        throw new error.WardrobeNoSuchMethodError(context, null);
+        throw new errors.WardrobeNoSuchMethodError(context, null);
       }
       context = Runtime.getMethod(method_name).call(context, null, args);
     }

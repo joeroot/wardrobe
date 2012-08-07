@@ -21,11 +21,25 @@ function Operator(operator, left, right, range, text) {
       switch(this.operator) {
         case 'and': context = left.call(context, 'and', args); break;
         case 'or': context = left.call(context, 'or', args); break;
-        case '<': break;
+        case '<': context = left.call(context, 'lessThan', args); break;
         case '>': context = left.call(context, 'greaterThan', args); break;
-        case '<=': break;
-        case '>=': break;
-        case '==': context = left.call(context, 'equals', args); break;
+        case '<=': 
+          context = left.call(context, 'equal', args);
+          if (!context.getReturnObject().getValue()) {
+            context = left.call(context, 'lessThan', args);
+          }
+          break;
+        case '>=':
+          context = left.call(context, 'equal', args);
+          if (!context.getReturnObject().getValue()) {
+            context = left.call(context, 'greaterThan', args);
+          }
+          break;
+        case '==': context = left.call(context, 'equal', args); break;
+        case '!=': 
+          context = left.call(context, 'equal', args);
+          context = context.getReturnObject().call(context, 'negate', {});
+          break;
         case '+': context = left.call(context, 'add', args); break;
         case '-': context = left.call(context, 'subtract', args); break;
         case '/': context = left.call(context, 'divide', args); break;
@@ -39,6 +53,7 @@ function Operator(operator, left, right, range, text) {
       switch(this.operator) {
         case '+': context = right.call(context, 'positive', []); break;
         case '-': context = right.call(context, 'negative', []); break;
+        case '!': context = right.call(context, 'negate', []); break;
         default: break;
       }
     }

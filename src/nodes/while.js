@@ -1,4 +1,5 @@
 var Node = require('./node').Node;
+var Runtime = require('../runtime').Runtime;
 
 While.prototype = new Node('While');
 While.prototype.constructor = While;

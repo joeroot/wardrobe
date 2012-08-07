@@ -1,4 +1,5 @@
 var Node = require('./node').Node;
+var errors = require('../errors');
 
 Identifier.prototype = new Node('Identifier');
 Identifier.prototype.constructor = Identifier;
@@ -12,7 +13,7 @@ function Identifier(name, range, text) {
 
   this.evaluateNode = function(context) {
     if (context.getLocal(this.name) === undefined) {
-      throw new error.WardrobeUndeclaredPropertyOrVariable(context, null);
+      throw new errors.WardrobeUndeclaredPropertyOrVariable(context, null);
     }
 
     var object = context.getLocalObject(this.name);

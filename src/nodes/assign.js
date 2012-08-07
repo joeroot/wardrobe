@@ -1,4 +1,5 @@
 var Node = require('./node').Node;
+var errors = require('../errors');
 
 Assign.prototype = new Node('Assign');
 Assign.prototype.constructor = Assign;
@@ -22,32 +23,35 @@ function Assign(assignable, expression, range, text) {
           context.getCurrentClass().setPropertyObject(name, object);
         }
         break;
+
       case 'Identifier':
         name = this.assignable.name;
 
         if (context.getLocal(name) === undefined) {
-          err = new error.WardrobeUndeclaredPropertyOrVariable(context, null);
-          err.addToStack(this.assignable);
-          throw err;
+          error= new errors.WardrobeUndeclaredPropertyOrVariable(context, null);
+          error.addToStack(this.assignable);
+          throw error;
         }
 
         context = this.expression.evaluate(context);
         context.setLocalObject(name, context.getReturnObject());
         break;
+
       case 'Property': 
         context = this.assignable.expression.evaluate(context); 
         var receiver = context.getReturnObject();
         var property = this.assignable.identifier.name;
 
         if (receiver.getProperty(property) === undefined) {
-          err = new error.WardrobeUndeclaredPropertyOrVariable(context, receiver);
-          err.addToStack(this.assignable);
-          throw err;
+          error = new errors.WardrobeUndeclaredPropertyOrVariable(context, receiver);
+          error.addToStack(this.assignable);
+          throw error;
         }
 
         context = this.expression.evaluate(context);
         receiver.setProperty(property, context.getReturnObject()); 
         break;
+        
       case 'ListAccessor': break;
       default: break;
     }

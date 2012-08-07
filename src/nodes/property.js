@@ -1,5 +1,5 @@
 var Node = require('./node').Node;
-var error = require('../error');
+var errors = require('../errors');
 
 Property.prototype = new Node('Property');
 Property.prototype.constructor = Property;
@@ -20,7 +20,7 @@ function Property(expression, identifier, range, text) {
     var property = this.identifier.name;
 
     if (receiver.getProperty(property) === undefined) {
-      throw new error.WardrobeUndeclaredPropertyOrVariable(context, receiver);
+      throw new errors.WardrobeUndeclaredPropertyOrVariable(context, receiver);
     }
 
     var object = receiver.getPropertyObject(property);
