@@ -125,7 +125,7 @@ case 57:this.$ = $$[$0];
 break;
 case 58:this.$ = $$[$0];
 break;
-case 59:this.$ = [new yy.Argument(new yy.Identifier('unary', this._$, yytext), $$[$0], this._$, yytext)];
+case 59:this.$ = [new yy.Argument(new yy.Identifier("unary", this._$, yytext), $$[$0], this._$, yytext)];
 break;
 case 60:this.$ = [];
 break;
