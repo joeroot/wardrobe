@@ -3,9 +3,15 @@ var fs = require('fs');
 desc('Builds Wardrobe for the browser.');
 task('browser', function (params) {
   var files = [
+    'errors/syntaxerror', 
+    'errors/runtimeerror',
+    'errors/missingarguments',
+    'errors/nosuchparam',
+    'errors/nosuchmethod',
+    'errors/undeclaredpropertyorvariable',
+    'errors',
     'lexer', 
     'runtime', 
-    'error', 
     'nodes/node', 
     'nodes/constant', 
     'nodes/argument', 
