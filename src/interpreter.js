@@ -10,17 +10,9 @@ function run(ast) {
       var node = ast[i];
       context = node.evaluate(context);
     }
-  } catch(error) {
-    if (error.is_wardrobe_error) {
-      switch (error.error) {
-        default: 
-          console.log(error.toString());
-          context = error.context;
-          break;
-      }
-    } else {
-      throw error;
-    }
+  } catch(err) {
+    // Handlers here?
+    throw err;
   }
 
   return context;
