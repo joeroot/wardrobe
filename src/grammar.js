@@ -7,7 +7,7 @@ var grammar = {
     ["right", "ASSIGN"],
     ["left", "DOT"],
     ["right", "COMMA"],
-    ["left", "+", "-"],
+    ["left", "+", "-", "!"],
     ["left", "MATH"],
     ["left", "COMP"],
     ["left", "LOGIC"],
@@ -166,6 +166,7 @@ var grammar = {
     "operation": [
       ["+ expression", "$$ = new yy.Operator($1, null, $2, @$, yytext);"],
       ["- expression", "$$ = new yy.Operator($1, null, $2, @$, yytext);"],
+      ["! expression", "$$ = new yy.Operator($1, null, $2, @$, yytext);"],
       ["expression + expression", "$$ = new yy.Operator($2, $1, $3, @$, yytext);"],
       ["expression - expression", "$$ = new yy.Operator($2, $1, $3, @$, yytext);"],
       ["expression MATH expression", "$$ = new yy.Operator($2, $1, $3, @$, yytext);"],
