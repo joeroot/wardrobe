@@ -5,4 +5,4 @@ def fibonacci(Number n)
   return n
 end
 
-fibonacci(15)
+fibonacci(10)
