@@ -31,8 +31,13 @@ $(document).ready(function(){
 
   $('#warning').click(function() {
     if (current_file && errors[current_file] !== undefined && errors[current_file].length > 0) {
-      var line = errors[current_file][0].getStartLine();
+      var err = errors[current_file][0];
+      var line = err.getStartLine();
       editor.gotoLine(line);
+      var range = new Range(line-1, err.getStartColumn(), line-1, err.getEndColumn());
+      console.log(editor.getSelection());
+      editor.getSelection().setSelectionRange(range); 
+      editor.focus();
     }
     return false;
   });
