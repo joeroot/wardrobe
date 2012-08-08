@@ -3,6 +3,8 @@ var RubyMode = require("ace/mode/ruby").Mode;
 var Range = require("ace/range").Range;
 var editor;
 var sessions = {};
+var errors = {};
+var current_file = null;
 
 (function($) {
   $.fn.blinky = function() {
@@ -24,6 +26,14 @@ $(document).ready(function(){
 
   $('#run').click(function(){
     run();
+    return false;
+  });
+
+  $('#warning').click(function() {
+    if (current_file && errors[current_file] !== undefined && errors[current_file].length > 0) {
+      var line = errors[current_file][0].getStartLine();
+      editor.gotoLine(line);
+    }
     return false;
   });
 
@@ -68,8 +78,12 @@ function openFile(file) {
 
           try {
             Wardrobe.parse(session.getValue());
+            $('#warning').removeClass('live');
+            errors[file] = [];
           } catch(err) {
             if (err.is_wardrobe_error) {
+              $('#warning').addClass('live');
+              errors[file] = [err];
               switch(err.kind) {
                 case 'Syntax': handleSyntaxError(err); break;
                 default: 
@@ -81,10 +95,12 @@ function openFile(file) {
           }
         });
         sessions[file] = session;
+        errors[file] = [];
       }
     });
   }
   editor.setSession(session);
+  current_file = file;
 }
 
 function run() {

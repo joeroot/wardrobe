@@ -5,7 +5,6 @@ var comparators = ['!=', '==', '>', '<', '>=', '<='];
 var logic = ['&&', 'and', '||', 'or'];
 var math = ['/', '*'];
 
-
 function scan(source) {
   var tokens = [];
   var line = 1;

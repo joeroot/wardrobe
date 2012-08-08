@@ -54,7 +54,7 @@ a.icon {
   display:block;
   height:26px;
   width:26px;
-  padding:0px 2px 6px 2px;
+  padding:0px;
   text-align:center;
   font: 13px "proxima-nova";
   border-radius:2px;
@@ -77,29 +77,27 @@ a.icon:hover {
   border-color:#888;
 }
 
-a.icon img {
-  height:12px;
-  width:12px;
+a.icon span {
+  display:block;
+  height:100%;
+  width:100%;
   opacity:0.65;
 }
 
-a.icon:hover img {
+a.icon:hover span {
   opacity:0.85;
 }
 
-header a.icon#run {
-  padding-top:0px;
+header a.icon#run span {
+  background: url('../images/icns/run.png') no-repeat 6px 6px;
 }
 
-header a.icon#run:hover {
+header a.icon#warning span {
+  background: url('../images/icns/warning.png') no-repeat 6px 6px;
 }
 
-header a.icon#run img {
-}
-header a.icon#store {
-}
-
-header a.icon#store:hover {
+header a.icon.live#warning span {
+  background: url('../images/icns/warning-red.png') no-repeat 6px 6px;
 }
 
 #files {
