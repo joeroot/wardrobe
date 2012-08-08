@@ -4,6 +4,38 @@ var parser = require('./parser').parser;
 var interpreter = require('./interpreter');
 var errors = require('./errors');
 
+parser.yy = nodes; 
+
+parser.lexer =  {
+  "lex": function() {
+    var token = this.tokens[this.pos] ? this.tokens[this.pos++] : ['EOF', '', 0, 0];
+    this.yytext = token[1];
+    this.yylineno = token[2];
+    this.yyleng = this.yytext.length;
+    this.yylloc = {
+      first_line: this.yylineno, 
+      last_line: this.yylineno, 
+      first_column: token[3], 
+      last_column: token[3] + this.yyleng
+    };
+    return token[0];
+  },
+  "setInput": function(tokens) {
+    this.tokens = tokens;
+    this.pos = 0;
+  },
+  "upcomingInput": function() {
+    return "";
+  }
+};
+
+parser.yy.parseError = function (err, hash) {
+  //if (!(hash.expected.indexOf("';'") >= 0 && (hash.token === 'CLOSEBRACE' || parser.yy.lineBreak || parser.yy.lastLineBreak || hash.token === 1))) {
+  var lex = parser.lexer;
+  var token = lex.tokens[lex.pos-1];
+  throw new errors.WardrobeSyntaxError(hash, token);
+};
+
 function run(source, debug) {
   var tokens = lexer.lex(source);
   
@@ -11,37 +43,6 @@ function run(source, debug) {
     console.log('Lexer finished, tokens: \n');
     console.log(tokens);
   }
-
-  parser.yy = nodes; 
-  
-  parser.lexer =  {
-    "lex": function() {
-      var token = this.tokens[this.pos] ? this.tokens[this.pos++] : ['EOF', '', 0, 0];
-      this.yytext = token[1];
-      this.yylineno = token[2];
-      this.yyleng = this.yytext.length;
-      this.yylloc = {
-        first_line: this.yylineno, 
-        last_line: this.yylineno, 
-        first_column: token[3], 
-        last_column: token[3] + this.yyleng
-      };
-      return token[0];
-    },
-    "setInput": function(tokens) {
-      this.tokens = tokens;
-      this.pos = 0;
-    },
-    "upcomingInput": function() {
-      return "";
-    }
-  };
-  
-  parser.yy.parseError = function (err, hash) {
-    //if (!(hash.expected.indexOf("';'") >= 0 && (hash.token === 'CLOSEBRACE' || parser.yy.lineBreak || parser.yy.lastLineBreak || hash.token === 1))) {
-    console.log(parser.lexer.tokens[parser.lexer.pos-1]);
-    throw new errors.WardrobeSyntaxError(hash);
-  };
 
   var ast = parser.parse(tokens);
 
@@ -60,4 +61,10 @@ function run(source, debug) {
   return context;
 }
 
+function parse(source) {
+  var tokens = lexer.lex(source);
+  return parser.parse(tokens);
+}
+
 exports.run = run;
+exports.parse = parse;

@@ -13241,12 +13241,13 @@ define("text!ace/css/editor.css", [], ".ace_editor {\n" +
   "}\n" +
   "\n" +
   ".ace_gutter-cell {\n" +
-  "    padding-left: 19px;\n" +
-  "    padding-right: 6px;\n" +
+  "    padding-left: 21px;\n" +
+  "    padding-right: 4px;\n" +
   "    background-repeat: no-repeat;\n" +
   "}\n" +
   "\n" +
   ".ace_gutter-cell.ace_error {\n" +
+  "  padding-left:4px;\n" +
   "}\n" +
   "\n" +
   ".ace_gutter-cell.ace_warning {\n" +
@@ -13433,7 +13434,7 @@ define("text!ace/css/editor.css", [], ".ace_editor {\n" +
   "}\n" +
   "\n" +
   ".ace_folding-enabled > .ace_gutter-cell {\n" +
-  "    padding-right: 13px;\n" +
+  "    padding-right: 4px;\n" +
   "}\n" +
   "\n" +
   ".ace_fold-widget {\n" +

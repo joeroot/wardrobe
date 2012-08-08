@@ -87,14 +87,27 @@
 
 .ace_error {
   background:none;
+  padding-left:0px;
 }
 
 .ace_error:before {
-  content:"●";
-  color:#B35732;
-  padding-right:5px;
-  font:14px "inconsolata";
-  background:none;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+  box-sizing: border-box;         /* Opera/IE 8+ */
+  display:block;
+  float:left;
+  content:"s";
+  background:#B35732;
+  color:#FFF;
+  padding:0px;
+  line-height:12px;
+  width:14px;
+  height:14px;
+  margin-top:2px;
+  margin-right:3px;
+  border-radius:10px;
+  text-align:center;
+  font:12px "inconsolata";
 }
 
 .ace_marker-layer .warning{

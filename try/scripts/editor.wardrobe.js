@@ -59,6 +59,27 @@ function openFile(file) {
         session = new EditSession(data);
         session.setMode(new RubyMode());
         session.setTabSize(2);
+        session.on('change', function(){
+          editor.getSession().setAnnotations([]);
+          var markers = session.getMarkers();
+          for (var marker in markers) {
+            session.removeMarker(marker);
+          }
+
+          try {
+            Wardrobe.parse(session.getValue());
+          } catch(err) {
+            if (err.is_wardrobe_error) {
+              switch(err.kind) {
+                case 'Syntax': handleSyntaxError(err); break;
+                default: 
+                  break;
+              }
+            } else {
+              throw err;
+            }
+          }
+        });
         sessions[file] = session;
       }
     });
@@ -93,12 +114,13 @@ function run() {
 function handleSyntaxError(err) {
   editor.getSession().setAnnotations([{
     row: err.getStartLine() - 1,
-    column: err.getEndColumn(),
+    column: err.getStartColumn(),
     text: err.toString(),
     type: "error" // also warning and information
   }]);
+
   var line = err.getStartLine() - 1;
-  editor.getSession().addMarker(new Range(line, err.getEndColumn(), line, 10000), "warning", "text"); 
+  editor.getSession().addMarker(new Range(line, err.getStartColumn(), line, err.getEndColumn()), "warning", "text"); 
 }
 
 function print(value) {
