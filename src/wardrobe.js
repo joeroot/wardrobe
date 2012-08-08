@@ -39,6 +39,7 @@ function run(source, debug) {
   
   parser.yy.parseError = function (err, hash) {
     //if (!(hash.expected.indexOf("';'") >= 0 && (hash.token === 'CLOSEBRACE' || parser.yy.lineBreak || parser.yy.lastLineBreak || hash.token === 1))) {
+    console.log(parser.lexer.tokens[parser.lexer.pos-1]);
     throw new errors.WardrobeSyntaxError(hash);
   };
 

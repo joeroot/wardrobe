@@ -13,29 +13,39 @@
   -moz-box-sizing: border-box;    /* Firefox, other Gecko */
   box-sizing: border-box;         /* Opera/IE 8+ */
   float:left;
-  font: 14px "proxima-nova";
-  line-height:22px;
+  font: 13px "proxima-nova";
+  line-height:18px;
   /*margin-right:10px;*/
 }
   a {
     cursor:pointer;
     text-decoration:none;
-    color:#444;
+    color:#777;
+  }
+
+  a:hover {
+    color:#555;
   }
 
 /* Toggle */
 .dk_toggle {
-  background:#D3E8EE;
-  border-radius:4px;
   display: -moz-inline-stack;
   display: inline-block;
   *display: inline;
   position: relative;
+  background:#FFF;
+  border-radius:2px;
+  border:1px solid #AAA;
+  -webkit-box-shadow: 0px 1px 1px rgba(50, 50, 50, 0.12);
+  -moz-box-shadow:    0px 1px 1px rgba(50, 50, 50, 0.12);
+  box-shadow:         0px 1px 1px rgba(50, 50, 50, 0.12);
   zoom: 1;
 }
   .dk_toggle:hover {
-    background:#8DC0CD;
-    color:#FFF;
+    border-color:#888;
+    -moz-box-shadow: inset 0 2px 2px -1px rgba(50, 50, 50, 0.12);
+    -webkit-box-shadow: inset 0 2px 2px -1px rgba(50, 50, 50, 0.12);
+    box-shadow: inset 0 2px 2px -1px rgba(50, 50, 50, 0.12);
   }
   .dk_label {
     position:relative;
@@ -45,35 +55,32 @@
   .dk_toggle:after {
     padding:3px 10px 3px 10px;
     content: '▾';
-    color:#fff;
-    background:#555;
+    color:#AAA;
     float:right;
-    border-radius:4px;
-    border-top-left-radius:0px;
-    border-bottom-left-radius:0px;
   }
   .dk_toggle:hover:after {
-    background:#3A3A3A;
+    color:#888;
   }
 
 .dk_open {
   position: relative;
 }
   .dk_open .dk_toggle:after {
-    padding:3px 10px 3px 10px;
+    padding:3px 10px 4px 10px;
     -webkit-transform:rotate(-180deg);
     -moz-transform:rotate(-180deg); 
     -o-transform:rotate(-180deg); 
     transform:rotate(-180deg);
-    border-radius:4px;
-    border-top-right-radius:0px;
-    border-bottom-right-radius:0px;
-    border-top-left-radius:0px;
   }
 
   .dk_open .dk_toggle {
+    border-color:#888;
+    -moz-box-shadow: inset 0 2px 2px -1px rgba(50, 50, 50, 0.12);
+    -webkit-box-shadow: inset 0 2px 2px -1px rgba(50, 50, 50, 0.12);
+    box-shadow: inset 0 2px 2px -1px rgba(50, 50, 50, 0.12);
     border-bottom-left-radius:0px;
     border-bottom-right-radius:0px;
+    border-bottom:none;
   }
   .dk_open .dk_options {
     display: block;
@@ -85,18 +92,17 @@
 .dk_options {
   display: none;
   position: absolute;
-  right: 0;
   width: 100%;
-  margin-top:1px;
   background:#FFF;
-  border-radius:4px;
+  border-radius:2px;
+  border:1px solid #777;
+  border-top:none;
   border-top-left-radius:0px;
   border-top-right-radius:0px;
-  -webkit-box-shadow: 5px 10px 5px rgba(0,0,0,.15);
-  -moz-box-shadow   : 5px 10px 5px rgba(0,0,0,.15);
-  -o-box-shadow     : 5px 10px 5px rgba(0,0,0,.15);
-  box-shadow        : 5px 10px 5px rgba(0,0,0,.15);
-  padding:2px 0px 0px 0px;
+  -webkit-box-shadow: 0px 1px 1px rgba(50, 50, 50, 0.12);
+  -moz-box-shadow:    0px 1px 1px rgba(50, 50, 50, 0.12);
+  box-shadow:         0px 1px 1px rgba(50, 50, 50, 0.12);
+  padding:1px 0px 0px 0px;
 }
   .dk_options:after {
     bottom: 100%;
@@ -119,20 +125,17 @@
   .dk_options a:visited {
     display: block;
     padding:3px 10px;
-    color:#666;
-    border-bottom:1px solid #EEE; 
-  }
-  .dk_options li:last-child a {
-    border-bottom:none;
+    color:#777;
+    border-top:1px solid #EEE; 
   }
   .dk_options a:hover {
-    background:#8DC0CD;
-    color:#FFF;
+    color:#555;
+    background:#EEE;
     width:100%;
   }
   .dk_options li:last-child a:hover {
-    border-bottom-left-radius:4px;
-    border-bottom-right-radius:4px;
+    border-bottom-left-radius:2px;
+    border-bottom-right-radius:2px;
   }
   .dk_options_inner {
     overflow: auto;

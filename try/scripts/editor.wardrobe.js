@@ -27,8 +27,6 @@ $(document).ready(function(){
     return false;
   });
 
-  $('.icon').tooltip({placement: 'bottom'});
-
   editor = ace.edit("editor");
   editor.setTheme("ace/theme/tomorrow");
   editor.setShowPrintMargin(false);
