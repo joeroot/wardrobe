@@ -3,6 +3,7 @@ var WardrobeRuntimeError = require('./runtimeerror').WardrobeRuntimeError;
 WardrobeMissingArgumentsError.prototype = new WardrobeRuntimeError('MissingArguments');
 WardrobeMissingArgumentsError.prototype.constructor = WardrobeMissingArgumentsError;
 function WardrobeMissingArgumentsError(context, receiver, missing_params) {
+  this.stack = [];
   this.context = context;
   this.receiver = receiver;
   this.missing_params = missing_params;

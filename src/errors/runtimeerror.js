@@ -1,9 +1,8 @@
 var WardrobeRuntimeError = function(kind) {
   this.kind = kind;
+  this.is_wardrobe_error = true;
 };
 
-WardrobeRuntimeError.prototype.is_wardrobe_error =  true;
-WardrobeRuntimeError.prototype.stack = [];
 WardrobeRuntimeError.prototype.errorString = function() {return "An error has occured.";};
 WardrobeRuntimeError.prototype.addToStack = function(node) {this.stack.push(node);};
 WardrobeRuntimeError.prototype.getStack = function() {return this.stack;};

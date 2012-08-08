@@ -1,8 +1,9 @@
 var WardrobeRuntimeError = require('./runtimeerror').WardrobeRuntimeError;
 
-WardrobeUndeclaredPropertyOrVariable.prototype = new WardrobeRuntimeError('NoSuchProperty');
+WardrobeUndeclaredPropertyOrVariable.prototype = new WardrobeRuntimeError('UndeclaredPropertyOrVariable');
 WardrobeUndeclaredPropertyOrVariable.prototype.constructor = WardrobeUndeclaredPropertyOrVariable;
 function WardrobeUndeclaredPropertyOrVariable(context, receiver) {
+  this.stack = [];
   this.context = context;
   this.receiver = receiver;
 }

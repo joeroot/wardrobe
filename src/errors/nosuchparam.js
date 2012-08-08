@@ -3,6 +3,7 @@ var WardrobeRuntimeError = require('./runtimeerror').WardrobeRuntimeError;
 WardrobeNoSuchParameterError.prototype = new WardrobeRuntimeError('NoSuchParameter');
 WardrobeNoSuchParameterError.prototype.constructor = WardrobeNoSuchParameterError;
 function WardrobeNoSuchParameterError(context, receiver, incorrect_params) {
+  this.stack = [];
   this.context = context;
   this.receiver = receiver;
   this.incorrect_params = incorrect_params;

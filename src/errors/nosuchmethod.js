@@ -3,6 +3,7 @@ var WardrobeRuntimeError = require('./runtimeerror').WardrobeRuntimeError;
 WardrobeNoSuchMethodError.prototype = new WardrobeRuntimeError('NoSuchMethod');
 WardrobeNoSuchMethodError.prototype.constructor = WardrobeNoSuchMethodError;
 function WardrobeNoSuchMethodError(context, receiver) {
+  this.stack = [];
   this.context = context;
   this.receiver = receiver;
 }
