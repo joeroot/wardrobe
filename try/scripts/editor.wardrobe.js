@@ -1,6 +1,8 @@
 var EditSession = require("ace/edit_session").EditSession;
 var RubyMode = require("ace/mode/ruby").Mode;
 var Range = require("ace/range").Range;
+var UndoManager = require("ace/undomanager").UndoManager;
+
 var editor;
 var sessions = {};
 var errors = {};
@@ -72,6 +74,7 @@ function openFile(file) {
       url: '../' + file,
       success: function(data) {
         session = new EditSession(data);
+        session.setUndoManager(new UndoManager());
         session.setMode(new RubyMode());
         session.setTabSize(2);
         session.on('change', function(){
