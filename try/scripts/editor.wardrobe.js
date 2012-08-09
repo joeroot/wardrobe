@@ -36,7 +36,7 @@ $(document).ready(function(){
       editor.gotoLine(line);
       var range = new Range(line-1, err.getStartColumn(), line-1, err.getEndColumn());
       console.log(editor.getSelection());
-      editor.getSelection().setSelectionRange(range); 
+      sessions[current_file].getSelection().setSelectionRange(range); 
       editor.focus();
     }
     return false;
@@ -75,12 +75,7 @@ function openFile(file) {
         session.setMode(new RubyMode());
         session.setTabSize(2);
         session.on('change', function(){
-          editor.getSession().setAnnotations([]);
-          var markers = session.getMarkers();
-          for (var marker in markers) {
-            session.removeMarker(marker);
-          }
-
+          clearAnnotationsAndMarkers(session);
           try {
             Wardrobe.parse(session.getValue());
             $('#warning').removeClass('live');
@@ -108,10 +103,21 @@ function openFile(file) {
   current_file = file;
 }
 
+function clearAnnotationsAndMarkers(session) {
+  session.setAnnotations([]);
+  var markers = session.getMarkers();
+  for (var marker in markers) {
+    session.removeMarker(marker);
+  }
+}
+
 function run() {
   try {
     var session = editor.getSession();
-    session.clearAnnotations();
+
+    clearAnnotationsAndMarkers(session);
+    errors[current_file] = [];
+    $('#warning').removeClass('live');
 
     var context = Wardrobe.run(editor.getValue());
     var value = context.getReturnObject().toString();
@@ -121,10 +127,15 @@ function run() {
     $('#console').scrollTop($('#console').children().height());
   } catch(err) {
     if (err.is_wardrobe_error) {
+      errors[current_file] = [err];
+      $('#warning').addClass('live');
       switch(err.kind) {
         case 'Syntax': handleSyntaxError(err); break;
-        default: 
-          break;
+        case 'NoSuchMethod': handleRuntimeError(err); break;
+        case 'NoSuchParameter': handleRuntimeError(err); break;
+        case 'MissingArguments': handleRuntimeError(err); break;
+        case 'UndeclaredPropertyOrVariable': handleRuntimeError(err); break;
+        default: console.log(err); break;
       }
     } else {
       throw err;
@@ -141,6 +152,19 @@ function handleSyntaxError(err) {
   }]);
 
   var line = err.getStartLine() - 1;
+  editor.getSession().addMarker(new Range(line, err.getStartColumn(), line, err.getEndColumn()), "warning", "text"); 
+}
+
+function handleRuntimeError(err) {
+  editor.getSession().setAnnotations([{
+    row: err.getStartLine() - 1,
+    column: err.getStartColumn(),
+    text: err.toString(),
+    type: "error" // also warning and information
+  }]);
+
+  var line = err.getStartLine() - 1;
+  console.log(err);
   editor.getSession().addMarker(new Range(line, err.getStartColumn(), line, err.getEndColumn()), "warning", "text"); 
 }
 

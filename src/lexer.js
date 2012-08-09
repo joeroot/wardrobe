@@ -77,7 +77,7 @@ function scan(source) {
       i = i + value.length;
     }
     // Strings
-    else if ((value = chunk.match(/"(.*?)"/)) && value.index === 0) {
+    else if ((value = chunk.match(/"(.*?)"|'(.*?)'/)) && value.index === 0) {
       value = value[0];
       tokens.push(["STRING", value, line, character]);
       character = character + value.length;

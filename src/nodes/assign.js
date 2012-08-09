@@ -10,7 +10,7 @@ function Assign(assignable, expression, range, text) {
   this.text = text;
 
   this.evaluateNode = function(context) {
-    var name, err;
+    var name;
     switch (this.assignable.kind) {
       case 'Declare':
         name = this.assignable.identifier.name;
@@ -28,9 +28,9 @@ function Assign(assignable, expression, range, text) {
         name = this.assignable.name;
 
         if (context.getLocal(name) === undefined) {
-          error= new errors.WardrobeUndeclaredPropertyOrVariable(context, null);
-          error.addToStack(this.assignable);
-          throw error;
+          var identErr = new errors.WardrobeUndeclaredPropertyOrVariable(context, null);
+          identErr.addToStack(this.assignable);
+          throw identErr;
         }
 
         context = this.expression.evaluate(context);
@@ -43,9 +43,9 @@ function Assign(assignable, expression, range, text) {
         var property = this.assignable.identifier.name;
 
         if (receiver.getProperty(property) === undefined) {
-          error = new errors.WardrobeUndeclaredPropertyOrVariable(context, receiver);
-          error.addToStack(this.assignable);
-          throw error;
+          var propErr = new errors.WardrobeUndeclaredPropertyOrVariable(context, receiver);
+          propErr.addToStack(this.assignable);
+          throw propErr;
         }
 
         context = this.expression.evaluate(context);

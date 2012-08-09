@@ -1,11 +1,5 @@
 var Node = function(kind) {
   this.kind = kind;
-  this.range = {
-    first_line: 0,
-    first_column: 0,
-    last_line: 0,
-    last_column: 0
-  };
   this.ignore = [];
 };
 
