@@ -6,7 +6,7 @@ var WardrobeSyntaxError = function(hash, token) {
 
 WardrobeSyntaxError.prototype.is_wardrobe_error =  true;
 WardrobeSyntaxError.prototype.toString = function() {
-  str = 'Syntax error: expecting ';
+  str = this.hash.line + ': Syntax error, expecting ';
   for (var i = 0; i < this.hash.expected.length; i++) {
     if (i == this.hash.expected.length - 1) {
       str += ' or ';

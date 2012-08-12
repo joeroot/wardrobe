@@ -3,17 +3,17 @@
 class Person
   String name
 
-  def setName(String name)
+  method setName(String name)
     this.name = name
   end
 
-  def getName()
+  method getName()
     return this.name
   end
 end
 
 # Class Teenager inherits all methods and properites from its
-# parent class, Person. Can define additional properties and
+# parent class, Person. Can methodine additional properties and
 # methods, in this case, age, setAge and getAge. Additionally
 # an init method can be used for when creating an object of a
 # class. In this case, all Teenagers are intialised with an 
@@ -21,20 +21,20 @@ end
 class Teenager extends Person
   Number age
 
-  def init(String name, Number age)
+  method init(String name, Number age)
     this.name = name
     this.age = age
   end
 
-  def setAge(Number age)
+  method setAge(Number age)
     this.age = age
   end
 
-  def getAge()
+  method getAge()
     this.age
   end
 
-  def setAgeAndName(String name, Number age)
+  method setAgeAndName(String name, Number age)
     this.setName(name)
     this.setAge(age)
   end
@@ -74,3 +74,5 @@ print(t.getAge())
 
 t.setAgeAndName(name: "Watson", age: 19)
 print(t)
+
+[1..2]
