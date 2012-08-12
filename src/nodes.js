@@ -24,6 +24,8 @@ exports.nodes = {
   If: require('./nodes/if').If,
   List: require('./nodes/list').List,
   ListAccessor: require('./nodes/listaccessor').ListAccessor,
+  ListRange: require('./nodes/listrange').ListRange,
+  Method: require('./nodes/method').Method,
   Number: require('./nodes/number').Number,
   Operator: require('./nodes/operator').Operator,
   Param: require('./nodes/param').Param,

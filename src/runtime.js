@@ -316,6 +316,7 @@ WardrobeMethod.prototype.call = function(context, receiver, args) {
   var params_list = [];
   var param, name, type, arg;
 
+  // Bind all variables
   for (var p = 0; p < this.params.length; p++) {
     param = this.params[p];
     name = param.identifier.name;
@@ -343,6 +344,66 @@ WardrobeMethod.prototype.call = function(context, receiver, args) {
   context.setCurrentObject(receiver);
   context = this.body.evaluate(context); 
 
+  for (p = 0; p < this.params.length; p++) {
+    name = this.params[p].identifier.name;
+    if (old_context.getLocal(name) !== undefined) {
+      context.setLocalType(name, old_context.getLocalType(name));
+      context.setLocalObject(name, old_context.getLocalObject(name));
+    } else {
+      delete context.deleteLocal(name);
+    }
+  }
+
+  context.setCurrentObject(old_context.getCurrentObject());
+  context.setCurrentClass(old_context.getCurrentClass());
+  
+  return context;
+};
+
+WardrobeFunction.prototype = new WardrobeObject();
+WardrobeFunction.prototype.constructor = WardrobeFunction;
+function WardrobeFunction(name, params, body) {
+  this.cls = Runtime.getClass('Method');
+  this.name = name;
+  this.params = params;
+  this.body = body;
+}
+
+WardrobeFunction.prototype.call = function(context, args) { 
+  var old_context = context.clone();
+  var missing_params = [];
+  var params_list = [];
+  var param, name, type, arg;
+
+  for (var p = 0; p < this.params.length; p++) {
+    param = this.params[p];
+    name = param.identifier.name;
+    params_list.push(name);
+    type = Runtime.getClass(param.type.name);
+    arg = args[name] || args.unary;
+    if (arg === undefined) {missing_params.push(param);}
+    context.addLocal(name, type, arg);
+  }
+
+  if (missing_params.length > 0) {
+    throw new errors.WardrobeMissingArgumentsError(context, receiver, missing_params);
+  }
+
+  if (this.params.length == 1) {params_list.push("unary");}
+  var incorrect_params = [];
+  for (arg in args) {
+    if (params_list.indexOf(arg) == -1) {incorrect_params.push(arg);}
+  }
+
+  if (incorrect_params.length > 0) {
+    throw new errors.WardrobeNoSuchParameterError(context, receiver, incorrect_params);
+  }
+
+  context.setCurrentObject(null);
+  context.setCurrentClass(null);
+  context = this.body.evaluate(context); 
+
+  // Unbind function variables, and re-instate old bindings
   for (p = 0; p < this.params.length; p++) {
     name = this.params[p].identifier.name;
     if (old_context.getLocal(name) !== undefined) {
@@ -820,7 +881,7 @@ var Runtime = new WardrobeRuntime();
 
 Runtime.addClass('Class', wardrobe_class);
 Runtime.addClass('Object', wardrobe_object_class);
-Runtime.addClass('Method', new WardrobeClass('Method', null));
+Runtime.addClass('Function', new WardrobeFunction());
 Runtime.addClass('String', new WardrobeString());
 Runtime.addClass('Number', new WardrobeNumber());
 Runtime.addClass('List', new WardrobeList());
