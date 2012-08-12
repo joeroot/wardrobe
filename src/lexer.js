@@ -1,4 +1,4 @@
-var keywords = ['this', 'new', 'class', 'extends', 'def', 'if', 'then', 'else', 'while', 'do', 'end', 'return', 'true', 'false'];
+var keywords = ['this', 'new', 'class', 'extends', 'function', 'method', 'if', 'then', 'else', 'while', 'do', 'end', 'return', 'true', 'false'];
 var assign = ['='];
 var operator = ['+', '-', '!'];
 var comparators = ['!=', '==', '>', '<', '>=', '<='];
@@ -17,14 +17,8 @@ function scan(source) {
     var chunk = source.slice(i, source.length);
     var value = null;
     
-    if (chunk[0] == '.') {
-      value = chunk[0];
-      tokens.push(['DOT', value, line, character]);
-      character = character + 1;
-      i = i + 1;
-    }
     // Comments
-    else if ((value = chunk.match(/#[^\n|\r]*/)) && value.index=== 0) {
+    if ((value = chunk.match(/#[^\n|\r]*/)) && value.index=== 0) {
       value = value[0]; 
       tokens.push(["COMMENT", value, line, character]);
       character = character + value.length;
@@ -47,14 +41,9 @@ function scan(source) {
       i = i + value.length;
     }
     // Grammatical symbols
-    else if ((value = chunk.match(/\:|\(|\)|\,|\[|\]/)) && value.index === 0) {
+    else if ((value = chunk.match(/\.\.|\.|\:|\(|\)|\,|\[|\]/)) && value.index === 0) {
       value = value[0];
-      if (value == '(') {tokens.push(['LPAREN', value, line, character]);}
-      else if (value == ')') {tokens.push(['RPAREN', value, line, character]);}
-      else if (value == '[') {tokens.push(['LSQUARE', value, line, character]);}
-      else if (value == ']') {tokens.push(['RSQUARE', value, line, character]);}
-      else if (value == ',') {tokens.push(['COMMA', value, line, character]);}
-      else if (value == ':') {tokens.push(['COLON', value, line, character]);}
+      tokens.push([value, value, line, character]);
       character = character + value.length;
       i = i + value.length;
     }

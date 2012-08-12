@@ -5,8 +5,8 @@ var grammar = {
 
   'operators': [
     ['right', 'ASSIGN'],
-    ['left', 'DOT'],
-    ['right', 'COMMA'],
+    ['left', '.'],
+    ['right', ','],
     ['left', '+', '-', '!'],
     ['left', 'MATH'],
     ['left', 'COMP'],
@@ -56,6 +56,7 @@ var grammar = {
       ['literal'],
       ['constant'],
       ['class'],
+      ['method'],
       ['function'],
       ['call'],
       ['create'],
@@ -65,7 +66,7 @@ var grammar = {
     ],
 
     'bracketed': [
-      ['LPAREN expression RPAREN', '$$ = $2;']
+      ['( expression )', '$$ = $2;']
     ],
 
     'value': [
@@ -90,11 +91,11 @@ var grammar = {
     ],
 
     'property': [
-      ['expression DOT identifier', '$$ = new yy.Property($1, $3, @$, yytext);']  // e.g. this.x, obj.width
+      ['expression . identifier', '$$ = new yy.Property($1, $3, @$, yytext);']  // e.g. this.x, obj.width
     ],
 
     'list_accessor': [
-      ['expression LSQUARE expression RSQUARE', '$$ = new yy.ListAccessor($1, $3, @$, yytext);']  // e.g. names[0], items[x]
+      ['expression [ expression ]', '$$ = new yy.ListAccessor($1, $3, @$, yytext);']  // e.g. names[0], items[x]
     ],
 
     'constant': [
@@ -110,13 +111,14 @@ var grammar = {
     ],
 
     'list': [
-      ['LSQUARE list_items RSQUARE', '$$ = new yy.List($2)']  // e.g. [1,2,3,4]
+      ['[ list_items ]', '$$ = new yy.List($2)'],  // e.g. [1,2,3,4]
+      ['[ expression .. expression ]', '$$ = new yy.ListRange($2, $4, @$, yytext);']
     ],
 
     'list_items': [
       ['', '$$ = []'],                                          // i.e. empty list
       ['expression', '$$ = [$1]'],                              // e.g. 1
-      ['list_items COMMA expression', '$$ = $1; $1.push($3);']  // e.g. 1,2,3,4
+      ['list_items , expression', '$$ = $1; $1.push($3);']  // e.g. 1,2,3,4
     ],
 
     'this': [
@@ -128,24 +130,29 @@ var grammar = {
       ['CLASS constant EXTENDS constant block END', '$$ = new yy.Class($2, $4, $5, @$, yytext);']
     ],
 
+    'method': [
+      ['METHOD identifier ( params ) block END', '$$ = new yy.Method(null, $2, $4, $6, @$, yytext);'],
+      ['METHOD constant identifier ( params ) block END', '$$ = new yy.Method($2, $3, $5, $7, @$, yytext);']
+    ],
+
     'function': [
-      ['DEF identifier LPAREN params RPAREN block END', '$$ = new yy.Function(null, $2, $4, $6, @$, yytext);'],
-      ['DEF constant identifier LPAREN params RPAREN block END', '$$ = new yy.Function($2, $3, $5, $7, @$, yytext);']
+      ['FUNCTION identifier ( params ) block END', '$$ = new yy.Function(null, $2, $4, $6, @$, yytext);'],
+      ['FUNCTION constant identifier ( params ) block END', '$$ = new yy.Function($2, $3, $5, $7, @$, yytext);']
     ],
 
     'params': [
       ['', '$$ = [];'],
       ['constant identifier', '$$ = [new yy.Param($1, $2)];'],
-      ['params COMMA constant identifier', '$$ = $1; $1.push(new yy.Param($3, $4, @$, yytext));']
+      ['params , constant identifier', '$$ = $1; $1.push(new yy.Param($3, $4, @$, yytext));']
     ],
 
     'call': [
-      ['expression DOT identifier LPAREN arguments RPAREN', '$$ = new yy.Call($3, $1, $5, @$, yytext);'], // e.g. 2.add(10), obj.update(name: 'John', age: 71) 
-      ['identifier LPAREN arguments RPAREN', '$$ = new yy.Call($1, null, $3, @$, yytext);']               // e.g. print(10), error(message: 'Error!', code: 10)
+      ['expression . identifier ( arguments )', '$$ = new yy.Call($3, $1, $5, @$, yytext);'], // e.g. 2.add(10), obj.update(name: 'John', age: 71) 
+      ['identifier ( arguments )', '$$ = new yy.Call($1, null, $3, @$, yytext);']               // e.g. print(10), error(message: 'Error!', code: 10)
     ],
 
     'create': [
-      ['NEW constant LPAREN arguments RPAREN', '$$ = new yy.Create($2, $4, @$, yytext);']  // new Person(name: John, age: 71)
+      ['NEW constant ( arguments )', '$$ = new yy.Create($2, $4, @$, yytext);']  // new Person(name: John, age: 71)
     ],
 
     'arguments': [
@@ -159,8 +166,8 @@ var grammar = {
 
     'named_arguments': [
       ['', '$$ = [];'],                                                                                   // i.e empty arguments
-      ['identifier COLON expression', '$$ = [new yy.Argument($1, $3, @$, yytext)];'],                                   // i.e. name: 'John'
-      ['named_arguments COMMA identifier COLON expression', '$$ = $1; $1.push(new yy.Argument($3, $5, @$, yytext));']   // i.e. name: 'John', age: 71
+      ['identifier : expression', '$$ = [new yy.Argument($1, $3, @$, yytext)];'],                                   // i.e. name: 'John'
+      ['named_arguments , identifier : expression', '$$ = $1; $1.push(new yy.Argument($3, $5, @$, yytext));']   // i.e. name: 'John', age: 71
     ],
 
     'operation': [
