@@ -194,6 +194,15 @@ WardrobeObject.prototype.toString = function() {
    switch(this.cls.name) {
     case 'String': str += '"' + this.value + '"'; break;
     case 'List': str += '[' + this.value + ']'; break;
+    case 'Function': 
+      str += '<' + this.cls.name + ':(';
+      for (var param in this.params) {
+        str += this.params[param].type.name + ':'; 
+        str += this.params[param].identifier.name + ',';
+      }
+      str = str.substring(0,str.length-1);
+      str += ')>';
+      break;
     default: str = this.value; break;
    }
   
@@ -362,14 +371,30 @@ WardrobeMethod.prototype.call = function(context, receiver, args) {
 
 WardrobeFunction.prototype = new WardrobeObject();
 WardrobeFunction.prototype.constructor = WardrobeFunction;
-function WardrobeFunction(name, params, body) {
-  this.cls = Runtime.getClass('Method');
-  this.name = name;
+function WardrobeFunction() {
+  this.cls = Runtime.getClass('Class');
+  this.value = this;
+
+  this.name = 'Function';
+  this.super_class = Runtime.getClass('Object');
+  this.methods = {};
+}
+
+WardrobeFunction.prototype.newObject = function(params, body) {
+  return new WardrobeFunctionObject(params, body);
+};
+
+WardrobeFunctionObject.prototype = new WardrobeObject();
+WardrobeFunctionObject.prototype.constructor = WardrobeFunctionObject;
+function WardrobeFunctionObject(params, body) {
+  this.cls = Runtime.getClass('Function');
+  this.value = {params: params, body: body};
+
   this.params = params;
   this.body = body;
 }
 
-WardrobeFunction.prototype.call = function(context, args) { 
+WardrobeFunctionObject.prototype.call = function(context, args) { 
   var old_context = context.clone();
   var missing_params = [];
   var params_list = [];
@@ -396,7 +421,7 @@ WardrobeFunction.prototype.call = function(context, args) {
   }
 
   if (incorrect_params.length > 0) {
-    throw new errors.WardrobeNoSuchParameterError(context, receiver, incorrect_params);
+    throw new errors.WardrobeNoSuchParameterError(context, null, incorrect_params);
   }
 
   context.setCurrentObject(null);

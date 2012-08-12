@@ -22,19 +22,22 @@ function Call(identifier, receiver, args, range, text) {
     }
 
     var method_name = this.identifier.name;
+    var is_method = this.receiver !== null;
+    var is_system_method = ['print'].indexOf(method_name) >= 0;
 
-    if (this.receiver !== null) {
-      // evaluate the receiver, before calling the method on the returned object
+    if (is_method) {
       context = this.receiver.evaluate(context);
       var receiver_object = context.getReturnObject();
       context = receiver_object.call(context, method_name, args); 
-    } else if (method_name == 'print'){
+    } else if (is_system_method){
       context = Runtime.getGlobalObject('system').call(context, 'print', args);
     } else {
-      if (Runtime.getMethod(method_name) === undefined) {
-        throw new errors.WardrobeNoSuchMethodError(context, null);
+      context = this.identifier.evaluate(context);
+      var func = context.getReturnObject();
+      if (func.getClass() != Runtime.getClass('Function')) {
+        throw "Not a function.";
       }
-      context = Runtime.getMethod(method_name).call(context, null, args);
+      context = func.call(context, args);
     }
 
     return context;

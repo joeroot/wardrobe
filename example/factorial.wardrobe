@@ -1,9 +1,16 @@
 # Factorial for wardrobe
-def factorial(Number i)
+function factorial(Number i)
   if i > 1
     i = i * factorial(i-1)
   end
   return i
 end
 
-factorial(10)
+function half(Number h)
+  return h / 2
+end
+
+Function f = factorial
+
+print(factorial(10))
+print(f(11))

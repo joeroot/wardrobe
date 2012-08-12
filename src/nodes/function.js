@@ -15,11 +15,9 @@ function Function(type, identifier, params, block, range, text) {
   this.evaluateNode = function(context) {
     var name = this.identifier.name;
 
-    if (context.getCurrentClass() !== null) {
-      context.getCurrentClass().createMethod(name, this.params, this.block);
-    } else {
-      Runtime.createMethod(name, this.params, this.block);
-    }
+    var func = Runtime.getClass('Function').newObject(this.params, this.block);
+    context.addLocal(this.identifier.name, Runtime.getClass('Function'), func); 
+    context.setReturnObject(func);
 
     return context; 
   };
