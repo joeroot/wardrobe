@@ -1,0 +1,14 @@
+function divideBy(Number num, Number by)
+  return num/by
+end
+
+function divider(Number num)
+  function f(Number by)
+    return divideBy(num: num, by: by)
+  end
+  return f
+end
+
+divideBy(num: 10, by: 2)
+Function x = divider(2)
+x(10)

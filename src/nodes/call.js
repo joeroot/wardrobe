@@ -37,7 +37,7 @@ function Call(identifier, receiver, args, range, text) {
       if (func.getClass() != Runtime.getClass('Function')) {
         throw "Not a function.";
       }
-      context = func.call(context, args);
+      context = func.apply(context, args);
     }
 
     return context;

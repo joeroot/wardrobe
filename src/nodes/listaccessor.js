@@ -14,12 +14,14 @@ function ListAccessor(expression, index_expression, range, text) {
 
   this.evaluateNode = function(context) {
     context = this.expression.evaluate(context);
-    var list = context.getCurrentObject();
+    var list = context.getReturnObject();
 
     context = this.index_expression.evaluate(context);
-    var index = context.getCurrentObject();
+    var index = context.getReturnObject();
 
     context = list.call(context, 'get', {unary: index});
+
+    return context;
   };
 }
 

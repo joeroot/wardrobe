@@ -394,7 +394,7 @@ function WardrobeFunctionObject(params, body) {
   this.body = body;
 }
 
-WardrobeFunctionObject.prototype.call = function(context, args) { 
+WardrobeFunctionObject.prototype.apply = function(context, args) { 
   var old_context = context.clone();
   var missing_params = [];
   var params_list = [];
@@ -475,7 +475,7 @@ WardrobeObjectClass.prototype.installMethods = function() {
     }}
   );
   this.methods.getClass= new WardrobeMethod(
-    'class',
+    'getClass',
     [],
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
@@ -834,6 +834,20 @@ WardrobeList.prototype.installMethods = function() {
     {evaluate: function(context) {
       var index = context.getLocalObject('index');
       context.setReturnObject(context.getCurrentObject().value[index.value]);
+      return context;
+    }}
+  );
+  this.methods.set = new WardrobeMethod(
+    'set',
+    [
+      {type: {name: 'Number'}, identifier: {name: 'index'}},
+      {type: {name: 'Object'}, identifier: {name: 'to'}}
+    ],
+    {evaluate: function(context) {
+      var index = context.getLocalObject('index');
+      var object = context.getLocalObject('to');
+      context.getCurrentObject().value[index.value] = object;
+      context.setReturnObject(object);
       return context;
     }}
   );

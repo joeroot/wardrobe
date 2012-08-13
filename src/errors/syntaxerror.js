@@ -15,6 +15,7 @@ WardrobeSyntaxError.prototype.toString = function() {
     }
     str += this.hash.expected[i].toLowerCase();
   }
+  str += ', not ' + this.token[1];
   return str + ".";
 };
 

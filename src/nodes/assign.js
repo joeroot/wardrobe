@@ -52,7 +52,18 @@ function Assign(assignable, expression, range, text) {
         receiver.setProperty(property, context.getReturnObject()); 
         break;
         
-      case 'ListAccessor': break;
+      case 'ListAccessor': 
+        context = this.assignable.expression.evaluate(context);
+        var list = context.getReturnObject();
+
+        context = this.assignable.index_expression.evaluate(context);
+        var index = context.getReturnObject();
+
+        context = this.expression.evaluate(context);
+        var set_to = context.getReturnObject();
+
+        context = list.call(context, 'set', {index: index, to: set_to});
+        break;
       default: break;
     }
 

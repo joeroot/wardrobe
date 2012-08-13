@@ -75,4 +75,8 @@ print(t.getAge())
 t.setAgeAndName(name: "Watson", age: 19)
 print(t)
 
-[1..2]
+List l = [4..10]
+print(l[0])
+l.set(index:3, to:11)
+l[4] = 12
+l

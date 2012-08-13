@@ -11,7 +11,9 @@ var grammar = {
     ['left', 'MATH'],
     ['left', 'COMP'],
     ['left', 'LOGIC'],
-    ['right', 'FOR', 'WHILE']
+    ['right', 'FOR', 'WHILE'],
+    ['left', '('],
+    ['left', '[']
   ],
 
   'bnf': {
@@ -82,8 +84,8 @@ var grammar = {
 
     'assignable': [
       ['identifier'],
-      ['property']
-      //['list_accessor'] 
+      ['property'],
+      ['list_accessor'] 
     ],
 
     'identifier': [
@@ -148,7 +150,7 @@ var grammar = {
 
     'call': [
       ['expression . identifier ( arguments )', '$$ = new yy.Call($3, $1, $5, @$, yytext);'], // e.g. 2.add(10), obj.update(name: 'John', age: 71) 
-      ['identifier ( arguments )', '$$ = new yy.Call($1, null, $3, @$, yytext);']               // e.g. print(10), error(message: 'Error!', code: 10)
+      ['expression ( arguments )', '$$ = new yy.Call($1, null, $3, @$, yytext);']               // e.g. print(10), error(message: 'Error!', code: 10)
     ],
 
     'create': [

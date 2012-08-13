@@ -6,11 +6,8 @@ function factorial(Number i)
   return i
 end
 
-function half(Number h)
-  return h / 2
-end
-
 Function f = factorial
 
 print(factorial(10))
 print(f(11))
+f(11).getClass()
