@@ -10,4 +10,4 @@ Function f = factorial
 
 print(factorial(10))
 print(f(11))
-f(11).getClass()
+f.getClass()
