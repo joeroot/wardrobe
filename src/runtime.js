@@ -411,7 +411,7 @@ WardrobeFunctionObject.prototype.apply = function(context, args) {
   }
 
   if (missing_params.length > 0) {
-    throw new errors.WardrobeMissingArgumentsError(context, receiver, missing_params);
+    throw new errors.WardrobeMissingArgumentsError(context, null, missing_params);
   }
 
   if (this.params.length == 1) {params_list.push("unary");}

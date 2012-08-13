@@ -28,6 +28,8 @@ task('browser', function (params) {
     'nodes/if', 
     'nodes/list', 
     'nodes/listaccessor', 
+    'nodes/listrange', 
+    'nodes/method', 
     'nodes/number', 
     'nodes/operator', 
     'nodes/param', 

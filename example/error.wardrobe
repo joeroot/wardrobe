@@ -1,19 +1,19 @@
 class Person
   String name = "Root"
 
-  def setName(String name)
+  method setName(String name)
     this.name = name
    end
 
-  def getName()
+  method getName()
     this.notAMethod()
     return this.name
   end
 end
 
-def missingParams(Number m, Number n)
+function missingParams(Number m, Number n)
   print(m)
- end
+end
 
 Person p = new Person()
 

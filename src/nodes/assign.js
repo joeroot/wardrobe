@@ -64,6 +64,7 @@ function Assign(assignable, expression, range, text) {
 
         context = list.call(context, 'set', {index: index, to: set_to});
         break;
+
       default: break;
     }
 
