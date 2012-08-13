@@ -23,6 +23,7 @@ task('browser', function (params) {
     'nodes/create', 
     'nodes/declare', 
     'nodes/false', 
+    'nodes/for', 
     'nodes/function', 
     'nodes/identifier', 
     'nodes/if', 

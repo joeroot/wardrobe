@@ -351,7 +351,15 @@ WardrobeMethod.prototype.call = function(context, receiver, args) {
   }
 
   context.setCurrentObject(receiver);
-  context = this.body.evaluate(context); 
+  try {
+    context = this.body.evaluate(context); 
+  } catch(err) {
+    if (err.kind !== undefined && err.kind == 'Return') {
+      context = err.context;
+    } else {
+      throw err;
+    }
+  }
 
   for (p = 0; p < this.params.length; p++) {
     name = this.params[p].identifier.name;
@@ -426,7 +434,15 @@ WardrobeFunctionObject.prototype.apply = function(context, args) {
 
   context.setCurrentObject(null);
   context.setCurrentClass(null);
-  context = this.body.evaluate(context); 
+  try {
+    context = this.body.evaluate(context); 
+  } catch(err) {
+    if (err.kind !== undefined && err.kind == 'Return') {
+      context = err.context;
+    } else {
+      throw err;
+    }
+  }
 
   // Unbind function variables, and re-instate old bindings
   for (p = 0; p < this.params.length; p++) {

@@ -9,7 +9,7 @@ function Return(expression, range, text) {
 
   this.evaluateNode = function(context) {
     context = this.expression.evaluate(context);
-    return context;
+    throw {kind: 'Return', context: context};
   };
 }
 

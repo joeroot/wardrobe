@@ -19,6 +19,7 @@ exports.nodes = {
   Create: require('./nodes/create').Create,
   Declare: require('./nodes/declare').Declare,
   False: require('./nodes/false').False,
+  For: require('./nodes/for').For,
   Function: require('./nodes/function').Function,
   Identifier: require('./nodes/identifier').Identifier,
   If: require('./nodes/if').If,

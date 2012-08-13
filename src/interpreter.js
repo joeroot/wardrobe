@@ -11,8 +11,12 @@ function run(ast) {
       context = node.evaluate(context);
     }
   } catch(err) {
-    // Handlers here?
-    throw err;
+    if (err.kind !== undefined && err.kind == 'Return') {
+      context = err.context;
+    } else {
+      // Handlers here?
+      throw err;
+    }
   }
 
   return context;

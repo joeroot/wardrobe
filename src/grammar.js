@@ -64,6 +64,7 @@ var grammar = {
       ['create'],
       ['operation'],
       ['if'],
+      ['for'],
       ['while']
     ],
 
@@ -194,7 +195,7 @@ var grammar = {
     ],
 
     'for': [
-      ['FOR identifier IN expression DO block END', ''],
+      ['FOR identifier IN expression DO block END', '$$ = new yy.For($2, $4, $6, @$, yytext);'],
       ['FOR declare IN expression DO block END', '$$ = new yy.For($2, $4, $6, @$, yytext);']  // e.g. for Number n in ns do BLOCK end 
     ]
 
