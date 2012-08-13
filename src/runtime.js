@@ -596,6 +596,17 @@ WardrobeNumber.prototype.installMethods = function() {
       return context;
     }}
   );
+  this.methods.modulus= new WardrobeMethod(
+    'modulus',
+    [{type: {name: 'Number'}, identifier: {name: 'right'}}],
+    {evaluate: function(context) {
+      var receiver = context.getCurrentObject();
+      var right = context.getLocalObject('right');
+      var object = Runtime.getClass('Number').newObject(receiver.value % right.value);
+      context.setReturnObject(object);
+      return context;
+    }}
+  );
   this.methods.equal = new WardrobeMethod(
     'equal',
     [{type: {name: 'Number'}, identifier: {name: 'right'}}],
@@ -865,6 +876,38 @@ WardrobeList.prototype.installMethods = function() {
         }
       }
       context.setReturnObject(Runtime.getClass('Number').newObject(index));
+      return context;
+    }}
+  );
+  this.methods.map= new WardrobeMethod(
+    'map',
+    [{type: {name: 'Function'}, identifier: {name: 'with'}}],
+    {evaluate: function(context) {
+      var list = context.getCurrentObject().getValue();
+      var func = context.getLocalObject('with');
+      var mapped_list = [];
+      for (var item = 0; item < list.length; item++) {
+        context = func.apply(context, {unary: list[item]});
+        mapped_list.push(context.getReturnObject());
+      }
+      context.setReturnObject(Runtime.getClass('List').newObject(mapped_list));
+      return context;
+    }}
+  );
+  this.methods.filter= new WardrobeMethod(
+    'filter',
+    [{type: {name: 'Function'}, identifier: {name: 'by'}}],
+    {evaluate: function(context) {
+      var list = context.getCurrentObject().getValue();
+      var func = context.getLocalObject('by');
+      var filtered_list = [];
+      for (var item = 0; item < list.length; item++) {
+        context = func.apply(context, {unary: list[item]});
+        if (context.getReturnObject().value) {
+          filtered_list.push(list[item]);
+        }
+      }
+      context.setReturnObject(Runtime.getClass('List').newObject(filtered_list));
       return context;
     }}
   );

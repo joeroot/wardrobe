@@ -1,0 +1,10 @@
+function square(Number n) 
+  return n*n
+end
+
+function even(Number n)
+  n%2 == 0
+end
+
+print([1..10].map(square))
+print([1..10].filter(even))

@@ -44,6 +44,7 @@ function Operator(operator, left, right, range, text) {
         case '-': context = left.call(context, 'subtract', args); break;
         case '/': context = left.call(context, 'divide', args); break;
         case '*': context = left.call(context, 'multiply', args); break;
+        case '%': context = left.call(context, 'modulus', args); break;
         default: break;
       }
     } else {

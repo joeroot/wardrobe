@@ -3,7 +3,7 @@ var assign = ['='];
 var operator = ['+', '-', '!'];
 var comparators = ['!=', '==', '>', '<', '>=', '<='];
 var logic = ['&&', 'and', '||', 'or'];
-var math = ['/', '*'];
+var math = ['/', '*', '%'];
 
 function scan(source) {
   var tokens = [];
@@ -48,7 +48,7 @@ function scan(source) {
       i = i + value.length;
     }
     // Operators
-    else if ((value = chunk.match(/!\=|!|\=\=|>\=|<\=|>|<|\=|&&|\|\||\+|\-|\/|\*/)) && value.index === 0) {
+    else if ((value = chunk.match(/!\=|!|\=\=|>\=|<\=|>|<|\=|&&|\|\||\+|\-|\/|\*|\%/)) && value.index === 0) {
       value = value[0];
       if (operator.indexOf(value) >= 0) {tokens.push([value, value, line, character]);}
       else if (logic.indexOf(value) >= 0) {tokens.push(['LOGIC', value, line, character]);}
