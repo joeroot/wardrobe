@@ -189,6 +189,13 @@ WardrobeObject.prototype.getPropertyObject = function(property) {
   return this.getProperty(property).object;
 };
 
+WardrobeObject.prototype.instanceOf = function(check) {
+  if (typeof(check) == 'string') {
+    check = Runtime.getClass(check);
+  }
+  return this.cls == check;
+};
+
 WardrobeObject.prototype.toString = function() {
   var str = "";
   if (this.value !== this) {
