@@ -142,6 +142,7 @@ var WardrobeObject = function(cls, value) {
   this.properties = {};
   this.value = value;
   if (value === null) {this.value = this;}
+  this.created = new Date().getTime();
   if (Runtime !== undefined) {
     var properties = this.cls.getProperties();
     for (var property in properties) {

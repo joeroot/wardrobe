@@ -15,13 +15,15 @@ function Declare (type, identifier, range, text) {
 
     var isObjectProperty = context.current_class !== null;
 
+    var nothing = Runtime.getGlobalObject('nothing');
     // If we are within a class definition (i.e. current class is null), 
     // declare as an object property, otherwise declare as a local variable.
     if (isObjectProperty) {
-      context.getCurrentClass().addProperty(name, type, null);
+      context.getCurrentClass().addProperty(name, type, nothing);
     } else {
-      context.addLocal(name, type, null);
+      context.addLocal(name, type, nothing);
     }
+    context.setReturnObject(nothing);
 
     return context;
   };

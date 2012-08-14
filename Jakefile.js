@@ -31,6 +31,7 @@ task('browser', function (params) {
     'nodes/listaccessor', 
     'nodes/listrange', 
     'nodes/method', 
+    'nodes/nothing',
     'nodes/number', 
     'nodes/operator', 
     'nodes/param', 
