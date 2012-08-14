@@ -16,6 +16,7 @@ function Operator(operator, left, right, range, text) {
       context = this.left.evaluate(context);
       var left = context.getReturnObject();
       context = this.right.evaluate(context);
+      right = context.getReturnObject();
       var args = {unary: context.getReturnObject()};
 
       switch(this.operator) {
@@ -40,7 +41,13 @@ function Operator(operator, left, right, range, text) {
           context = left.call(context, 'equal', args);
           context = context.getReturnObject().call(context, 'negate', {});
           break;
-        case '+': context = left.call(context, 'add', args); break;
+        case '+': 
+          if (left.instanceOf('Number') && right.instanceOf('Number')) {
+            context = left.call(context, 'add', args); 
+          } else if (left.instanceOf('String') && right.instanceOf('String')) {
+            context = left.call(context, 'concat', args);
+          }
+          break;
         case '-': context = left.call(context, 'subtract', args); break;
         case '/': context = left.call(context, 'divide', args); break;
         case '*': context = left.call(context, 'multiply', args); break;
