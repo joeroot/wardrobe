@@ -1,0 +1,3 @@
+String s = "hey" + "there"
+
+print("hi" + s.length().toString() + "joe")
