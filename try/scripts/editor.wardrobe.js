@@ -1,5 +1,5 @@
 var EditSession = require("ace/edit_session").EditSession;
-var RubyMode = require("ace/mode/ruby").Mode;
+var WardrobeMode = require("ace/mode/wardrobe").Mode;
 var Range = require("ace/range").Range;
 var UndoManager = require("ace/undomanager").UndoManager;
 
@@ -75,7 +75,7 @@ function openFile(file) {
       success: function(data) {
         session = new EditSession(data);
         session.setUndoManager(new UndoManager());
-        session.setMode(new RubyMode());
+        session.setMode(new WardrobeMode());
         session.setTabSize(2);
         session.on('change', function(){
           clearAnnotationsAndMarkers(session);
