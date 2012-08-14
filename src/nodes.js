@@ -27,6 +27,7 @@ exports.nodes = {
   ListAccessor: require('./nodes/listaccessor').ListAccessor,
   ListRange: require('./nodes/listrange').ListRange,
   Method: require('./nodes/method').Method,
+  Nothing: require('./nodes/nothing').Nothing,
   Number: require('./nodes/number').Number,
   Operator: require('./nodes/operator').Operator,
   Param: require('./nodes/param').Param,

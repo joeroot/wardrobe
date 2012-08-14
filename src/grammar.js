@@ -75,7 +75,8 @@ var grammar = {
     'value': [
       ['assignable'],
       ['const'],
-      ['this']
+      ['this'],
+      ['nothing']
     ],
 
     'assign': [
@@ -126,6 +127,10 @@ var grammar = {
 
     'this': [
       ['THIS', '$$ = new yy.This(@$, yytext);']  // i.e. this
+    ],
+
+    'nothing': [
+      ['NOTHING', '$$ = new yy.Nothing(@$, yytext);']  // i.e. nothing
     ],
 
     'class': [

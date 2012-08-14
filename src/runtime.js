@@ -203,12 +203,14 @@ WardrobeObject.prototype.toString = function() {
       str = str.substring(0,str.length-1);
       str += ')>';
       break;
+    case 'Nothing': str += 'nothing'; break;
     default: str = this.value; break;
    }
   
   } else {
     str = '<' + this.cls.name + ':';
     str += "{";
+    var has_properties = false;
     for (var property in this.properties) {
       var object = this.getPropertyObject(property);
       if (object === null) {
@@ -217,8 +219,9 @@ WardrobeObject.prototype.toString = function() {
         object = object.toString();
       }
       str += property + ":" + object + ",";
+      has_properties = true;
     }
-    str = str.substring(0,str.length-1);
+    if (has_properties) {str = str.substring(0,str.length-1);}
     str += "}";
     str += '>';
   }
@@ -304,7 +307,7 @@ WardrobeClass.prototype.toString = function() {
 };
 
 WardrobeClass.prototype.newObject = function(args) {
-  var context = new Context();
+  var context = new Context(); 
   var obj = new WardrobeObject(this, null);
   this.getMethod('init').call(context, obj, args);
   return obj;
@@ -387,6 +390,10 @@ function WardrobeFunction() {
   this.super_class = Runtime.getClass('Object');
   this.methods = {};
 }
+
+WardrobeFunction.prototype.installMethods = function() {
+
+};
 
 WardrobeFunction.prototype.newObject = function(params, body) {
   return new WardrobeFunctionObject(params, body);
@@ -496,6 +503,33 @@ WardrobeObjectClass.prototype.installMethods = function() {
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var object = receiver.cls;
+      context.setReturnObject(object);
+      return context;
+    }}
+  );
+  this.methods.equal = new WardrobeMethod(
+    'equal',
+    [{type: {name: 'String'}, identifier: {name: 'right'}}],
+    {evaluate: function(context) {
+      var receiver = context.getCurrentObject();
+      var right = context.getLocalObject('right');
+      var object;
+      if (receiver.value !== receiver && right.value !== right) {
+        object = Runtime.getGlobalObject((receiver.value == right.value).toString());
+      } else {
+        var equal = receiver.getClass() == right.getClass();
+        equal = equal && receiver.created == right.created; 
+        if (equal) {
+          var property;
+          for (property in receiver.properties) {
+            equal = equal && receiver.properties[property] == right.properties[property]; 
+          }
+          for (property in right.properties) {
+            equal = equal && receiver.properties[property] == right.properties[property]; 
+          }
+        }
+        object = Runtime.getGlobalObject(equal.toString());
+      }
       context.setReturnObject(object);
       return context;
     }}
@@ -964,7 +998,26 @@ WardrobeSystem.prototype.installMethods = function() {
 };
 
 WardrobeSystem.prototype.newObject = function() {
-  return new WardrobeObject(this, null);
+  return new WardrobeObject(this, {});
+};
+
+WardrobeNothing.prototype = new WardrobeClass();
+WardrobeNothing.prototype.constructor = WardrobeNothing;
+function WardrobeNothing() {
+  this.cls = Runtime.getClass('Class');
+  this.value = this;
+
+  this.name = 'Nothing';
+  this.super_class = Runtime.getClass('Object');
+  this.methods = {}; 
+}
+
+WardrobeNothing.prototype.installMethods = function() {
+
+};
+
+WardrobeNothing.prototype.newObject = function() {
+  return new WardrobeObject(this, {});
 };
 
 var wardrobe_class = new WardrobeClass('Class', null);
@@ -986,6 +1039,7 @@ Runtime.addClass('List', new WardrobeList());
 Runtime.addClass('Boolean', new WardrobeBoolean());
 Runtime.addClass('TrueBoolean', new WardrobeTrue());
 Runtime.addClass('FalseBoolean', new WardrobeFalse());
+Runtime.addClass('Nothing', new WardrobeNothing());
 Runtime.addClass('System', new WardrobeSystem());
 
 Runtime.getClass('Object').installMethods();
@@ -995,11 +1049,13 @@ Runtime.getClass('List').installMethods();
 Runtime.getClass('Boolean').installMethods();
 Runtime.getClass('TrueBoolean').installMethods();
 Runtime.getClass('FalseBoolean').installMethods();
+Runtime.getClass('Nothing').installMethods();
 Runtime.getClass('System').installMethods();
 
 Runtime.addGlobal('true', Runtime.getClass('TrueBoolean').newObject());
 Runtime.addGlobal('false', Runtime.getClass('FalseBoolean').newObject());
 Runtime.addGlobal('system', Runtime.getClass('System').newObject());
+Runtime.addGlobal('nothing', Runtime.getClass('Nothing').newObject());
 
 exports.Runtime = Runtime;
 exports.Context = Context;

@@ -68,6 +68,13 @@ print(t)
 t.setName("Smith")
 print(t)
 
+Teenager t1 = t;
+t1.setName("Chan");
+Teenager t2 = new Teenager(age: 17, name: "Khan");
+
+print(t1 == t)
+print(t1 == t2)
+
 # Can change intialised age with parent's setAge method.
 t.setAge(13)
 print(t.getAge())
