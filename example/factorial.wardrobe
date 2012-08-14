@@ -6,10 +6,4 @@ function factorial(Number i)
   return i
 end
 
-Function f = factorial
-
 print(factorial(10))
-print(f(11))
-f.getClass()
-
-nothing == nothing

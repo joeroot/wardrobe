@@ -5,8 +5,6 @@ function fibonacci(Number n)
   return n
 end
 
-Function f = fibonacci
 print(fibonacci(10))
-print(f(5))
 
 

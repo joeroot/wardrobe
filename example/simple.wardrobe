@@ -57,10 +57,10 @@ p.setName("Doe")
 print(p)
 
 String f = "John"
-f = f.concat(" ").concat(p.getName())
+f = f + " " + p.getName()
 print(p.getName())
 
-print("Length of ".concat(f).concat(" is ").concat(f.length().toString()))
+print("Length of " + f + " is " + f.length().toString())
 
 # Teenager is initialised with an age of 15.
 Teenager t = new Teenager(age: 15, name: "Root")
