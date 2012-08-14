@@ -44,21 +44,17 @@ var grammar = {
     'statement': [
       ['COMMENT', '$$ = new yy.Comment($1, @$, yytext);'],           // e.g. # This is a comment
       ['RETURN expression', '$$ = new yy.Return($2, @$, yytext);'],  // e.g. return x, return square.getWidth()
-      ['declare']                                     
-    ],
-
-    'declare': [
-      ['constant identifier', '$$ = new yy.Declare($1, $2, @$, yytext);']  // e.g. Number n, String s 
+      ['method']
     ],
 
     'expression': [
       ['bracketed'],
       ['value'],
+      ['declare'],
       ['assign'],
       ['literal'],
       ['constant'],
       ['class'],
-      ['method'],
       ['function'],
       ['call'],
       ['create'],
@@ -77,6 +73,10 @@ var grammar = {
       ['const'],
       ['this'],
       ['nothing']
+    ],
+
+    'declare': [
+      ['constant identifier', '$$ = new yy.Declare($1, $2, @$, yytext);']  // e.g. Number n, String s 
     ],
 
     'assign': [
