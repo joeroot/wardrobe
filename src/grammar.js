@@ -5,12 +5,12 @@ var grammar = {
 
   'operators': [
     ['right', 'ASSIGN'],
-    ['left', '.'],
     ['right', ','],
     ['left', 'COMP'],
     ['left', '+', '-', '!'],
     ['left', 'MATH'],
     ['left', 'LOGIC'],
+    ['left', '.'],
     ['right', 'FOR', 'WHILE'],
     ['left', '('],
     ['left', '[']
