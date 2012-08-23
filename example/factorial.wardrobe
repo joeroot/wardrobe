@@ -1,5 +1,5 @@
 # Factorial for wardrobe
-function factorial(Number i)
+function factorial(Number i) -> Number
   if i > 1
     i = i * factorial(i-1)
   end

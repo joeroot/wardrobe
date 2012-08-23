@@ -6,8 +6,3 @@ Function fibonacci = function (Number n) -> Number
 end
 
 print(fibonacci(10))
-
-
-Number n = Number l = 3
-print(l)
-print(n)
