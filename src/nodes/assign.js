@@ -12,18 +12,6 @@ function Assign(assignable, expression, range, text) {
   this.evaluateNode = function(context) {
     var name;
     switch (this.assignable.kind) {
-      case 'Declare':
-        name = this.assignable.identifier.name;
-        context = this.assignable.evaluate(context);
-        context = this.expression.evaluate(context);
-        var object = context.getReturnObject();
-        if (context.current_class === null) { 
-          context.setLocalObject(name, object);
-        } else {
-          context.getCurrentClass().setPropertyObject(name, object);
-        }
-        break;
-
       case 'Identifier':
         name = this.assignable.name;
 

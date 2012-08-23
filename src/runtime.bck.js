@@ -3,9 +3,9 @@
 var errors = require('./errors');
 
 /**
- * createialises a new runtime environment
+ * Initialises a new runtime environment
  *
- * @param {WardrobeObject} obj createial current object
+ * @param {WardrobeObject} obj initial current object
  * @param {WardrobeClass} cls intial current class
  */
 var WardrobeRuntime = function() { 
@@ -40,6 +40,25 @@ WardrobeRuntime.prototype.createClass = function(name, super_class) {
 
 WardrobeRuntime.prototype.getClass = function(name) {
   return this.classes[name];
+};
+
+WardrobeRuntime.prototype.addMethod = function(method) {
+  this.methods[method.name] = method;
+  return method;
+};
+
+WardrobeRuntime.prototype.createMethod = function(name, params, body) {
+  var method = new WardrobeMethod(name, params, body);
+  this.addMethod(method);
+  return method;
+};
+
+WardrobeRuntime.prototype.getMethod = function(name) {
+  var method = undefined;
+  if (this.methods[name] !== undefined && typeof(this.methods[name]) == 'object') {
+    method = this.methods[name];
+  }
+  return method;
 };
 
 var Context = function() {
@@ -174,7 +193,7 @@ WardrobeObject.prototype.instanceOf = function(check) {
   if (typeof(check) == 'string') {
     check = Runtime.getClass(check);
   }
-  return this.cls.subClassOf(check);
+  return this.cls == check;
 };
 
 WardrobeObject.prototype.toString = function() {
@@ -233,14 +252,6 @@ function WardrobeClass(name, super_class) {
   this.methods = {};
   this.properties = {};
 }
-
-WardrobeClass.prototype.subClassOf = function(cls) {
-  var isSubClass = this === cls;
-  if (!isSubClass && this.super_class !== null) {
-    isSubClass = this.super_class.subClassOf(cls);
-  }
-  return isSubClass;
-};
 
 WardrobeClass.prototype.addMethod = function(method) {
   this.methods[method.name] = method;
@@ -306,31 +317,12 @@ WardrobeClass.prototype.toString = function() {
 WardrobeClass.prototype.newObject = function(args) {
   var context = new Context(); 
   var obj = new WardrobeObject(this, null);
-  this.getMethod('create').call(context, obj, args);
+  this.getMethod('init').call(context, obj, args);
   return obj;
 };
 
-WardrobeClass.prototype.installMethods = function() {
-  this.methods['new'] = new WardrobeMethod(
-    'new',
-    [],
-    {evaluate: function(context) {
-      var current_class = context.getCurrentObject();
-      var new_object = new WardrobeObject(current_class, null);
-      var constructor = current_class.getMethod('create');
-
-      context.setCurrentObject(new_object);
-      context = constructor.body.evaluate(context);
-
-      new_object = context.getCurrentObject();
-
-      context.setCurrentObject(current_class);
-      context.setReturnObject(new_object);
-      return context;
-    }}
-  );
-};
-
+WardrobeMethod.prototype = new WardrobeObject();
+WardrobeMethod.prototype.constructor = WardrobeMethod;
 function WardrobeMethod(name, params, body) {
   this.cls = Runtime.getClass('Method');
   this.name = name;
@@ -343,12 +335,6 @@ WardrobeMethod.prototype.call = function(context, receiver, args) {
   var missing_params = [];
   var params_list = [];
   var param, name, type, arg;
-  
-  if (this.name == 'new') {
-    this.params = receiver.getMethod('create').params;
-  }
-  console.log(this.name);
-  console.log(this.params);
 
   // Bind all variables
   for (var p = 0; p < this.params.length; p++) {
@@ -399,8 +385,6 @@ WardrobeMethod.prototype.call = function(context, receiver, args) {
   context.setCurrentObject(old_context.getCurrentObject());
   context.setCurrentClass(old_context.getCurrentClass());
   
-  if (this.name == 'new') {this.params = [];}
-
   return context;
 };
 
@@ -504,8 +488,8 @@ function WardrobeObjectClass() {
 }
 
 WardrobeObjectClass.prototype.installMethods = function() {
-  this.methods.create= new WardrobeMethod(
-    'create', 
+  this.methods.init= new WardrobeMethod(
+    'init', 
     [], 
     {evaluate: function(context) {
       return context;
@@ -527,19 +511,6 @@ WardrobeObjectClass.prototype.installMethods = function() {
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
       var object = receiver.cls;
-      context.setReturnObject(object);
-      return context;
-    }}
-  );
-  this.methods.belongsTo = new WardrobeMethod(
-    'belongsTo',
-    [{type: {name: 'Class'}, identifier: {name: 'cls'}}],
-    {evaluate: function(context) {
-      console.log("hey there");
-      var receiver = context.getCurrentObject();
-      var cls = context.getLocalObject('cls');
-      var belongs = receiver.getClass().subClassOf(cls);
-      var object = Runtime.getGlobalObject(belongs.toString());
       context.setReturnObject(object);
       return context;
     }}
@@ -1079,7 +1050,6 @@ Runtime.addClass('FalseBoolean', new WardrobeFalse());
 Runtime.addClass('Nothing', new WardrobeNothing());
 Runtime.addClass('System', new WardrobeSystem());
 
-Runtime.getClass('Class').installMethods();
 Runtime.getClass('Object').installMethods();
 Runtime.getClass('String').installMethods();
 Runtime.getClass('Number').installMethods();

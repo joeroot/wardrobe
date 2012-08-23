@@ -1,8 +1,8 @@
-function square(Number n) 
+Function square = function (Number n) -> Number
   return n*n
 end
 
-function even(Number n)
+function even (Number n) -> Number
   n%2 == 0
 end
 

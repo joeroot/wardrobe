@@ -15,13 +15,13 @@ end
 # Class Teenager inherits all methods and properites from its
 # parent class, Person. Can methodine additional properties and
 # methods, in this case, age, setAge and getAge. Additionally
-# an init method can be used for when creating an object of a
+# an create method can be used for when creating an object of a
 # class. In this case, all Teenagers are intialised with an 
 # age.
 class Teenager extends Person
   Number age
 
-  method init(String name, Number age)
+  method create(String name, Number age)
     this.name = name
     this.age = age
   end
@@ -51,7 +51,7 @@ else
 end
 
 # Create a new person object then call setName on it.
-Person p = new Person()
+Person p = Person.new()
 p.setName("Doe")
 
 print(p)
@@ -62,15 +62,15 @@ print(p.getName())
 
 print("Length of " + f + " is " + f.length().toString())
 
-# Teenager is initialised with an age of 15.
-Teenager t = new Teenager(age: 15, name: "Root")
+# Teenager is createialised with an age of 15.
+Teenager t = Teenager.new(age: 15, name: "Root")
 print(t)
 t.setName("Smith")
 print(t)
 
 Teenager t1 = t;
 t1.setName("Chan");
-Teenager t2 = new Teenager(age: 17, name: "Khan");
+Teenager t2 = Teenager.new(age: 17, name: "Khan");
 
 print(t1 == t)
 print(t1 == t2)

@@ -1,0 +1,2 @@
+String name = "Ian Curtis"
+return name.length() + 10

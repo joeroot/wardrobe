@@ -1,9 +1,9 @@
-function divideBy(Number num, Number by)
+function divideBy (Number num, Number by) -> Number
   return num/by
 end
 
-function divider(Number num)
-  function f(Number by)
+function divider (Number num) -> Function
+  function f (Number by) -> Function
     return divideBy(num: num, by: by)
   end
   return f

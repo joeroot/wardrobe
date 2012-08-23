@@ -4,7 +4,7 @@ var grammar = {
   'startSymbol': 'root',
 
   'operators': [
-    ['right', 'ASSIGN'],
+    ['right', '='],
     ['right', ','],
     ['left', 'COMP'],
     ['left', '+', '-', '!'],
@@ -19,22 +19,22 @@ var grammar = {
   'bnf': {
     'root': [
       ['EOF', 'return [];'],
-      ['program EOF', 'return $1;']
+      ['lines EOF', 'return $1;']
     ],
 
     't': [
       ['NEWLINE']
     ],
 
-    'program': [
-      ['line', '$$ = [$1];'],
-      ['program t line', '$$ = $1; $1.push($3);']
-    ],
-
     'block': [
-      ['t program t', '$$ = new yy.Block($2, @$, yytext);'] 
+      ['t lines t', '$$ = new yy.Block($2, @$, yytext);'] 
     ],
     
+    'lines': [
+      ['line', '$$ = [$1];'],
+      ['lines t line', '$$ = $1; $1.push($3);']
+    ],
+
     'line': [
       ['statement'],
       ['expression']
@@ -49,15 +49,16 @@ var grammar = {
 
     'expression': [
       ['bracketed'],
-      ['value'],
+      ['assignable'],
+      ['const'],
       ['declare'],
       ['assign'],
       ['literal'],
+      ['this'],
       ['constant'],
       ['class'],
       ['function'],
       ['call'],
-      ['create'],
       ['operation'],
       ['if'],
       ['for'],
@@ -68,20 +69,13 @@ var grammar = {
       ['( expression )', '$$ = $2;']
     ],
 
-    'value': [
-      ['assignable'],
-      ['const'],
-      ['this'],
-      ['nothing']
-    ],
-
     'declare': [
-      ['constant identifier', '$$ = new yy.Declare($1, $2, @$, yytext);']  // e.g. Number n, String s 
+      ['constant identifier', '$$ = new yy.Declare($1, $2, null, @$, yytext);'],  // e.g. Number n, String s 
+      ['constant identifier = expression', '$$ = new yy.Declare($1, $2, $4, @$, yytext);' ]
     ],
 
     'assign': [
-      ['declare ASSIGN expression', '$$ = new yy.Assign($1, $3, @$, yytext);'],    // e.g. Number x = 10
-      ['assignable ASSIGN expression', '$$ = new yy.Assign($1, $3, @$, yytext);']  // e.g. x = 20
+      ['assignable = expression', '$$ = new yy.Assign($1, $3, @$, yytext);']  // e.g. x = 20
     ],
 
     'assignable': [
@@ -111,6 +105,7 @@ var grammar = {
       ['STRING', '$$ = new yy.String($1, @$, yytext);'],  // e.g. 'hello world'
       ['TRUE', '$$ = new yy.True(@$, yytext);'],      // i.e. true
       ['FALSE', '$$ = new yy.False(@$, yytext);'],    // i.e. false
+      ['NOTHING', '$$ = new yy.Nothing(@$, yytext);'],  // i.e. nothing
       ['list']
     ],
 
@@ -129,23 +124,33 @@ var grammar = {
       ['THIS', '$$ = new yy.This(@$, yytext);']  // i.e. this
     ],
 
-    'nothing': [
-      ['NOTHING', '$$ = new yy.Nothing(@$, yytext);']  // i.e. nothing
+    'class': [
+      ['CLASS constant class_block END', '$$ = new yy.Class($2, null, $3, @$, yytext);'],
+      ['CLASS constant EXTENDS constant class_block END', '$$ = new yy.Class($2, $4, $5, @$, yytext);']
     ],
 
-    'class': [
-      ['CLASS constant block END', '$$ = new yy.Class($2, null, $3, @$, yytext);'],
-      ['CLASS constant EXTENDS constant block END', '$$ = new yy.Class($2, $4, $5, @$, yytext);']
+    'class_block': [
+      ['t class_lines t', '$$ = new yy.Block($2, @$, yytext);']
+    ],
+
+    'class_lines': [
+      ['class_line', '$$ = [$1];'],
+      ['class_lines t class_line', '$$ = $1; $1.push($3);']
+    ],
+
+    'class_line': [
+      ['method'],
+      ['declare']
     ],
 
     'method': [
       ['METHOD identifier ( params ) block END', '$$ = new yy.Method(null, $2, $4, $6, @$, yytext);'],
-      ['METHOD constant identifier ( params ) block END', '$$ = new yy.Method($2, $3, $5, $7, @$, yytext);']
+      ['METHOD identifier ( params ) -> constant block END', '$$ = new yy.Method($6, $2, $4, $7, @$, yytext);']
     ],
 
     'function': [
-      ['FUNCTION identifier ( params ) block END', '$$ = new yy.Function(null, $2, $4, $6, @$, yytext);'],
-      ['FUNCTION constant identifier ( params ) block END', '$$ = new yy.Function($2, $3, $5, $7, @$, yytext);']
+      ['FUNCTION ( params ) -> constant block END', '$$ = new yy.Function($6, $3, $7, @$, yytext);'],
+      ['FUNCTION identifier ( params ) -> constant block END', '$$ = new yy.Declare(new yy.Constant("Function"), $2, new yy.Function($7, $4, $8, @$, yytext), @$, yytext);']
     ],
 
     'params': [
@@ -159,11 +164,8 @@ var grammar = {
       ['expression ( arguments )', '$$ = new yy.Call($1, null, $3, @$, yytext);']               // e.g. print(10), error(message: 'Error!', code: 10)
     ],
 
-    'create': [
-      ['NEW constant ( arguments )', '$$ = new yy.Create($2, $4, @$, yytext);']  // new Person(name: John, age: 71)
-    ],
-
     'arguments': [
+      ['', '$$ = [];'],                                                                                   // i.e empty arguments
       ['unary_argument'],
       ['named_arguments']
     ],
@@ -173,7 +175,6 @@ var grammar = {
     ],
 
     'named_arguments': [
-      ['', '$$ = [];'],                                                                                   // i.e empty arguments
       ['identifier : expression', '$$ = [new yy.Argument($1, $3, @$, yytext)];'],                                   // i.e. name: 'John'
       ['named_arguments , identifier : expression', '$$ = $1; $1.push(new yy.Argument($3, $5, @$, yytext));']   // i.e. name: 'John', age: 71
     ],

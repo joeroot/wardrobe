@@ -3,7 +3,7 @@ var Context = require('./runtime').Context;
 function run(ast) {
   var context = new Context();
 
-  ast = setLoadStructure(ast);
+  //ast = setLoadStructure(ast);
 
   try {
     for (i = 0; i < ast.length; i++) {

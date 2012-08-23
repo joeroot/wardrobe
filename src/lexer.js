@@ -1,88 +1,104 @@
-var keywords = ['this', 'new', 'class', 'extends', 'function', 'method', 'if', 'then', 'else', 'for', 'in', 'while', 'do', 'end', 'return', 'true', 'false', 'nothing'];
-var assign = ['='];
-var operator = ['+', '-', '!'];
-var comparators = ['!=', '==', '>', '<', '>=', '<='];
-var logic = ['&&', 'and', '||', 'or'];
-var math = ['/', '*', '%'];
+var regex = {
+  comment: /#[^\n|\r]*/,
+  identifier: /[a-z]\w*/,
+  constant: /[A-Z]\w*/,
+  grammar: /->|\.\.|\.|\:|\(|\)|\,|\[|\]/,
+  operator: /!\=|!|\=\=|>\=|<\=|>|<|\=|&&|\|\||\+|\-|\/|\*|\%|\=/,
+  number: /[0-9]+(\.[0-9]+)?/,
+  string: /"(.*?)"|'(.*?)'/,
+  newline: /((\s)*\n|(\s)*\r)+/
+};
+
+var keywords = ['this', 'class', 'extends', 'function', 'method', 'if', 'then', 'else', 'for', 'in', 'while', 'do', 'end', 'return', 'true', 'false', 'nothing'];
+
+var operators = {
+  comp: ['!=', '==', '>', '<', '>=', '<='],
+  logic:  ['&&', 'and', '||', 'or'],
+  math: ['/', '*', '%']
+};
 
 function scan(source) {
-  var tokens = [];
-  var line = 1;
-  var character = 0;
-  var i = 0;
-
-  //source = source.replace(/(\n|\r)+/g, '\n');
+  var tokens = [];    // Initialise empty set of tokens
+  var line = 1;       // Set intial line to 1
+  var column = 0;     // Set initial column to 0
+  var i = 0;          // Set column index to 0
 
   while (i < source.length) {
-    var chunk = source.slice(i, source.length);
-    var value = null;
+    var chunk = source.slice(i); // chunk is the remaining source code left to be lexed
+    var lexeme = null;           // initalise current lexeme
     
+    var match = function(regex) {
+      lexeme = chunk.match(regex);
+      if (lexeme && lexeme.index === 0) {
+        lexeme = lexeme[0];
+        return true;
+      }
+      return false;
+    };
+
     // Comments
-    if ((value = chunk.match(/#[^\n|\r]*/)) && value.index=== 0) {
-      value = value[0]; 
-      tokens.push(["COMMENT", value, line, character]);
-      character = character + value.length;
-      i = i + value.length;
+    if (match(regex.comment)) {
+      tokens.push(["COMMENT", lexeme, line, column]);
+      column = column + lexeme.length;
+      i = i + lexeme.length;
     }
     // Keywords and identifiers
-    else if ((value = chunk.match(/[a-z]\w*/)) && value.index === 0) {
-      value = value[0];
-      if (logic.indexOf(value) >= 0) {tokens.push(['LOGIC', value, line, character]);}
-      else if (keywords.indexOf(value) >= 0) {tokens.push([value.toUpperCase(), value, line, character]);}
-      else {tokens.push(["IDENT", value, line, character]);}
-      character = character + value.length;
-      i = i + value.length;
+    else if (match(regex.identifier)) {
+      if (operators.logic.indexOf(lexeme) >= 0) {tokens.push(['LOGIC', lexeme, line, column]);}
+      else if (keywords.indexOf(lexeme) >= 0) {tokens.push([lexeme.toUpperCase(), lexeme, line, column]);}
+      else {tokens.push(["IDENT", lexeme, line, column]);}
+      column = column + lexeme.length;
+      i = i + lexeme.length;
     }
     // Constants
-    else if ((value = chunk.match(/[A-Z]\w*/)) && value.index === 0) {
-      value = value[0];
-      tokens.push(["CONST", value, line, character]);
-      character = character + value.length;
-      i = i + value.length;
+    else if (match(regex.constant)) {
+      tokens.push(["CONST", lexeme, line, column]);
+      column = column + lexeme.length;
+      i = i + lexeme.length;
     }
     // Grammatical symbols
-    else if ((value = chunk.match(/\.\.|\.|\:|\(|\)|\,|\[|\]/)) && value.index === 0) {
-      value = value[0];
-      tokens.push([value, value, line, character]);
-      character = character + value.length;
-      i = i + value.length;
+    else if (match(regex.grammar)) {
+      tokens.push([lexeme, lexeme, line, column]);
+      column = column + lexeme.length;
+      i = i + lexeme.length;
     }
     // Operators
-    else if ((value = chunk.match(/!\=|!|\=\=|>\=|<\=|>|<|\=|&&|\|\||\+|\-|\/|\*|\%/)) && value.index === 0) {
-      value = value[0];
-      if (operator.indexOf(value) >= 0) {tokens.push([value, value, line, character]);}
-      else if (logic.indexOf(value) >= 0) {tokens.push(['LOGIC', value, line, character]);}
-      else if (math.indexOf(value) >= 0) {tokens.push(['MATH', value, line, character]);}
-      else if (comparators.indexOf(value) >= 0) {tokens.push(['COMP', value, line, character]);}
-      else if (assign.indexOf(value) >= 0) {tokens.push(['ASSIGN', value, line, character]);}
-      character = character + value.length;
-      i = i + value.length;
+    else if (match(regex.operator)) {
+      var symbol = null;
+      for (kind in operators) {
+        if (operators[kind].indexOf(lexeme) >= 0) {
+          symbol = kind.toUpperCase();
+          tokens.push([symbol, lexeme, line, column]);
+          break;
+        }
+      }
+      if (symbol === null) {tokens.push([lexeme, lexeme, line, column]);}
+      column = column + lexeme.length;
+      i = i + lexeme.length;
     }
     // Numbers
-    else if ((value = chunk.match(/[0-9]+(\.[0-9]+)?/)) && value.index === 0) {
-      value = value[0];
-      tokens.push(["NUMBER", value, line]);
-      character = character + value.length;
-      i = i + value.length;
+    else if (match(regex.number)) {
+      tokens.push(["NUMBER", lexeme, line]);
+      column = column + lexeme.length;
+      i = i + lexeme.length;
     }
     // Strings
-    else if ((value = chunk.match(/"(.*?)"|'(.*?)'/)) && value.index === 0) {
-      value = value[0];
-      tokens.push(["STRING", value, line, character]);
-      character = character + value.length;
-      i = i + value.length;
+    else if (match(regex.string)) {
+      tokens.push(["STRING", lexeme, line, column]);
+      column = column + lexeme.length;
+      i = i + lexeme.length;
     }
     // Newlines
-    else if ((value = chunk.match(/((\s)*\n|(\s)*\r)+/)) && value.index === 0) {
-      value = value[0];
-      tokens.push(["NEWLINE", value, line, character]);
-      line = line + value.replace(/ /g, '').length;
-      character = 0;
-      i = i + value.length;
+    else if (match(regex.newline)) {
+      console.log(lexeme);
+      tokens.push(["NEWLINE", lexeme, line, column]);
+      line = line + lexeme.replace(/ /g, '').length;
+      column = 0;
+      i = i + lexeme.length;
     }
     else {
-      //console.error("Unmatched: " + escape(value[0]));
-      character = character + 1;
+      //console.error("Unmatched: " + escape(lexeme[0]));
+      column = column + 1;
       i = i + 1;
     }
   }

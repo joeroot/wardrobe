@@ -3,9 +3,10 @@ var Runtime = require('../runtime').Runtime;
 
 Declare.prototype = new Node('Declare');
 Declare.prototype.constructor = Declare;
-function Declare (type, identifier, range, text) {
+function Declare (type, identifier, expression, range, text) {
   this.type = type;
   this.identifier = identifier;
+  this.expression = expression;
   this.range = range;
   this.text = text;
 
@@ -15,15 +16,21 @@ function Declare (type, identifier, range, text) {
 
     var isObjectProperty = context.current_class !== null;
 
-    var nothing = Runtime.getGlobalObject('nothing');
+    var assign = Runtime.getGlobalObject('nothing');
+    if (this.expression !== null) {
+      context = this.expression.evaluate(context);
+      assign = context.getReturnObject();
+    }
+
     // If we are within a class definition (i.e. current class is null), 
     // declare as an object property, otherwise declare as a local variable.
     if (isObjectProperty) {
-      context.getCurrentClass().addProperty(name, type, nothing);
+      context.getCurrentClass().addProperty(name, type, assign);
     } else {
-      context.addLocal(name, type, nothing);
+      context.addLocal(name, type, assign);
     }
-    context.setReturnObject(nothing);
+    
+    context.setReturnObject(assign);
 
     return context;
   };
