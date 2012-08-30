@@ -91,7 +91,7 @@ var grammar = {
     ],
 
     'property': [
-      ['THIS . identifier', '$$ = new yy.Property($1, $3, @$, yytext);']  // e.g. this.x, obj.width
+      ['expression . identifier', '$$ = new yy.Property($1, $3, @$, yytext);']  // e.g. this.x, obj.width
     ],
 
     'list_accessor': [

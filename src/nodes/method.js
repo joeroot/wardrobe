@@ -16,7 +16,7 @@ function Method(type, identifier, params, block, range, text) {
     var name = this.identifier.name;
 
     if (context.getCurrentClass() !== null) {
-      context.getCurrentClass().createMethod(name, this.params, this.block);
+      context.getCurrentClass().createMethod(name, this.params, this.block, this.type);
     } else {
       throw "Must declare method within a class template";
     }

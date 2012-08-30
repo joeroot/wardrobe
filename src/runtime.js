@@ -264,8 +264,8 @@ WardrobeClass.prototype.addMethod = function(method) {
   return method;
 };
 
-WardrobeClass.prototype.createMethod = function(name, params, body) {
-  var method = new WardrobeMethod(name, params, body);
+WardrobeClass.prototype.createMethod = function(name, params, body, type) {
+  var method = new WardrobeMethod(name, params, body, type);
   this.addMethod(method);
   return method;
 };
@@ -347,10 +347,11 @@ WardrobeClass.prototype.installMethods = function() {
   );
 };
 
-function WardrobeMethod(name, params, body) {
+function WardrobeMethod(name, params, body, type) {
   this.name = name;
   this.params = params;
   this.body = body;
+  this.type = type;
 }
 
 WardrobeMethod.prototype.call = function(context, receiver, args) { 
@@ -512,7 +513,8 @@ WardrobeObjectClass.prototype.installMethods = function() {
     [], 
     {evaluate: function(context) {
       return context;
-    }}
+    }},
+    {name: 'Object'}
   ));
   this.addMethod(new WardrobeMethod(
     'toString', 
@@ -522,7 +524,8 @@ WardrobeObjectClass.prototype.installMethods = function() {
       var object = Runtime.getClass('String').newObject(receiver.toString());
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'String'}
   ));
   this.addMethod(new WardrobeMethod(
     'getClass',
@@ -532,7 +535,8 @@ WardrobeObjectClass.prototype.installMethods = function() {
       var object = receiver.cls;
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Class'}
   ));
   this.addMethod(new WardrobeMethod(
     'belongsTo',
@@ -544,7 +548,8 @@ WardrobeObjectClass.prototype.installMethods = function() {
       var object = Runtime.getGlobalObject(belongs.toString());
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
   this.addMethod(new WardrobeMethod(
     'equal',
@@ -571,7 +576,8 @@ WardrobeObjectClass.prototype.installMethods = function() {
       }
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
 };
 
@@ -594,7 +600,8 @@ WardrobeString.prototype.installMethods = function() {
       var object = Runtime.getClass('Number').newObject(receiver.value.length);
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Number'}
   ));
   this.addMethod(new WardrobeMethod(
     'concat',
@@ -605,7 +612,8 @@ WardrobeString.prototype.installMethods = function() {
       var object = Runtime.getClass('String').newObject(receiver.value + right.value);
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'String'}
   ));
   this.addMethod(new WardrobeMethod(
     'equal',
@@ -616,7 +624,8 @@ WardrobeString.prototype.installMethods = function() {
       var object = Runtime.getGlobalObject((receiver.value == right.value).toString());
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
 };
 
@@ -640,7 +649,8 @@ WardrobeNumber.prototype.installMethods = function() {
       var object = Runtime.getClass('Number').newObject(receiver.value + right.value);
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Number'}
   ));
   this.addMethod(new WardrobeMethod(
     'subtract', 
@@ -651,7 +661,8 @@ WardrobeNumber.prototype.installMethods = function() {
       var object = Runtime.getClass('Number').newObject(receiver.value - right.value);
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Number'}
   ));
   this.addMethod(new WardrobeMethod(
     'divide', 
@@ -662,7 +673,8 @@ WardrobeNumber.prototype.installMethods = function() {
       var object = Runtime.getClass('Number').newObject(receiver.value / right.value);
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Number'}
   ));
   this.addMethod(new WardrobeMethod(
     'multiply',
@@ -673,7 +685,8 @@ WardrobeNumber.prototype.installMethods = function() {
       var object = Runtime.getClass('Number').newObject(receiver.value * right.value);
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Number'}
   ));
   this.addMethod(new WardrobeMethod(
     'modulus',
@@ -684,7 +697,8 @@ WardrobeNumber.prototype.installMethods = function() {
       var object = Runtime.getClass('Number').newObject(receiver.value % right.value);
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Number'}
   ));
   this.addMethod(new WardrobeMethod(
     'equal',
@@ -695,7 +709,8 @@ WardrobeNumber.prototype.installMethods = function() {
       var object = Runtime.getGlobalObject((receiver.value == right.value).toString());
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
   this.addMethod(new WardrobeMethod(
     'greaterThan',
@@ -706,7 +721,8 @@ WardrobeNumber.prototype.installMethods = function() {
       var object = Runtime.getGlobalObject((receiver.value > right.value).toString());
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
   this.addMethod(new WardrobeMethod(
     'lessThan',
@@ -717,7 +733,8 @@ WardrobeNumber.prototype.installMethods = function() {
       var object = Runtime.getGlobalObject((receiver.value < right.value).toString());
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
   this.addMethod(new WardrobeMethod(
     'positive',
@@ -727,7 +744,8 @@ WardrobeNumber.prototype.installMethods = function() {
       receiver.setValue(+receiver.getValue());
       context.setReturnObject(receiver);
       return context;
-    }}
+    }},
+    {name: 'Number'}
   ));
   this.addMethod(new WardrobeMethod(
     'negative',
@@ -737,7 +755,8 @@ WardrobeNumber.prototype.installMethods = function() {
       receiver.setValue(-receiver.getValue());
       context.setReturnObject(receiver);
       return context;
-    }}
+    }},
+    {name: 'Number'}
   ));
 };
 
@@ -756,7 +775,8 @@ WardrobeBoolean.prototype.installMethods = function() {
       var object = Runtime.getGlobalObject((!receiver.value).toString());
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
 };
 
@@ -774,7 +794,8 @@ WardrobeTrue.prototype.installMethods = function() {
       var right = context.getLocalObject('right');
       context.setReturnObject(right);
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
   this.addMethod(new WardrobeMethod(
     'or',
@@ -782,7 +803,8 @@ WardrobeTrue.prototype.installMethods = function() {
     {evaluate: function(context) {
       context.setReturnObject(Runtime.getGlobalObject('true'));
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
   this.addMethod(new WardrobeMethod(
     'equal',
@@ -793,7 +815,8 @@ WardrobeTrue.prototype.installMethods = function() {
       var object = Runtime.getGlobalObject((receiver.value == right.value).toString());
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
 };
 
@@ -818,7 +841,8 @@ WardrobeFalse.prototype.installMethods = function() {
     {evaluate: function(context) {
       context.setReturnObject(Runtime.getGlobalObject('false'));
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
   this.addMethod(new WardrobeMethod(
     'or',
@@ -827,7 +851,8 @@ WardrobeFalse.prototype.installMethods = function() {
       var right = context.getLocalObject('right');
       context.setReturnObject(right);
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
   this.addMethod(new WardrobeMethod(
     'equal',
@@ -838,7 +863,8 @@ WardrobeFalse.prototype.installMethods = function() {
       var object = Runtime.getGlobalObject((receiver.value == right.value).toString());
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Boolean'}
   ));
 };
 
@@ -857,7 +883,8 @@ WardrobeList.prototype.installMethods = function() {
       var object = Runtime.getClass('Number').newObject(receiver.value.length);
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Number'}
   ));
   this.addMethod(new WardrobeMethod(
     'reverse',
@@ -866,7 +893,8 @@ WardrobeList.prototype.installMethods = function() {
       context.getCurrentObject().value.reverse(); 
       context.setReturnObject(context.getCurrentObject());
       return context;
-    }}
+    }},
+    {name: 'List'}
   ));
   this.addMethod(new WardrobeMethod(
     'concat',
@@ -877,7 +905,8 @@ WardrobeList.prototype.installMethods = function() {
       context.getCurrentObject().value = concat;
       context.setReturnObject(context.getCurrentObject());
       return context;
-    }}
+    }},
+    {name: 'List'}
   ));
   this.addMethod(new WardrobeMethod(
     'pop',
@@ -886,7 +915,8 @@ WardrobeList.prototype.installMethods = function() {
       var item = context.getCurrentObject().value.pop();
       context.setReturnObject(item);
       return context;
-    }}
+    }},
+    {name: 'Object'}
   ));
   this.addMethod(new WardrobeMethod(
     'push',
@@ -896,7 +926,8 @@ WardrobeList.prototype.installMethods = function() {
       context.getCurrentObject().value.push(item);
       context.setReturnObject(item);
       return context;
-    }}
+    }},
+    {name: 'Object'}
   ));
   this.addMethod(new WardrobeMethod(
     'get',
@@ -905,7 +936,8 @@ WardrobeList.prototype.installMethods = function() {
       var index = context.getLocalObject('index');
       context.setReturnObject(context.getCurrentObject().value[index.value]);
       return context;
-    }}
+    }},
+    {name: 'Object'}
   ));
   this.addMethod(new WardrobeMethod(
     'set',
@@ -919,7 +951,8 @@ WardrobeList.prototype.installMethods = function() {
       context.getCurrentObject().value[index.value] = object;
       context.setReturnObject(object);
       return context;
-    }}
+    }},
+    {name: 'Object'}
   ));
   this.addMethod(new WardrobeMethod(
     'indexOf',
@@ -936,7 +969,8 @@ WardrobeList.prototype.installMethods = function() {
       }
       context.setReturnObject(Runtime.getClass('Number').newObject(index));
       return context;
-    }}
+    }},
+    {name: 'Number'}
   ));
   this.addMethod(new WardrobeMethod(
     'map',
@@ -951,7 +985,8 @@ WardrobeList.prototype.installMethods = function() {
       }
       context.setReturnObject(Runtime.getClass('List').newObject(mapped_list));
       return context;
-    }}
+    }},
+    {name: 'List'}
   ));
   this.addMethod(new WardrobeMethod(
     'filter',
@@ -968,7 +1003,8 @@ WardrobeList.prototype.installMethods = function() {
       }
       context.setReturnObject(Runtime.getClass('List').newObject(filtered_list));
       return context;
-    }}
+    }},
+    {name: 'List'}
   ));
 };
 
@@ -997,7 +1033,8 @@ WardrobeSystem.prototype.installMethods = function() {
       }
       console.log(obj.toString());
       return context;
-    }}
+    }},
+    {name: 'Object'}
   ));
 };
 
