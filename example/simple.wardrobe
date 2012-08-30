@@ -60,10 +60,10 @@ p.setName("Doe")
 print(p)
 
 String f = "John"
-f = f + " " + p.getName()
+f = f & " " & p.getName()
 print(p.getName())
 
-print("Length of " + f + " is " + f.length().toString())
+print("Length of " & f & " is " & f.length().toString())
 
 # Teenager is createialised with an age of 15.
 Teenager t = Teenager.new(age: 15, name: "Root")

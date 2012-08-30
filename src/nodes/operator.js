@@ -1,4 +1,6 @@
 var Node = require('./node').Node;
+var Runtime = require('../runtime').Runtime;
+var errors = require('../errors');
 
 // TODO: add lazy evaluation on operators, particularly booleans    
 Operator.prototype = new Node('Operator');
@@ -18,6 +20,18 @@ function Operator(operator, left, right, range, text) {
       context = this.right.evaluate(context);
       right = context.getReturnObject();
       var args = {unary: context.getReturnObject()};
+
+      var is_string = left.instanceOf('String');
+      var is_number = left.instanceOf('Number');
+      var is_boolean = left.instanceOf('Boolean');
+
+      if (['&'].indexOf(this.operator) >= 0 && !is_string) {
+        throw new errors.WardrobeTypeError(context, left.getClass(), Runtime.getClass('String'));
+      } else if (['+', '-', '*', '/', '%'].indexOf(this.operator) >= 0 && !is_number) {
+        throw new errors.WardrobeTypeError(context, left.getClass(), Runtime.getClass('Number'));
+      } else if (['and', 'or'].indexOf(this.operator) >= 0 && !is_boolean) {
+        throw new errors.WardrobeTypeError(context, left.getClass(), Runtime.getClass('Boolean'));
+      }
 
       switch(this.operator) {
         case 'and': context = left.call(context, 'and', args); break;
@@ -41,13 +55,8 @@ function Operator(operator, left, right, range, text) {
           context = left.call(context, 'equal', args);
           context = context.getReturnObject().call(context, 'negate', {});
           break;
-        case '+': 
-          if (left.instanceOf('Number') && right.instanceOf('Number')) {
-            context = left.call(context, 'add', args); 
-          } else if (left.instanceOf('String') && right.instanceOf('String')) {
-            context = left.call(context, 'concat', args);
-          }
-          break;
+        case '+': context = left.call(context, 'add', args); break;
+        case '&': context = left.call(context, 'concat', args); break;
         case '-': context = left.call(context, 'subtract', args); break;
         case '/': context = left.call(context, 'divide', args); break;
         case '*': context = left.call(context, 'multiply', args); break;

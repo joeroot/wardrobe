@@ -7,14 +7,14 @@ var grammar = {
     ['right', '='],
     ['right', ','],
     ['left', 'COMP'],
-    ['left', '+', '-', '!'],
+    ['left', '+', '-', '!', '&'],
     ['left', 'MATH'],
     ['left', 'LOGIC'],
     ['left', '.'],
     ['right', 'FOR', 'WHILE'],
+    ['right', 'THIS'],
     ['left', '('],
-    ['left', '['],
-    ['left', 'THIS']
+    ['left', '[']
   ],
 
   'bnf': {
@@ -191,6 +191,7 @@ var grammar = {
       ['! expression', '$$ = new yy.Operator($1, null, $2, @$, yytext);'],
       ['expression + expression', '$$ = new yy.Operator($2, $1, $3, @$, yytext);'],
       ['expression - expression', '$$ = new yy.Operator($2, $1, $3, @$, yytext);'],
+      ['expression & expression', '$$ = new yy.Operator($2, $1, $3, @$, yytext);'],
       ['expression MATH expression', '$$ = new yy.Operator($2, $1, $3, @$, yytext);'],
       ['expression COMP expression', '$$ = new yy.Operator($2, $1, $3, @$, yytext);'],
       ['expression LOGIC expression', '$$ = new yy.Operator($2, $1, $3, @$, yytext);'] 
