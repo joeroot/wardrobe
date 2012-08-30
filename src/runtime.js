@@ -264,7 +264,7 @@ WardrobeClass.prototype.addMethod = function(method) {
   return method;
 };
 
-WardrobeClass.prototype.createMethod = function(name, params, body, type) {
+WardrobeClass.prototype.createMethod = function(name, params, body) {
   var method = new WardrobeMethod(name, params, body);
   this.addMethod(method);
   return method;
