@@ -12,7 +12,7 @@ function If(conditional, true_branch, false_branch, range, text) {
 
   this.evaluateNode = function(context) {
     context = this.conditional.evaluate(context);
-    if (context.getReturnObject !== null && context.getReturnObject() !== Runtime.getGlobalObject('false')) {
+    if (context.getReturnObject() !== Runtime.getGlobalObject('false')) {
       context = this.true_branch.evaluate(context);
     } else if (false_branch !== null) {
       context = this.false_branch.evaluate(context);

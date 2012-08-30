@@ -9,7 +9,7 @@ var regex = {
   newline: /((\s)*\n|(\s)*\r)+/
 };
 
-var keywords = ['this', 'class', 'extends', 'function', 'method', 'if', 'then', 'else', 'for', 'in', 'while', 'do', 'end', 'return', 'true', 'false', 'nothing'];
+var keywords = ['this', 'super', 'class', 'extends', 'function', 'method', 'if', 'then', 'else', 'for', 'in', 'while', 'do', 'end', 'return', 'true', 'false', 'nothing'];
 
 var operators = {
   comp: ['!=', '==', '>', '<', '>=', '<='],
@@ -90,7 +90,6 @@ function scan(source) {
     }
     // Newlines
     else if (match(regex.newline)) {
-      console.log(lexeme);
       tokens.push(["NEWLINE", lexeme, line, column]);
       line = line + lexeme.replace(/ /g, '').length;
       column = 0;

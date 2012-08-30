@@ -13,13 +13,14 @@ var grammar = {
     ['left', '.'],
     ['right', 'FOR', 'WHILE'],
     ['left', '('],
-    ['left', '[']
+    ['left', '['],
+    ['left', 'THIS']
   ],
 
   'bnf': {
     'root': [
-      ['EOF', 'return [];'],
-      ['lines EOF', 'return $1;']
+      ['EOF', 'return new yy.Program([]);'],
+      ['lines EOF', 'return new yy.Program($1);']
     ],
 
     't': [
@@ -55,6 +56,7 @@ var grammar = {
       ['assign'],
       ['literal'],
       ['this'],
+      ['super'],
       ['constant'],
       ['class'],
       ['function'],
@@ -89,7 +91,7 @@ var grammar = {
     ],
 
     'property': [
-      ['expression . identifier', '$$ = new yy.Property($1, $3, @$, yytext);']  // e.g. this.x, obj.width
+      ['THIS . identifier', '$$ = new yy.Property($1, $3, @$, yytext);']  // e.g. this.x, obj.width
     ],
 
     'list_accessor': [
@@ -110,18 +112,22 @@ var grammar = {
     ],
 
     'list': [
-      ['[ list_items ]', '$$ = new yy.List($2)'],  // e.g. [1,2,3,4]
+      ['[ list_items ]', '$$ = new yy.List($2);'],  // e.g. [1,2,3,4]
       ['[ expression .. expression ]', '$$ = new yy.ListRange($2, $4, @$, yytext);']
     ],
 
     'list_items': [
-      ['', '$$ = []'],                                          // i.e. empty list
-      ['expression', '$$ = [$1]'],                              // e.g. 1
+      ['', '$$ = [];'],                                          // i.e. empty list
+      ['expression', '$$ = [$1];'],                              // e.g. 1
       ['list_items , expression', '$$ = $1; $1.push($3);']  // e.g. 1,2,3,4
     ],
 
     'this': [
       ['THIS', '$$ = new yy.This(@$, yytext);']  // i.e. this
+    ],
+
+    'super': [
+      ['THIS . SUPER ( arguments )', '']
     ],
 
     'class': [

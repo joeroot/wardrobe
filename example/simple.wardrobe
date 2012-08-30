@@ -1,7 +1,7 @@
 # Declaration of Person class with property name and methods
 # setName and getName.
 class Person
-  String name
+  String name = "Get a name!"
 
   method setName(String name)
     this.name = name
@@ -9,6 +9,7 @@ class Person
 
   method getName()
     return this.name
+    print("LOLLL")
   end
 end
 
@@ -44,6 +45,8 @@ end
 Number n1 = 10.5.add(2.multiply(3.divide(4)))
 Number n2 = 10.5+2*3/4
 
+print(n1)
+
 if (n1 == n2)
     print("Numbers are equal")
 else
@@ -52,8 +55,8 @@ end
 
 # Create a new person object then call setName on it.
 Person p = Person.new()
+print(p)
 p.setName("Doe")
-
 print(p)
 
 String f = "John"
@@ -87,3 +90,4 @@ print(l[0])
 l.set(index:3, to:11)
 l[4] = 12
 l
+

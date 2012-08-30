@@ -1,9 +1,15 @@
 var Node = function(kind) {
   this.kind = kind;
-  this.ignore = [];
+  this.ignore = ['Program'];
 };
 
 Node.prototype.evaluate = function(context) {
+  var nodeHooks = require('../interpreter').hooks[this.kind] || {};
+  var beforeHook = nodeHooks.before || null;
+  var afterHook = nodeHooks.after || null;
+
+  if (beforeHook && typeof(beforeHook) == 'function') {beforeHook(context, this);}
+
   try {
     context = this.evaluateNode(context);
   } catch(error) {
@@ -12,6 +18,9 @@ Node.prototype.evaluate = function(context) {
     }
     throw error;
   }
+
+  if (afterHook && typeof(afterHook) == 'function') {afterHook(context, this);}
+
   return context;
 };
 

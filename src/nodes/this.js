@@ -9,6 +9,7 @@ function This(range, text) {
 
   this.evaluateNode = function(context) {
     var current = context.getCurrentObject();
+    if (current === null) {throw "No current object";}
     context.setReturnObject(current);
     return context;
   };

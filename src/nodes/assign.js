@@ -26,7 +26,7 @@ function Assign(assignable, expression, range, text) {
         break;
 
       case 'Property': 
-        context = this.assignable.expression.evaluate(context); 
+        context = this.assignable.expression.evaluate(context);
         var receiver = context.getReturnObject();
         var property = this.assignable.identifier.name;
 

@@ -11,7 +11,9 @@ function While(conditional, block, range, text) {
 
   this.evaluateNode = function(context) {
     context = this.conditional.evaluate(context);
-    while (context.getReturnObject() !== null && context.getReturnObject() !== Runtime.getGlobalObject('false')) {
+    var falseObject = Runtime.getGlobalObject('false');
+    while (context.getReturnObject() !== null && 
+              context.getReturnObject() !== falseObject) {
       context = this.block.evaluate(context);
       context = this.conditional.evaluate(context);
     }

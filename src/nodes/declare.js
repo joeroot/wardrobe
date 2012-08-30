@@ -25,7 +25,7 @@ function Declare (type, identifier, expression, range, text) {
     // If we are within a class definition (i.e. current class is null), 
     // declare as an object property, otherwise declare as a local variable.
     if (isObjectProperty) {
-      context.getCurrentClass().addProperty(name, type, assign);
+      context.getCurrentClass().addInstanceProperty(name, type, assign);
     } else {
       context.addLocal(name, type, assign);
     }

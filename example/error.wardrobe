@@ -11,11 +11,11 @@ class Person
   end
 end
 
-function missingParams(Number m, Number n)
+function missingParams (Number m, Number n) -> Number
   print(m)
 end
 
-Person p = new Person()
+Person p = Person.new()
 
 # p.setName(name: "Joe", notAParam: 10)
 # missingParams(m: 10)

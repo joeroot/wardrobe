@@ -33,10 +33,12 @@ function Call(identifier, receiver, args, range, text) {
       context = Runtime.getGlobalObject('system').call(context, 'print', args);
     } else {
       context = this.identifier.evaluate(context);
+
       var func = context.getReturnObject();
       if (func.getClass() != Runtime.getClass('Function')) {
         throw "Not a function.";
       }
+
       context = func.apply(context, args);
     }
 

@@ -6,6 +6,9 @@ var ErrorCodes = {
 exports.WardrobeSyntaxError = 
   require('./errors/syntaxerror').WardrobeSyntaxError;
 
+exports.WardrobeTypeError = 
+  require('./errors/typeerror').WardrobeTypeError;
+
 exports.WardrobeNoSuchMethodError = 
   require('./errors/nosuchmethod').WardrobeNoSuchMethodError;
 
@@ -17,3 +20,6 @@ exports.WardrobeNoSuchParameterError =
 
 exports.WardrobeUndeclaredPropertyOrVariable = 
   require('./errors/undeclaredpropertyorvariable').WardrobeUndeclaredPropertyOrVariable;
+
+exports.WardrobeNoSuchClass = 
+  require('./errors/nosuchclass').WardrobeNoSuchClass;

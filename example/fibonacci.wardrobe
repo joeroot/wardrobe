@@ -1,6 +1,6 @@
 Function fibonacci = function (Number n) -> Number
   if (n > 1)
-    n = fibonacci(n-1) + fibonacci(n-2)
+    n = this(n-1) + this(n-2)
   end
   return n
 end

@@ -36,7 +36,7 @@ parser.yy.parseError = function (err, hash) {
   throw new errors.WardrobeSyntaxError(hash, token);
 };
 
-function run(source, debug) {
+function run(source, debug, hooks) {
   var tokens = lexer.lex(source);
   
   if (debug) {
@@ -52,7 +52,7 @@ function run(source, debug) {
 
     console.log("\nIntepreting code, output: \n");
   }
-  context = interpreter.run(ast);
+  context = interpreter.run(ast, hooks);
   if (debug) {
     console.log('\nIntepreter finished, final context:\n');
     console.log(context);

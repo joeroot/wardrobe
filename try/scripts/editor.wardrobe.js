@@ -74,6 +74,7 @@ function openFile(file) {
       url: '../' + file,
       success: function(data) {
         session = new EditSession(data);
+        session.setUseWrapMode(true);
         session.setUndoManager(new UndoManager());
         session.setMode(new WardrobeMode());
         session.setTabSize(2);
@@ -122,7 +123,18 @@ function run() {
     errors[current_file] = [];
     $('#warning').removeClass('live');
 
-    var context = Wardrobe.run(editor.getValue());
+    var hooks = {
+      'If': {
+        before: function(context, node) {
+          console.log('Start ' + node.kind);
+        },
+        after: function(context, node) {
+          console.log('Finish ' + node.kind);
+        }
+      }
+    };
+
+    var context = Wardrobe.run(editor.getValue(), false, hooks);
     var value = context.getReturnObject().toString();
     
     $('#console pre em.flash').before('\<em class="result"\>\<\/em\>\n');

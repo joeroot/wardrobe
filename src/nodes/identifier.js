@@ -12,10 +12,6 @@ function Identifier(name, range, text) {
   this.text = text;
 
   this.evaluateNode = function(context) {
-    if (context.getLocal(this.name) === undefined) {
-      throw new errors.WardrobeUndeclaredPropertyOrVariable(context, null);
-    }
-
     var object = context.getLocalObject(this.name);
     context.setReturnObject(object);
     return context;
