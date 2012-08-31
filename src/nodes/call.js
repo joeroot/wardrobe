@@ -4,8 +4,8 @@ var errors = require('../errors');
 
 Call.prototype = new Node('Call');
 Call.prototype.constructor = Call;
-function Call(identifier, receiver, args, range, text) {
-  this.identifier = identifier;
+function Call(expression, receiver, args, range, text) {
+  this.expression = expression;
   this.receiver = receiver;
   this.args = args;
   this.range = range;
@@ -21,7 +21,7 @@ function Call(identifier, receiver, args, range, text) {
       args[name] = object;
     }
 
-    var method_name = this.identifier.name;
+    var method_name = this.expression.name;
     var is_method = this.receiver !== null;
     var is_system_method = ['print'].indexOf(method_name) >= 0;
 
@@ -32,7 +32,7 @@ function Call(identifier, receiver, args, range, text) {
     } else if (is_system_method){
       context = Runtime.getGlobalObject('system').call(context, 'print', args);
     } else {
-      context = this.identifier.evaluate(context);
+      context = this.expression.evaluate(context);
 
       var func = context.getReturnObject();
       if (func.getClass() != Runtime.getClass('Function')) {

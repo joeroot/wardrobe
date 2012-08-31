@@ -57,7 +57,7 @@ Context.prototype.clone = function() {
   clone.setReturnObject(this.getReturnObject());
   for (var name in this.locals) {
     var local = this.locals[name];
-    clone.addLocal(name, local.type, local.object);
+    if (local !== undefined) {clone.addLocal(name, local.type, local.object);}
   }
   return clone;
 };
@@ -445,15 +445,8 @@ function WardrobeFunctionObject(params, body, closure) {
 }
 
 WardrobeFunctionObject.prototype.apply = function(context, args) { 
-  var old_context = context;
+  var old_closure = this.closure.clone();
   var closure = this.closure;
-  for (name in context.locals) {
-    if (closure.locals[name] === undefined) {
-      closure.locals[name] = context.locals[name];
-    }
-  }
-  context = closure;
-
   var missing_params = [];
   var params_list = [];
   var param, name, type, arg;
@@ -465,7 +458,7 @@ WardrobeFunctionObject.prototype.apply = function(context, args) {
     type = Runtime.getClass(param.type.name);
     arg = args[name] || args.unary;
     if (arg === undefined) {missing_params.push(param);}
-    context.addLocal(name, type, arg);
+    closure.addLocal(name, type, arg);
   }
 
   if (missing_params.length > 0) {
@@ -482,33 +475,41 @@ WardrobeFunctionObject.prototype.apply = function(context, args) {
     throw new errors.WardrobeNoSuchParameterError(context, null, incorrect_params);
   }
 
-  context.setCurrentObject(this);
-  context.setCurrentClass(null);
+  var context_bindings = [];
+  for (name in context.locals) {
+    if (closure.locals[name] === undefined) {
+      closure.locals[name] = context.locals[name];
+      context_bindings.push(name);
+    }
+  }
+
+  closure.setCurrentObject(this);
+  closure.setCurrentClass(null);
   try {
-    context = this.body.evaluate(context); 
+    closure = this.body.evaluate(closure); 
   } catch(err) {
     if (err.kind !== undefined && err.kind == 'Return') {
-      context = err.context;
+      closure = err.context;
     } else {
       throw err;
     }
   }
 
-  // Unbind function variables, and re-instate old bindings
-  //for (p = 0; p < this.params.length; p++) {
-    //name = this.params[p].identifier.name;
-    //if (old_context.hasLocal(name)) {
-      //context.setLocalType(name, old_context.getLocalType(name));
-      //context.setLocalObject(name, old_context.getLocalObject(name));
-    //} else {
-      //delete context.deleteLocal(name);
-    //}
-  //}
+  for (var b in context_bindings) {
+    var bname = context_bindings[b];
+    context.locals[bname] = closure.locals[bname];
+    closure.locals[bname] = null;
+    delete closure.locals[bname];
+  }
 
-  context.setCurrentObject(old_context.getCurrentObject());
-  context.setCurrentClass(old_context.getCurrentClass());
-  old_context.return_object = context.return_object;
-  return old_context;
+  for (p in params_list) {
+    name = params_list[p];
+    closure.locals[name] = old_closure.locals[name];
+  }
+
+  context.setReturnObject(closure.getReturnObject());
+  this.closure = closure;
+  return context;
 };
 
 WardrobeObjectClass.prototype = new WardrobeClass();

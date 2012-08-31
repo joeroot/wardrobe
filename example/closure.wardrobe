@@ -2,17 +2,19 @@ function divideBy (Number num, Number by) -> Number
   return num/by
 end
 
+Number y = -1
+
 function divider (Number by) -> Function
   Number y = 1
   function f (Number num) -> Function
     y = y + 1
-    print("number : " & y.toString())
+    print("y is " & y.toString())
     return divideBy(num: num, by: by)
   end
   return f
 end
 
-divideBy(num: 10, by: 2)
-Function x = divider(2)
-print(x(10))
-print(x(11))
+Function divideBy2 = divider(2)
+print("10/2 is " & divideBy2(10).toString())
+print("12/2 is " & divideBy2(12).toString())
+print("Externally scoped y is " & y.toString())
