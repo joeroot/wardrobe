@@ -1,6 +1,6 @@
 var WardrobeRuntimeError = require('./runtimeerror').WardrobeRuntimeError;
 
-WardrobeTypeError.prototype = new WardrobeRuntimeError('NoSuchParameter');
+WardrobeTypeError.prototype = new WardrobeRuntimeError('TypeError');
 WardrobeTypeError.prototype.constructor = WardrobeTypeError;
 function WardrobeTypeError(context, objectType, variableType) {
   this.stack = [];

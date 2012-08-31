@@ -125,10 +125,10 @@ function run() {
 
     var hooks = {
       'If': {
-        before: function(context, node) {
+        before: function(context, runtime, node) {
           console.log('Start ' + node.kind);
         },
-        after: function(context, node) {
+        after: function(context, runtime, node) {
           console.log('Finish ' + node.kind);
         }
       }
@@ -146,6 +146,7 @@ function run() {
       $('#warning').addClass('live');
       switch(err.kind) {
         case 'Syntax': handleSyntaxError(err); break;
+        case 'TypeError': handleRuntimeError(err); break;
         case 'NoSuchMethod': handleRuntimeError(err); break;
         case 'NoSuchParameter': handleRuntimeError(err); break;
         case 'MissingArguments': handleRuntimeError(err); break;

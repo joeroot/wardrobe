@@ -1,0 +1,17 @@
+function sayHello2 (String name) -> Function
+  String text = 'Hello ' & name;
+  Function sayAlert = function() -> String
+    print(text)
+  end
+  return sayAlert
+end
+Function say2 = sayHello2('Bob')
+say2()
+
+#function sayHello2(name) {
+#  var text = 'Hello ' + name; // local variable
+#  var sayAlert = function() { alert(text); }
+#  return sayAlert;
+#}
+#say2 = sayHello2('Bob');
+#say2(); // alerts "Hello Bob"

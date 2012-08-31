@@ -1,0 +1,16 @@
+function sayAlice() -> Function
+  Function sayAlert = function () -> String
+    print(alice)
+  end
+  String alice = 'Hello Alice'
+  return sayAlert
+end
+sayAlice()()
+
+#function sayAlice() {
+#  var sayAlert = function() { alert(alice); }
+#  // Local variable that ends up within closure
+#  var alice = 'Hello Alice';
+#  return sayAlert;
+#}
+#sayAlice()();

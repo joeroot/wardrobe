@@ -343,7 +343,8 @@ WardrobeClass.prototype.installMethods = function() {
       context.setCurrentObject(current_class);
       context.setReturnObject(new_object);
       return context;
-    }}
+    }},
+    {name: 'Object'}
   );
 };
 
@@ -428,22 +429,31 @@ WardrobeFunction.prototype.installMethods = function() {
 
 };
 
-WardrobeFunction.prototype.newObject = function(params, body) {
-  return new WardrobeFunctionObject(params, body);
+WardrobeFunction.prototype.newObject = function(params, body, context) {
+  return new WardrobeFunctionObject(params, body, context);
 };
 
 WardrobeFunctionObject.prototype = new WardrobeObject();
 WardrobeFunctionObject.prototype.constructor = WardrobeFunctionObject;
-function WardrobeFunctionObject(params, body) {
+function WardrobeFunctionObject(params, body, closure) {
   this.cls = Runtime.getClass('Function');
   this.value = {params: params, body: body};
 
   this.params = params;
   this.body = body;
+  this.closure = closure.clone();
 }
 
 WardrobeFunctionObject.prototype.apply = function(context, args) { 
-  var old_context = context.clone();
+  var old_context = context;
+  var closure = this.closure;
+  for (name in context.locals) {
+    if (closure.locals[name] === undefined) {
+      closure.locals[name] = context.locals[name];
+    }
+  }
+  context = closure;
+
   var missing_params = [];
   var params_list = [];
   var param, name, type, arg;
@@ -485,20 +495,20 @@ WardrobeFunctionObject.prototype.apply = function(context, args) {
   }
 
   // Unbind function variables, and re-instate old bindings
-  for (p = 0; p < this.params.length; p++) {
-    name = this.params[p].identifier.name;
-    if (old_context.hasLocal(name)) {
-      context.setLocalType(name, old_context.getLocalType(name));
-      context.setLocalObject(name, old_context.getLocalObject(name));
-    } else {
-      delete context.deleteLocal(name);
-    }
-  }
+  //for (p = 0; p < this.params.length; p++) {
+    //name = this.params[p].identifier.name;
+    //if (old_context.hasLocal(name)) {
+      //context.setLocalType(name, old_context.getLocalType(name));
+      //context.setLocalObject(name, old_context.getLocalObject(name));
+    //} else {
+      //delete context.deleteLocal(name);
+    //}
+  //}
 
   context.setCurrentObject(old_context.getCurrentObject());
   context.setCurrentClass(old_context.getCurrentClass());
-  
-  return context;
+  old_context.return_object = context.return_object;
+  return old_context;
 };
 
 WardrobeObjectClass.prototype = new WardrobeClass();
@@ -605,10 +615,10 @@ WardrobeString.prototype.installMethods = function() {
   ));
   this.addMethod(new WardrobeMethod(
     'concat',
-    [{type: {name: 'String'}, identifier: {name: 'right'}}],
+    [{type: {name: 'String'}, identifier: {name: 'with'}}],
     {evaluate: function(context) {
       var receiver = context.getCurrentObject();
-      var right = context.getLocalObject('right');
+      var right = context.getLocalObject('with');
       var object = Runtime.getClass('String').newObject(receiver.value + right.value);
       context.setReturnObject(object);
       return context;

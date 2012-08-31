@@ -1,6 +1,8 @@
+var Runtime = require('../runtime').Runtime;
+
 var Node = function(kind) {
   this.kind = kind;
-  this.ignore = ['Program'];
+  this.ignore_in_trace = ['Program'];
 };
 
 Node.prototype.evaluate = function(context) {
@@ -8,18 +10,18 @@ Node.prototype.evaluate = function(context) {
   var beforeHook = nodeHooks.before || null;
   var afterHook = nodeHooks.after || null;
 
-  if (beforeHook && typeof(beforeHook) == 'function') {beforeHook(context, this);}
+  if (beforeHook && typeof(beforeHook) == 'function') {beforeHook(context, Runtime, this);}
 
   try {
     context = this.evaluateNode(context);
   } catch(error) {
-    if (error.is_wardrobe_error && this.ignore.indexOf(this.kind) == -1) {
+    if (error.is_wardrobe_error && this.ignore_in_trace.indexOf(this.kind) == -1) {
       error.addToStack(this);
     }
     throw error;
   }
 
-  if (afterHook && typeof(afterHook) == 'function') {afterHook(context, this);}
+  if (afterHook && typeof(afterHook) == 'function') {afterHook(context, Runtime, this);}
 
   return context;
 };

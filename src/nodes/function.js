@@ -12,7 +12,7 @@ function Function(type, params, block, range, text) {
   this.text = text;
 
   this.evaluateNode = function(context) {
-    var func = Runtime.getClass('Function').newObject(this.params, this.block);
+    var func = Runtime.getClass('Function').newObject(this.params, this.block, context);
     context.setReturnObject(func);
 
     return context; 
