@@ -1,7 +1,7 @@
 # Declaration of Person class with property name and methods
 # setName and getName.
 class Person
-  String name = "Get a name!"
+  String name
 
   method setName(String name)
     this.name = name
@@ -9,7 +9,6 @@ class Person
 
   method getName()
     return this.name
-    print("LOLLL")
   end
 end
 
