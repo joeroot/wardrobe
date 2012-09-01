@@ -17,7 +17,7 @@ WardrobeMissingArgumentsError.prototype.toString = function() {
     str += param.identifier.name;
     if (p < this.missing_params.length - 1) {str += ", ";}
   }
-  str += " when calling " + this.stack[0].identifier.name;
+  str += " when calling " + this.stack[0].expression.name;
   if (this.receiver !== null) {
     str += " on an object of class " + this.receiver.cls.name + ".";
   } else {

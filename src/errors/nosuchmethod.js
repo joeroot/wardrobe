@@ -10,7 +10,7 @@ function WardrobeNoSuchMethodError(context, receiver) {
 
 WardrobeNoSuchMethodError.prototype.toString = function() {
   var str = this.stack[0].getStartLine() +  ", " + this.stack[0].getStartColumn() + ": ";
-  str += "No method " + this.stack[0].identifier.name + " ";
+  str += "No method " + this.stack[0].expression.name + " ";
   if (this.receiver !== null) {
     str += "for objects of class " + this.receiver.cls.name + ".";
   } else {

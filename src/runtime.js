@@ -372,8 +372,11 @@ WardrobeMethod.prototype.call = function(context, receiver, args) {
     params_list.push(name);
     type = Runtime.getClass(param.type.name);
     arg = args[name] || args.unary;
-    if (arg === undefined) {missing_params.push(param);}
-    context.addLocal(name, type, arg);
+    if (arg === undefined) {
+      missing_params.push(param);
+    } else {
+      context.addLocal(name, type, arg);
+    }
   }
 
   if (missing_params.length > 0) {
@@ -457,8 +460,11 @@ WardrobeFunctionObject.prototype.apply = function(context, args) {
     params_list.push(name);
     type = Runtime.getClass(param.type.name);
     arg = args[name] || args.unary;
-    if (arg === undefined) {missing_params.push(param);}
-    closure.addLocal(name, type, arg);
+    if (arg === undefined) {
+      missing_params.push(param);
+    } else {
+      closure.addLocal(name, type, arg);
+    }
   }
 
   if (missing_params.length > 0) {

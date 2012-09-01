@@ -17,7 +17,7 @@ WardrobeNoSuchParameterError.prototype.toString = function() {
     str += param;
     if (p < this.incorrect_params.length - 1) {str += ", ";}
   }
-  str += " when calling " + this.stack[0].identifier.name;
+  str += " when calling " + this.stack[0].expression.name;
   if (this.receiver !== null) {
     str += " on an object of class " + this.receiver.cls.name + ".";
   } else {

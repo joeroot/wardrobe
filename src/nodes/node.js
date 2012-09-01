@@ -15,6 +15,7 @@ Node.prototype.evaluate = function(context) {
   try {
     context = this.evaluateNode(context);
   } catch(error) {
+    console.log("error");
     if (error.is_wardrobe_error && this.ignore_in_trace.indexOf(this.kind) == -1) {
       error.addToStack(this);
     }

@@ -17,12 +17,12 @@ end
 
 Person p = Person.new()
 
-# p.setName(name: "Joe", notAParam: 10)
-# missingParams(m: 10)
-# anotherFakeMethod()
-# notAVariable
-# notAVariable = 10
-# p.notAProperty = "Rly?"
-# print(p.notAProperty)
-# p.setName()
+#p.setName(name: "Joe", notAParam: 10)
+#missingParams(m: 10)
+#anotherFakeMethod()
+#notAVariable
+#notAVariable = 10
+#p.notAProperty = "Rly?"
+#print(p.notAProperty)
+#p.setName()
 p.getName()
